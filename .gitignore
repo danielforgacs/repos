@@ -1,5 +1,2 @@
-# files:
-*.py[co]
-
 # directories:
-.venv/
+target/
