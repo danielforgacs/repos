@@ -1,10 +1,20 @@
-use glob::glob;
-
 fn main() {
-    for entry in glob("/home/ford/storage/dev/**/.git").expect("Failed to read glob pattern") {
-        match entry {
-            Ok(path) => println!("{:?}", path.display()),
-            Err(e) => println!("{:?}", e),
-        }
-    }
+    let root = match std::fs::read_dir("/home/ford/storage/dev/") {
+        Ok(dir) => { dir },
+        Err(_) => {
+            println!("Could not find dir.");
+            return
+        },
+    };
+
+    for dir_opt in root {
+        // dbg!(&dir_opt);
+        // dir_opt.Ok;
+        let dir = match dir_opt {
+            Ok(dir) => {dir},
+            Err(_) => {continue},
+        };
+        // dbg!(&dir);
+        println!("{:?}", dir.file_name());
+    };
 }
