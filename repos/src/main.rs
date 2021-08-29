@@ -13,15 +13,14 @@ fn main() {
             Ok(dir) => dir,
             Err(_) => continue,
         };
-        // println!("{:?}", dir.file_name());
 
         let stringdir = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
             Err(_) => continue,
         };
-        // dbg!(&stringdir);
-        let fullpath: String = format!("{}{}/.git", rootname, stringdir);
-        // dbg!(fullpath);
-        println!("{:?}", fullpath);
+
+        let githead: String = format!("{}{}/.git/HEAD", rootname, stringdir);
+        let githead = std::fs::read_to_string(githead);
+        dbg!(&githead);
     };
 }
