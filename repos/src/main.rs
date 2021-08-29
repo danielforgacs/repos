@@ -6,11 +6,11 @@ fn main() {
     dbg!(pwd);
     let rootname: &str = "/home/ford/storage/dev/";
     let root = match std::fs::read_dir(rootname) {
-        Ok(dir) => { dir },
+        Ok(dir) => dir,
         _ => {
             println!("Could not find dir.");
-            return
-        },
+            return;
+        }
     };
 
     for dir_opt in root {
@@ -27,10 +27,10 @@ fn main() {
         let githead: String = format!("{}{}/.git/HEAD", rootname, stringdir);
         let githead = match std::fs::read_to_string(&githead) {
             Ok(head) => head,
-            _ => continue ,
+            _ => continue,
         };
         if githead != "ref: refs/heads/master\n" {
             println!("[DIR]: {: <20} [HEAD]: {}", stringdir, githead);
         };
-    };
+    }
 }
