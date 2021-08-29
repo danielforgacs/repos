@@ -17,10 +17,10 @@ fn main() {
 
         let stringdir = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
-            Err(_) => String::new(),
+            Err(_) => continue,
         };
         // dbg!(&stringdir);
-        let fullpath: String = format!("{}{}", rootname, stringdir);
+        let fullpath: String = format!("{}{}/.git", rootname, stringdir);
         // dbg!(fullpath);
         println!("{:?}", fullpath);
     };
