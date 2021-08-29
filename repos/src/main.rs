@@ -26,11 +26,12 @@ fn main() {
 
         let githead: String = format!("{}{}/.git/HEAD", rootname, stringdir);
         let githead = match std::fs::read_to_string(&githead) {
-            Ok(head) => head,
+            Ok(head) => head.trim().to_string(),
             _ => continue,
         };
+
         if githead != "ref: refs/heads/master\n" {
             println!("[DIR]: {: <20} [HEAD]: {}", stringdir, githead);
         };
-    }
+    };
 }
