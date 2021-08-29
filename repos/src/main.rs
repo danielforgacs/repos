@@ -1,5 +1,5 @@
 fn main() {
-    let rootname = "/home/ford/storage/dev/";
+    let rootname: &str = "/home/ford/storage/dev/";
     let root = match std::fs::read_dir(rootname) {
         Ok(dir) => { dir },
         Err(_) => {
@@ -13,6 +13,15 @@ fn main() {
             Ok(dir) => dir,
             Err(_) => continue,
         };
-        println!("{:?}", dir.file_name());
+        // println!("{:?}", dir.file_name());
+
+        let stringdir = match dir.file_name().into_string() {
+            Ok(dirn) => dirn,
+            Err(_) => String::new(),
+        };
+        // dbg!(&stringdir);
+        let fullpath: String = format!("{}{}", rootname, stringdir);
+        // dbg!(fullpath);
+        println!("{:?}", fullpath);
     };
 }
