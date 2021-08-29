@@ -20,7 +20,10 @@ fn main() {
         };
 
         let githead: String = format!("{}{}/.git/HEAD", rootname, stringdir);
-        let githead = std::fs::read_to_string(githead);
-        dbg!(&githead);
+        let githead = match std::fs::read_to_string(&githead) {
+            Ok(head) => head,
+            Err(error) => format!("[ERROR] {}: {}", error, githead),
+        };
+        println!("{}", githead);
     };
 }
