@@ -1,5 +1,6 @@
 fn main() {
-    let root = match std::fs::read_dir("/home/ford/storage/dev/") {
+    let rootname = "/home/ford/storage/dev/";
+    let root = match std::fs::read_dir(rootname) {
         Ok(dir) => { dir },
         Err(_) => {
             println!("Could not find dir.");
@@ -8,13 +9,10 @@ fn main() {
     };
 
     for dir_opt in root {
-        // dbg!(&dir_opt);
-        // dir_opt.Ok;
         let dir = match dir_opt {
-            Ok(dir) => {dir},
-            Err(_) => {continue},
+            Ok(dir) => dir,
+            Err(_) => continue,
         };
-        // dbg!(&dir);
         println!("{:?}", dir.file_name());
     };
 }
