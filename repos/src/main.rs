@@ -3,8 +3,12 @@ fn main() {
         Ok(pwd) => pwd,
         _ => std::path::PathBuf::new(),
     };
-    dbg!(pwd);
-    let rootname: &str = "/home/ford/storage/dev/";
+    let rootname: &str = match pwd.as_path().to_str() {
+        Some(pwd3) => pwd3,
+        None => "",
+    };
+
+    
     let root = match std::fs::read_dir(rootname) {
         Ok(dir) => dir,
         _ => {
