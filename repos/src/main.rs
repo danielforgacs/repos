@@ -1,5 +1,4 @@
 struct Root {
-    // path: std::path::PathBuf,
     name: String,
     dirs: std::fs::ReadDir,
 }
@@ -22,7 +21,6 @@ impl Root {
         };
     
         Root {
-            // path: pwd,
             name: rootname,
             dirs: rootdirs,
         }
@@ -30,28 +28,9 @@ impl Root {
 }
 
 fn main() {
-    // let pwd: std::path::PathBuf = match std::env::current_dir() {
-    //     Ok(pwd) => pwd,
-    //     _ => std::path::PathBuf::new(),
-    // };
-    
-    // let rootname: &str = match pwd.as_path().to_str() {
-    //     Some(pwd3) => pwd3,
-    //     None => "",
-    // };
-    
-    // let root: std::fs::ReadDir = match std::fs::read_dir(rootname) {
-    //     Ok(dir) => dir,
-    //     _ => {
-    //         println!("Could not find dir.");
-    //         return;
-    //     }
-    // };
+    let root = Root::new();
 
-    let newroot = Root::new();
-
-    // for dir_opt in root {
-    for dir_opt in newroot.dirs {
+    for dir_opt in root.dirs {
         let dir: std::fs::DirEntry = match dir_opt {
             Ok(dir) => dir,
             _ => continue,
@@ -62,8 +41,7 @@ fn main() {
             _ => continue,
         };
 
-        // let githead: String = format!("{}/{}/.git/HEAD", rootname, stringdir);
-        let githead: String = format!("{}/{}/.git/HEAD", newroot.name, stringdir);
+        let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match std::fs::read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
             _ => continue,
