@@ -4,7 +4,7 @@ struct Root {
 
 impl Root {
     fn new() -> Root {
-        Root{path: "1".to_string()}
+        Root{path: get_root()}
     }
 }
 
@@ -29,6 +29,7 @@ fn main() {
 
     let root2: String = get_root();
     let root3: Root = Root::new();
+    println!("{}", root3.path);
 
     for dir_opt in root {
         let dir: std::fs::DirEntry = match dir_opt {
