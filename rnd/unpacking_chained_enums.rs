@@ -23,6 +23,8 @@ fn main() {
     };
     dbg!(&_result);
     // println!("{:#?}", &_result);
+
+    let _result_b: A = get();
 }
 
 fn get() -> A {
