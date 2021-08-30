@@ -68,6 +68,5 @@ fn get_root() -> String {
         None => "error...",
     };
 
-    let root = String::from(root);
-    root
+    String::from(root)
 }
