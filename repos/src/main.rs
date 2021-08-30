@@ -1,36 +1,41 @@
 fn main() {
-    let pwd = match std::env::current_dir() {
+    let pwd: std::path::PathBuf = match std::env::current_dir() {
         Ok(pwd) => pwd,
         _ => std::path::PathBuf::new(),
     };
-    dbg!(pwd);
-    let rootname: &str = "/home/ford/storage/dev/";
-    let root = match std::fs::read_dir(rootname) {
-        Ok(dir) => { dir },
+    
+    let rootname: &str = match pwd.as_path().to_str() {
+        Some(pwd3) => pwd3,
+        None => "",
+    };
+    
+    let root: std::fs::ReadDir = match std::fs::read_dir(rootname) {
+        Ok(dir) => dir,
         _ => {
             println!("Could not find dir.");
-            return
-        },
+            return;
+        }
     };
 
     for dir_opt in root {
-        let dir = match dir_opt {
+        let dir: std::fs::DirEntry = match dir_opt {
             Ok(dir) => dir,
             _ => continue,
         };
 
-        let stringdir = match dir.file_name().into_string() {
+        let stringdir: String = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
             _ => continue,
         };
 
-        let githead: String = format!("{}{}/.git/HEAD", rootname, stringdir);
-        let githead = match std::fs::read_to_string(&githead) {
-            Ok(head) => head,
-            _ => continue ,
+        let githead: String = format!("{}/{}/.git/HEAD", rootname, stringdir);
+        let githead: String = match std::fs::read_to_string(&githead) {
+            Ok(head) => head.trim().to_string(),
+            _ => continue,
         };
-        if githead != "ref: refs/heads/master\n" {
-            println!("[DIR]: {: <20} [HEAD]: {}", stringdir, githead);
+
+        if githead != "ref: refs/heads/master" {
+            println!("{: <35} {}", stringdir, githead);
         };
     };
 }
