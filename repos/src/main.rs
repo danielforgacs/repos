@@ -17,6 +17,8 @@ fn main() {
         }
     };
 
+    let root2: String = get_root();
+
     for dir_opt in root {
         let dir: std::fs::DirEntry = match dir_opt {
             Ok(dir) => dir,
@@ -38,4 +40,22 @@ fn main() {
             println!("{: <35} {}", stringdir, githead);
         };
     };
+}
+
+
+fn get_root() -> String {
+    let root = match std::env::current_dir() {
+        Ok(pwd) => pwd,
+        Err(_) => std::path::PathBuf::new(),
+    };
+
+    let root = root.to_str();
+
+    let root = match root {
+        Some(dir) => dir,
+        None => "error...",
+    };
+
+    let root = String::from(root);
+    root
 }
