@@ -4,7 +4,7 @@ struct Root {
 }
 
 impl Root {
-    fn new() -> Root {
+    fn new() -> Result<Root, std::io::Error> {
         let pwd: std::path::PathBuf = match std::env::current_dir() {
             Ok(pwd) => pwd,
             _ => std::path::PathBuf::new(),
@@ -17,18 +17,24 @@ impl Root {
 
         let rootdirs = match std::fs::read_dir(&rootname) {
             Ok(dirs) => dirs,
-            Err(_) => panic!("[ERROR] Can't read the dir!"),
+            Err(error) => return Result::Err(error),
         };
     
-        Root {
+        Result::Ok(Root {
             name: rootname,
             dirs: rootdirs,
-        }
+        })
     }
 }
 
 fn main() {
-    let root = Root::new();
+    let root = match Root::new() {
+        Ok(root) => root,
+        Err(_) => {
+            println!("Could not read path.");
+            return
+        }
+    };
 
     for dir_opt in root.dirs {
         let dir: std::fs::DirEntry = match dir_opt {
