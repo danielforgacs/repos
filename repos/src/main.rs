@@ -1,5 +1,5 @@
 fn main() {
-    let pwd = match std::env::current_dir() {
+    let pwd: std::path::PathBuf = match std::env::current_dir() {
         Ok(pwd) => pwd,
         _ => std::path::PathBuf::new(),
     };
@@ -8,17 +8,14 @@ fn main() {
         Some(pwd3) => pwd3,
         None => "",
     };
-    // println!("..rootname: {}", rootname);
     
-    let root = match std::fs::read_dir(rootname) {
+    let root: std::fs::ReadDir = match std::fs::read_dir(rootname) {
         Ok(dir) => dir,
         _ => {
             println!("Could not find dir.");
             return;
         }
     };
-
-    // dbg!(&root);
 
     for dir_opt in root {
         // dbg!(&dir_opt);
