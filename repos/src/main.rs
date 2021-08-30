@@ -1,3 +1,17 @@
+struct Root {
+    path: std::path::PathBuf,
+    name: String,
+}
+
+impl Root {
+    fn new() -> Root {
+        Root {
+            path: std::path::PathBuf::new(),
+            name: "root.name".to_string(),
+        }
+    }
+}
+
 fn main() {
     let pwd: std::path::PathBuf = match std::env::current_dir() {
         Ok(pwd) => pwd,
@@ -16,6 +30,8 @@ fn main() {
             return;
         }
     };
+
+    let newroot = Root::new();
 
     for dir_opt in root {
         let dir: std::fs::DirEntry = match dir_opt {
