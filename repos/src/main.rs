@@ -1,13 +1,3 @@
-struct Root {
-    path: String,
-}
-
-impl Root {
-    fn new() -> Root {
-        Root{path: get_root()}
-    }
-}
-
 fn main() {
     let pwd: std::path::PathBuf = match std::env::current_dir() {
         Ok(pwd) => pwd,
@@ -26,10 +16,6 @@ fn main() {
             return;
         }
     };
-
-    let root2: String = get_root();
-    let root3: Root = Root::new();
-    println!("{}", root3.path);
 
     for dir_opt in root {
         let dir: std::fs::DirEntry = match dir_opt {
@@ -52,19 +38,4 @@ fn main() {
             println!("{: <35} {}", stringdir, githead);
         };
     };
-}
-
-
-fn get_root() -> String {
-    let root = match std::env::current_dir() {
-        Ok(pwd) => pwd,
-        Err(_) => std::path::PathBuf::new(),
-    };
-
-    let root = match root.to_str() {
-        Some(dir) => dir,
-        None => "error...",
-    };
-
-    String::from(root)
 }
