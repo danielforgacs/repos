@@ -5,9 +5,19 @@ struct Root {
 
 impl Root {
     fn new() -> Root {
+        let pwd: std::path::PathBuf = match std::env::current_dir() {
+            Ok(pwd) => pwd,
+            _ => std::path::PathBuf::new(),
+        };
+
+        let rootname: String = match pwd.as_path().to_str() {
+            Some(pwd3) => String::from(pwd3),
+            None => String::from(""),
+        };
+    
         Root {
-            path: std::path::PathBuf::new(),
-            name: "root.name".to_string(),
+            path: pwd,
+            name: rootname,
         }
     }
 }
@@ -34,6 +44,7 @@ fn main() {
     let newroot = Root::new();
 
     for dir_opt in root {
+    // for dir_opt in newroot.path {
         let dir: std::fs::DirEntry = match dir_opt {
             Ok(dir) => dir,
             _ => continue,
@@ -44,7 +55,8 @@ fn main() {
             _ => continue,
         };
 
-        let githead: String = format!("{}/{}/.git/HEAD", rootname, stringdir);
+        // let githead: String = format!("{}/{}/.git/HEAD", rootname, stringdir);
+        let githead: String = format!("{}/{}/.git/HEAD", newroot.name, stringdir);
         let githead: String = match std::fs::read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
             _ => continue,
