@@ -1,6 +1,7 @@
 struct Root {
-    path: std::path::PathBuf,
+    // path: std::path::PathBuf,
     name: String,
+    dirs: std::fs::ReadDir,
 }
 
 impl Root {
@@ -14,37 +15,43 @@ impl Root {
             Some(pwd3) => String::from(pwd3),
             None => String::from(""),
         };
+
+        let rootdirs = match std::fs::read_dir(&rootname) {
+            Ok(dirs) => dirs,
+            Err(_) => panic!("[ERROR] Can't read the dir!"),
+        };
     
         Root {
-            path: pwd,
+            // path: pwd,
             name: rootname,
+            dirs: rootdirs,
         }
     }
 }
 
 fn main() {
-    let pwd: std::path::PathBuf = match std::env::current_dir() {
-        Ok(pwd) => pwd,
-        _ => std::path::PathBuf::new(),
-    };
+    // let pwd: std::path::PathBuf = match std::env::current_dir() {
+    //     Ok(pwd) => pwd,
+    //     _ => std::path::PathBuf::new(),
+    // };
     
-    let rootname: &str = match pwd.as_path().to_str() {
-        Some(pwd3) => pwd3,
-        None => "",
-    };
+    // let rootname: &str = match pwd.as_path().to_str() {
+    //     Some(pwd3) => pwd3,
+    //     None => "",
+    // };
     
-    let root: std::fs::ReadDir = match std::fs::read_dir(rootname) {
-        Ok(dir) => dir,
-        _ => {
-            println!("Could not find dir.");
-            return;
-        }
-    };
+    // let root: std::fs::ReadDir = match std::fs::read_dir(rootname) {
+    //     Ok(dir) => dir,
+    //     _ => {
+    //         println!("Could not find dir.");
+    //         return;
+    //     }
+    // };
 
     let newroot = Root::new();
 
-    for dir_opt in root {
-    // for dir_opt in newroot.path {
+    // for dir_opt in root {
+    for dir_opt in newroot.dirs {
         let dir: std::fs::DirEntry = match dir_opt {
             Ok(dir) => dir,
             _ => continue,
