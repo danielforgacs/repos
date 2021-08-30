@@ -61,9 +61,7 @@ fn get_root() -> String {
         Err(_) => std::path::PathBuf::new(),
     };
 
-    let root = root.to_str();
-
-    let root = match root {
+    let root = match root.to_str() {
         Some(dir) => dir,
         None => "error...",
     };
