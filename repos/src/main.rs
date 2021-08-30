@@ -1,3 +1,13 @@
+struct Root {
+    path: String,
+}
+
+impl Root {
+    fn new() -> Root {
+        Root{path: "1".to_string()}
+    }
+}
+
 fn main() {
     let pwd: std::path::PathBuf = match std::env::current_dir() {
         Ok(pwd) => pwd,
@@ -18,6 +28,7 @@ fn main() {
     };
 
     let root2: String = get_root();
+    let root3: Root = Root::new();
 
     for dir_opt in root {
         let dir: std::fs::DirEntry = match dir_opt {
