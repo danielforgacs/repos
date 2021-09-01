@@ -1,7 +1,12 @@
-struct Root {
-    name: String,
-    dirs: std::fs::ReadDir,
+mod root {
+    pub struct Root {
+        pub name: String,
+        pub dirs: std::fs::ReadDir,
+        // alldirs_iter: std::fs::ReadDir,
+    }
 }
+
+use root::Root;
 
 impl Root {
     fn new() -> Result<Self, std::io::Error> {
