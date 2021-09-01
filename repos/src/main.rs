@@ -4,9 +4,26 @@ mod root {
         pub dirs: std::fs::ReadDir,
         // alldirs_iter: std::fs::ReadDir,
     }
+
+    pub struct Parms {
+        pub skipdot: bool,
+    }
 }
 
 use root::Root;
+use root::Parms;
+
+impl Parms {
+    fn new() -> Self {
+        let args: Vec<String> = std::env::args().skip(1).collect();
+        let skipdot = if args.iter().any(|i| i=="skipdot") {
+            true
+        } else {
+            false
+        };
+        Parms{skipdot}
+    }
+}
 
 impl Root {
     fn new() -> Result<Self, std::io::Error> {
@@ -30,6 +47,8 @@ impl Root {
 }
 
 fn main() {
+    let parms = Parms::new();
+
     let root = match Root::new() {
         Ok(root) => root,
         Err(_) => {
