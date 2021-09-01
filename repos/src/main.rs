@@ -68,6 +68,12 @@ fn main() {
             _ => continue,
         };
 
+        if stringdir.chars().nth(0) == Some('.') {
+            if parms.skipdot {
+                continue
+            }
+        };
+
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match std::fs::read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
