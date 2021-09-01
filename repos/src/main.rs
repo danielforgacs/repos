@@ -7,7 +7,7 @@ impl Root {
     fn new() -> Result<Self, std::io::Error> {
         let pwd: std::path::PathBuf = match std::env::current_dir() {
             Ok(pwd) => pwd,
-            _ => std::path::PathBuf::new(),
+            Err(error) => return std::result::Result::Err(error),
         };
 
         let rootname: String = match pwd.as_path().to_str() {
