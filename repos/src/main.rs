@@ -4,7 +4,7 @@ struct Root {
 }
 
 impl Root {
-    fn new() -> Result<Root, std::io::Error> {
+    fn new() -> Result<Self, std::io::Error> {
         let pwd: std::path::PathBuf = match std::env::current_dir() {
             Ok(pwd) => pwd,
             _ => std::path::PathBuf::new(),
