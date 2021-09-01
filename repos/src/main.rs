@@ -20,15 +20,12 @@ impl Root {
             None => String::from(""),
         };
 
-        let rootdirs = match std::fs::read_dir(&name) {
+        let dirs = match std::fs::read_dir(&name) {
             Ok(dirs) => dirs,
             Err(error) => return Result::Err(error),
         };
     
-        Result::Ok(Root {
-            name: name,
-            dirs: rootdirs,
-        })
+        Result::Ok(Root { name, dirs, })
     }
 }
 
