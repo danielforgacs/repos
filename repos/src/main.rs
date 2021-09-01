@@ -1,33 +1,54 @@
-struct Root {
-    name: String,
-    dirs: std::fs::ReadDir,
+mod root {
+    pub struct Root {
+        pub name: String,
+        pub dirs: std::fs::ReadDir,
+        // alldirs_iter: std::fs::ReadDir,
+    }
+
+    pub struct Parms {
+        pub showdot: bool,
+    }
+}
+
+use root::Root;
+use root::Parms;
+
+impl Parms {
+    fn new() -> Self {
+        let args: Vec<String> = std::env::args().skip(1).collect();
+        let showdot = if args.iter().any(|i| i=="-dot") {
+            true
+        } else {
+            false
+        };
+        Parms{showdot}
+    }
 }
 
 impl Root {
-    fn new() -> Result<Root, std::io::Error> {
+    fn new() -> Result<Self, std::io::Error> {
         let pwd: std::path::PathBuf = match std::env::current_dir() {
             Ok(pwd) => pwd,
-            _ => std::path::PathBuf::new(),
+            Err(error) => return std::result::Result::Err(error),
         };
 
-        let rootname: String = match pwd.as_path().to_str() {
+        let name: String = match pwd.as_path().to_str() {
             Some(pwd3) => String::from(pwd3),
             None => String::from(""),
         };
 
-        let rootdirs = match std::fs::read_dir(&rootname) {
+        let dirs = match std::fs::read_dir(&name) {
             Ok(dirs) => dirs,
             Err(error) => return Result::Err(error),
         };
     
-        Result::Ok(Root {
-            name: rootname,
-            dirs: rootdirs,
-        })
+        Result::Ok(Root { name, dirs, })
     }
 }
 
 fn main() {
+    let parms = Parms::new();
+
     let root = match Root::new() {
         Ok(root) => root,
         Err(_) => {
@@ -45,6 +66,12 @@ fn main() {
         let stringdir: String = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
             _ => continue,
+        };
+
+        if stringdir.chars().nth(0) == Some('.') {
+            if parms.showdot == false {
+                continue
+            }
         };
 
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
