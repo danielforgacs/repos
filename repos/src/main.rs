@@ -6,7 +6,7 @@ mod root {
     }
 
     pub struct Parms {
-        pub skipdot: bool,
+        pub showdot: bool,
     }
 }
 
@@ -16,12 +16,12 @@ use root::Parms;
 impl Parms {
     fn new() -> Self {
         let args: Vec<String> = std::env::args().skip(1).collect();
-        let skipdot = if args.iter().any(|i| i=="skipdot") {
+        let showdot = if args.iter().any(|i| i=="-dot") {
             true
         } else {
             false
         };
-        Parms{skipdot}
+        Parms{showdot}
     }
 }
 
@@ -69,7 +69,7 @@ fn main() {
         };
 
         if stringdir.chars().nth(0) == Some('.') {
-            if parms.skipdot {
+            if parms.showdot == false {
                 continue
             }
         };
