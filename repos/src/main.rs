@@ -15,18 +15,18 @@ impl Root {
             Err(error) => return std::result::Result::Err(error),
         };
 
-        let rootname: String = match pwd.as_path().to_str() {
+        let name: String = match pwd.as_path().to_str() {
             Some(pwd3) => String::from(pwd3),
             None => String::from(""),
         };
 
-        let rootdirs = match std::fs::read_dir(&rootname) {
+        let rootdirs = match std::fs::read_dir(&name) {
             Ok(dirs) => dirs,
             Err(error) => return Result::Err(error),
         };
     
         Result::Ok(Root {
-            name: rootname,
+            name: name,
             dirs: rootdirs,
         })
     }
