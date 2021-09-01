@@ -47,6 +47,10 @@ impl Root {
 }
 
 fn main() {
+    list_non_master_repos();
+}
+
+fn list_non_master_repos() {
     let parms = Parms::new();
 
     let root = match Root::new() {
