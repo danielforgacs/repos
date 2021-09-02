@@ -7,6 +7,7 @@ mod root {
 
     pub struct Parms {
         pub showdot: bool,
+        pub devdir: String,
     }
 }
 
@@ -21,7 +22,7 @@ impl Parms {
         } else {
             false
         };
-        Parms{showdot}
+        Parms{showdot, devdir: "".to_string()}
     }
 }
 
