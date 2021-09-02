@@ -15,6 +15,8 @@ mod root {
 
 use root::Root;
 use root::Parms;
+use std::path::{PathBuf};
+use std::fs::{read_dir, DirEntry, read_to_string};
 use std::env::{args, current_dir};
 
 impl Parms {
@@ -31,7 +33,7 @@ impl Parms {
 
 impl Root {
     fn new() -> Result<Self, std::io::Error> {
-        let pwd: std::path::PathBuf = match current_dir() {
+        let pwd: PathBuf = match current_dir() {
             Ok(pwd) => pwd,
             Err(error) => return std::result::Result::Err(error),
         };
@@ -41,7 +43,7 @@ impl Root {
             None => String::from(""),
         };
 
-        let dirs = match std::fs::read_dir(&name) {
+        let dirs = match read_dir(&name) {
             Ok(dirs) => dirs,
             Err(error) => return Result::Err(error),
         };
@@ -66,7 +68,7 @@ fn list_non_master_repos() {
     };
 
     for dir_opt in root.dirs {
-        let dir: std::fs::DirEntry = match dir_opt {
+        let dir: DirEntry = match dir_opt {
             Ok(dir) => dir,
             _ => continue,
         };
@@ -83,7 +85,7 @@ fn list_non_master_repos() {
         };
 
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
-        let githead: String = match std::fs::read_to_string(&githead) {
+        let githead: String = match read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
             _ => continue,
         };
