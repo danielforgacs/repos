@@ -15,10 +15,11 @@ mod root {
 
 use root::Root;
 use root::Parms;
+use std::env::{args, current_dir};
 
 impl Parms {
     fn new() -> Self {
-        let args: Vec<String> = std::env::args().skip(1).collect();
+        let args: Vec<String> = args().skip(1).collect();
         let showdot = if args.iter().any(|i| i=="-dot") {
             true
         } else {
@@ -30,7 +31,7 @@ impl Parms {
 
 impl Root {
     fn new() -> Result<Self, std::io::Error> {
-        let pwd: std::path::PathBuf = match std::env::current_dir() {
+        let pwd: std::path::PathBuf = match current_dir() {
             Ok(pwd) => pwd,
             Err(error) => return std::result::Result::Err(error),
         };
