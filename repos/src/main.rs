@@ -35,7 +35,7 @@ impl Root {
     fn new() -> Result<Self, std::io::Error> {
         let pwd: PathBuf = match current_dir() {
             Ok(pwd) => pwd,
-            Err(error) => return std::result::Result::Err(error),
+            Err(error) => return Result::Err(error),
         };
 
         let name: String = match pwd.as_path().to_str() {
