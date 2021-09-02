@@ -1,35 +1,41 @@
 mod root {
+    use std::fs::{ReadDir};
+    
     pub struct Root {
         pub name: String,
-        pub dirs: std::fs::ReadDir,
+        pub dirs: ReadDir,
         // alldirs_iter: std::fs::ReadDir,
     }
 
     pub struct Parms {
         pub showdot: bool,
+        pub devdir: String,
     }
 }
 
 use root::Root;
 use root::Parms;
+use std::path::{PathBuf};
+use std::fs::{read_dir, DirEntry, read_to_string};
+use std::env::{args, current_dir};
 
 impl Parms {
     fn new() -> Self {
-        let args: Vec<String> = std::env::args().skip(1).collect();
+        let args: Vec<String> = args().skip(1).collect();
         let showdot = if args.iter().any(|i| i=="-dot") {
             true
         } else {
             false
         };
-        Parms{showdot}
+        Parms{showdot, devdir: "".to_string()}
     }
 }
 
 impl Root {
     fn new() -> Result<Self, std::io::Error> {
-        let pwd: std::path::PathBuf = match std::env::current_dir() {
+        let pwd: PathBuf = match current_dir() {
             Ok(pwd) => pwd,
-            Err(error) => return std::result::Result::Err(error),
+            Err(error) => return Result::Err(error),
         };
 
         let name: String = match pwd.as_path().to_str() {
@@ -37,7 +43,7 @@ impl Root {
             None => String::from(""),
         };
 
-        let dirs = match std::fs::read_dir(&name) {
+        let dirs = match read_dir(&name) {
             Ok(dirs) => dirs,
             Err(error) => return Result::Err(error),
         };
@@ -47,6 +53,10 @@ impl Root {
 }
 
 fn main() {
+    list_non_master_repos();
+}
+
+fn list_non_master_repos() {
     let parms = Parms::new();
 
     let root = match Root::new() {
@@ -58,7 +68,7 @@ fn main() {
     };
 
     for dir_opt in root.dirs {
-        let dir: std::fs::DirEntry = match dir_opt {
+        let dir: DirEntry = match dir_opt {
             Ok(dir) => dir,
             _ => continue,
         };
@@ -75,7 +85,7 @@ fn main() {
         };
 
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
-        let githead: String = match std::fs::read_to_string(&githead) {
+        let githead: String = match read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
             _ => continue,
         };
