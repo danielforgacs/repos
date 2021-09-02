@@ -1,6 +1,6 @@
 mod root {
-    use std::fs::{ReadDir};
-    
+    use std::fs::ReadDir;
+
     pub struct Root {
         pub name: String,
         pub dirs: ReadDir,
@@ -18,21 +18,24 @@ mod root {
     }
 }
 
-use root::Root;
 use root::Parms;
-use std::path::{PathBuf};
-use std::fs::{read_dir, DirEntry, read_to_string};
+use root::Root;
 use std::env::{args, current_dir};
+use std::fs::{read_dir, read_to_string, DirEntry};
+use std::path::PathBuf;
 
 impl Parms {
     fn new() -> Self {
         let args: Vec<String> = args().skip(1).collect();
-        let showdot = if args.iter().any(|i| i=="-dot") {
+        let showdot = if args.iter().any(|i| i == "-dot") {
             true
         } else {
             false
         };
-        Parms{showdot, devdir: root::Devdir::None}
+        Parms {
+            showdot,
+            devdir: root::Devdir::None,
+        }
     }
 }
 
@@ -52,8 +55,8 @@ impl Root {
             Ok(dirs) => dirs,
             Err(error) => return Result::Err(error),
         };
-    
-        Result::Ok(Root { name, dirs, })
+
+        Result::Ok(Root { name, dirs })
     }
 }
 
@@ -68,7 +71,7 @@ fn list_non_master_repos() {
         Ok(root) => root,
         Err(_) => {
             println!("Could not read path.");
-            return
+            return;
         }
     };
 
@@ -85,7 +88,7 @@ fn list_non_master_repos() {
 
         if stringdir.chars().nth(0) == Some('.') {
             if parms.showdot == false {
-                continue
+                continue;
             }
         };
 
@@ -98,5 +101,5 @@ fn list_non_master_repos() {
         if githead != "ref: refs/heads/master" {
             println!("{: <35} {}", stringdir, githead);
         };
-    };
+    }
 }
