@@ -1,7 +1,9 @@
 mod root {
+    use std::fs::{ReadDir};
+    
     pub struct Root {
         pub name: String,
-        pub dirs: std::fs::ReadDir,
+        pub dirs: ReadDir,
         // alldirs_iter: std::fs::ReadDir,
     }
 
