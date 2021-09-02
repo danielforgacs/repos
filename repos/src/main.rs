@@ -7,9 +7,14 @@ mod root {
         // alldirs_iter: std::fs::ReadDir,
     }
 
+    pub enum Devdir {
+        Some(String),
+        None,
+    }
+
     pub struct Parms {
         pub showdot: bool,
-        pub devdir: String,
+        pub devdir: Devdir,
     }
 }
 
@@ -27,7 +32,7 @@ impl Parms {
         } else {
             false
         };
-        Parms{showdot, devdir: "".to_string()}
+        Parms{showdot, devdir: root::Devdir::None}
     }
 }
 
