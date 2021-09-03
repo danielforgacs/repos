@@ -24,6 +24,7 @@ use root::Root;
 use std::env::{args, current_dir};
 use std::fs::{read_dir, read_to_string, DirEntry};
 use std::path::PathBuf;
+use std::process::Command;
 
 impl Parms {
     fn new() -> Self {
@@ -40,20 +41,26 @@ impl Parms {
             count += 1;
 
             if item == "-d" {
-                devdir = root::Devdir::Some(args[count].as_str().to_string());
-            }
-        };
+                let dirstr = match args.get(count) {
+                    Some(dstr) => dstr,
+                    None => "",
+                };
 
-        Parms {
-            showdot,
-            devdir,
+                if dirstr != "" {
+                    devdir = root::Devdir::Some(args[count].as_str().to_string());
+                } else {
+                    println!("Missing dev dir after \"-d\" arg.");
+                };
+            }
         }
+
+        Parms { showdot, devdir }
     }
 }
 
 impl Root {
     fn new(devdir: root::Devdir) -> Result<Self, std::io::Error> {
-        let is_startdir: bool =  match devdir {
+        let is_startdir: bool = match devdir {
             root::Devdir::Some(ref _dir) => true,
             _ => false,
         };
@@ -85,7 +92,31 @@ impl Root {
 }
 
 fn main() {
+    // check_status("/home/ford/storage/dev/Rust101/");
+    // check_status("/home/ford/storage/dev/__cpython3.9.6");
     list_non_master_repos();
+}
+
+fn check_status(dir: &str) -> String {
+    // println!("-- status checking dir: {}", dir);
+    // let rawoutput = Command::new("git").arg("status").arg("--porcelain").output();
+    let rawoutput = Command::new("git")
+        .arg("status")
+        .arg("--porcelain")
+        .current_dir(dir)
+        .output();
+    let response: String = match rawoutput {
+        Ok(resp) => {
+            let stdout = match String::from_utf8(resp.stdout) {
+                Ok(text) => text,
+                Err(error) => error.to_string(),
+            };
+            stdout
+        }
+        Err(error) => error.to_string(),
+    };
+    // println!("{}", response);
+    response
 }
 
 fn list_non_master_repos() {
@@ -101,21 +132,37 @@ fn list_non_master_repos() {
     };
 
     for dir_opt in root.dirs {
+        // println!("{:?}", &dir_opt);
         let dir: DirEntry = match dir_opt {
-            Ok(dir) => dir,
+            Ok(dir) => {
+                let is_dir = match dir.file_type() {
+                    Ok(isdir2) => isdir2.is_dir(),
+                    Err(_error) => false,
+                };
+                if is_dir == false {
+                    continue;
+                }
+                // println!("###{}, {:?}", "OK", dir);
+                dir
+            }
             _ => continue,
         };
-
+        // println!("{:?}", dir);
+        
+        // println!(":{:?}", &dir_opt);
+        
+        // check_status(&format!("{}/{}", root.name, stringdir));
         let stringdir: String = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
             _ => continue,
         };
-
+        
         if stringdir.chars().nth(0) == Some('.') {
             if parms.showdot == false {
                 continue;
             }
         };
+        let status = check_status(&format!("{}/{}", root.name, stringdir));
 
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
@@ -123,8 +170,19 @@ fn list_non_master_repos() {
             _ => continue,
         };
 
-        if githead != "ref: refs/heads/master" {
-            println!("{: <35} {}", stringdir, githead);
+        println!("____________________________________________________________");
+        
+        if status != "" {
+            let stralign = format!("[{}]", stringdir);
+            println!("{: <35}", stralign);
+            println!("{}", status);
         };
+        
+        // println!("................................................");
+        if githead != "ref: refs/heads/master" {
+            let stralign = format!("[{}]", stringdir);
+            println!("{: <35} {}", stralign, githead);
+        };
+
     }
 }
