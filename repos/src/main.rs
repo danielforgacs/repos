@@ -7,11 +7,12 @@ mod root {
         // alldirs_iter: std::fs::ReadDir,
     }
 
+    #[derive(Debug)]
     pub enum Devdir {
         Some(String),
         None,
     }
-
+    #[derive(Debug)]
     pub struct Parms {
         pub showdot: bool,
         pub devdir: Devdir,
@@ -32,9 +33,21 @@ impl Parms {
         } else {
             false
         };
+
+        let mut count = 0;
+        let mut devdir = root::Devdir::None;
+        for item in args.iter() {
+            count += 1;
+
+            if item == "-d" {
+                devdir = root::Devdir::Some(args[count].as_str().to_string());
+            }
+        };
+        // println!("{:?}", devdir);
+
         Parms {
             showdot,
-            devdir: root::Devdir::None,
+            devdir,
         }
     }
 }
@@ -66,6 +79,7 @@ fn main() {
 
 fn list_non_master_repos() {
     let parms = Parms::new();
+    println!("{:?}", parms);
 
     let root = match Root::new() {
         Ok(root) => root,
