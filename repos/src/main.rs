@@ -24,6 +24,7 @@ use root::Root;
 use std::env::{args, current_dir};
 use std::fs::{read_dir, read_to_string, DirEntry};
 use std::path::PathBuf;
+use std::process::Command;
 
 impl Parms {
     fn new() -> Self {
@@ -98,8 +99,19 @@ fn main() {
     // list_non_master_repos();
 }
 
-fn check_status() {
-
+fn check_status(){
+    let output = Command::new("git").arg("status").arg("--porcelain").output();
+    let response: String = match output {
+        Ok(resp) => {
+            let stdout = match String::from_utf8(resp.stdout) {
+                Ok(text) => text,
+                Err(_) => "_".to_string(),
+            };
+            stdout
+        },
+        Err(_) => "_".to_string(),
+    };
+    println!("{}", response);
 }
 
 fn list_non_master_repos() {
