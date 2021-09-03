@@ -105,7 +105,7 @@ fn check_status(dir: &str){
     // let rawoutput = Command::new("git").arg("status").arg("--porcelain").output();
     let rawoutput = Command::new("git")
         .arg("status")
-        // .arg("--porcelain")
+        .arg("--porcelain")
         .current_dir(dir).output();
     let response: String = match rawoutput {
         Ok(resp) => {
@@ -117,7 +117,7 @@ fn check_status(dir: &str){
         },
         Err(error) => error.to_string(),
     };
-    // println!("{}", response);
+    println!("{}", response);
 }
 
 fn list_non_master_repos() {
@@ -176,6 +176,7 @@ fn list_non_master_repos() {
         if githead != "ref: refs/heads/master" {
             println!("{: <35} {}", stringdir, githead);
         };
-        check_status(&stringdir);
-    }
+
+        check_status(&format!("{}/{}", root.name, stringdir));
+    }    
 }
