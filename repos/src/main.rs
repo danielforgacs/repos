@@ -147,28 +147,30 @@ fn list_non_master_repos() {
             _ => continue,
         };
         // println!("{:?}", dir);
-
+        
         // println!(":{:?}", &dir_opt);
-
+        
         let stringdir: String = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
             _ => continue,
         };
-
+        
         if stringdir.chars().nth(0) == Some('.') {
             if parms.showdot == false {
                 continue;
             }
         };
-
+        
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
             _ => continue,
         };
-
+        
+        println!("................................................");
         if githead != "ref: refs/heads/master" {
-            println!("{: <35} {}", stringdir, githead);
+            let stralign = format!("[{}]", stringdir);
+            println!("{: <35} {}", stralign, githead);
         };
 
         check_status(&format!("{}/{}", root.name, stringdir));
