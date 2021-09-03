@@ -167,12 +167,11 @@ fn list_non_master_repos() {
             _ => continue,
         };
         
-        println!("................................................");
+        // println!("................................................");
         if githead != "ref: refs/heads/master" {
             let stralign = format!("[{}]", stringdir);
             println!("{: <35} {}", stralign, githead);
         };
 
-        check_status(&format!("{}/{}", root.name, stringdir));
     }
 }
