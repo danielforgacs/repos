@@ -1,54 +1,86 @@
 mod root {
-    use std::fs::{ReadDir};
-    
+    use std::fs::ReadDir;
+
     pub struct Root {
         pub name: String,
         pub dirs: ReadDir,
         // alldirs_iter: std::fs::ReadDir,
     }
 
+    #[derive(Debug)]
+    pub enum Devdir {
+        Some(String),
+        None,
+    }
+    #[derive(Debug)]
     pub struct Parms {
         pub showdot: bool,
-        pub devdir: String,
+        pub devdir: Devdir,
     }
 }
 
-use root::Root;
 use root::Parms;
-use std::path::{PathBuf};
-use std::fs::{read_dir, DirEntry, read_to_string};
+use root::Root;
 use std::env::{args, current_dir};
+use std::fs::{read_dir, read_to_string, DirEntry};
+use std::path::PathBuf;
 
 impl Parms {
     fn new() -> Self {
         let args: Vec<String> = args().skip(1).collect();
-        let showdot = if args.iter().any(|i| i=="-dot") {
+        let showdot = if args.iter().any(|i| i == "-dot") {
             true
         } else {
             false
         };
-        Parms{showdot, devdir: "".to_string()}
+
+        let mut count = 0;
+        let mut devdir = root::Devdir::None;
+        for item in args.iter() {
+            count += 1;
+
+            if item == "-d" {
+                devdir = root::Devdir::Some(args[count].as_str().to_string());
+            }
+        };
+
+        Parms {
+            showdot,
+            devdir,
+        }
     }
 }
 
 impl Root {
-    fn new() -> Result<Self, std::io::Error> {
+    fn new(devdir: root::Devdir) -> Result<Self, std::io::Error> {
+        let is_startdir: bool =  match devdir {
+            root::Devdir::Some(ref _dir) => true,
+            _ => false,
+        };
+
         let pwd: PathBuf = match current_dir() {
             Ok(pwd) => pwd,
             Err(error) => return Result::Err(error),
         };
 
-        let name: String = match pwd.as_path().to_str() {
+        let mut name: String = match pwd.as_path().to_str() {
             Some(pwd3) => String::from(pwd3),
             None => String::from(""),
         };
+
+        if is_startdir {
+            name = match devdir {
+                root::Devdir::Some(dir) => dir,
+                _ => String::from(""),
+            }
+        }
 
         let dirs = match read_dir(&name) {
             Ok(dirs) => dirs,
             Err(error) => return Result::Err(error),
         };
-    
-        Result::Ok(Root { name, dirs, })
+
+        Result::Ok(Root { name, dirs })
     }
 }
 
@@ -58,12 +90,13 @@ fn main() {
 
 fn list_non_master_repos() {
     let parms = Parms::new();
+    // println!("{:?}", parms);
 
-    let root = match Root::new() {
+    let root = match Root::new(parms.devdir) {
         Ok(root) => root,
         Err(_) => {
             println!("Could not read path.");
-            return
+            return;
         }
     };
 
@@ -80,7 +113,7 @@ fn list_non_master_repos() {
 
         if stringdir.chars().nth(0) == Some('.') {
             if parms.showdot == false {
-                continue
+                continue;
             }
         };
 
@@ -93,5 +126,5 @@ fn list_non_master_repos() {
         if githead != "ref: refs/heads/master" {
             println!("{: <35} {}", stringdir, githead);
         };
-    };
+    }
 }
