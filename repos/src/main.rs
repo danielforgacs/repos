@@ -166,16 +166,16 @@ fn list_non_master_repos() {
             }
         };
 
-        check_status(&stringdir);
-
+        
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
             _ => continue,
         };
-
+        
         if githead != "ref: refs/heads/master" {
             println!("{: <35} {}", stringdir, githead);
         };
+        check_status(&stringdir);
     }
 }
