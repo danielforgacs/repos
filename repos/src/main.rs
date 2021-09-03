@@ -97,7 +97,7 @@ fn main() {
     list_non_master_repos();
 }
 
-fn check_status(dir: &str) {
+fn check_status(dir: &str) -> String {
     // println!("-- status checking dir: {}", dir);
     // let rawoutput = Command::new("git").arg("status").arg("--porcelain").output();
     let rawoutput = Command::new("git")
@@ -115,7 +115,8 @@ fn check_status(dir: &str) {
         }
         Err(error) => error.to_string(),
     };
-    println!("{}", response);
+    // println!("{}", response);
+    response
 }
 
 fn list_non_master_repos() {
@@ -150,6 +151,7 @@ fn list_non_master_repos() {
         
         // println!(":{:?}", &dir_opt);
         
+        // check_status(&format!("{}/{}", root.name, stringdir));
         let stringdir: String = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
             _ => continue,
@@ -160,11 +162,20 @@ fn list_non_master_repos() {
                 continue;
             }
         };
-        
+        let status = check_status(&format!("{}/{}", root.name, stringdir));
+
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
             _ => continue,
+        };
+
+        println!("____________________________________________________________");
+        
+        if status != "" {
+            let stralign = format!("[{}]", stringdir);
+            println!("{: <35}", stralign);
+            println!("{}", status);
         };
         
         // println!("................................................");
