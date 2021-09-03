@@ -94,7 +94,12 @@ impl Root {
 }
 
 fn main() {
-    list_non_master_repos();
+    check_status();
+    // list_non_master_repos();
+}
+
+fn check_status() {
+
 }
 
 fn list_non_master_repos() {
