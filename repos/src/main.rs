@@ -43,7 +43,6 @@ impl Parms {
                 devdir = root::Devdir::Some(args[count].as_str().to_string());
             }
         };
-        // println!("{:?}", devdir);
 
         Parms {
             showdot,
@@ -53,16 +52,28 @@ impl Parms {
 }
 
 impl Root {
-    fn new() -> Result<Self, std::io::Error> {
+    fn new(devdir: root::Devdir) -> Result<Self, std::io::Error> {
+        let is_startdir: bool =  match devdir {
+            root::Devdir::Some(ref dir) => true,
+            _ => false,
+        };
+
         let pwd: PathBuf = match current_dir() {
             Ok(pwd) => pwd,
             Err(error) => return Result::Err(error),
         };
 
-        let name: String = match pwd.as_path().to_str() {
+        let mut name: String = match pwd.as_path().to_str() {
             Some(pwd3) => String::from(pwd3),
             None => String::from(""),
         };
+
+        if is_startdir {
+            name = match devdir {
+                root::Devdir::Some(dir) => dir,
+                _ => String::from(""),
+            }
+        }
 
         let dirs = match read_dir(&name) {
             Ok(dirs) => dirs,
@@ -79,9 +90,9 @@ fn main() {
 
 fn list_non_master_repos() {
     let parms = Parms::new();
-    println!("{:?}", parms);
+    // println!("{:?}", parms);
 
-    let root = match Root::new() {
+    let root = match Root::new(parms.devdir) {
         Ok(root) => root,
         Err(_) => {
             println!("Could not read path.");
