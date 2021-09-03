@@ -95,16 +95,18 @@ impl Root {
 }
 
 fn main() {
-    check_status();
-    // list_non_master_repos();
+    // check_status("/home/ford/storage/dev/Rust101/");
+    // check_status("/home/ford/storage/dev/__cpython3.9.6");
+    list_non_master_repos();
 }
 
-fn check_status(){
+fn check_status(dir: &str){
+    println!("-- status checking dir: {}", dir);
     // let rawoutput = Command::new("git").arg("status").arg("--porcelain").output();
     let rawoutput = Command::new("git")
         .arg("status")
-        .arg("--porcelain")
-        .current_dir("/home/ford/storage/dev/Rust101/").output();
+        // .arg("--porcelain")
+        .current_dir(dir).output();
     let response: String = match rawoutput {
         Ok(resp) => {
             let stdout = match String::from_utf8(resp.stdout) {
@@ -146,6 +148,8 @@ fn list_non_master_repos() {
                 continue;
             }
         };
+
+        check_status(&stringdir);
 
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
