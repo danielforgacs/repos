@@ -40,7 +40,16 @@ impl Parms {
             count += 1;
 
             if item == "-d" {
-                devdir = root::Devdir::Some(args[count].as_str().to_string());
+                let dirstr = match args.get(count) {
+                    Some(dstr) => dstr,
+                    None => "",
+                };
+
+                if dirstr != "" {
+                    devdir = root::Devdir::Some(args[count].as_str().to_string());
+                } else {
+                    println!("Missing dev dir after \"-d\" arg.");
+                };
             }
         };
 
