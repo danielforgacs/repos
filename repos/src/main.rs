@@ -134,7 +134,18 @@ fn list_non_master_repos() {
 
     for dir_opt in root.dirs {
         let dir: DirEntry = match dir_opt {
-            Ok(dir) => dir,
+            Ok(dir) => {
+                let dirtype = match dir.file_type() {
+                    Ok(dirtype) => dirtype.is_dir(),
+                    Err(_error) => continue,
+                    
+                };
+                if !dirtype {
+                    continue
+                }
+                
+                dir
+            },
             _ => continue,
         };
 
