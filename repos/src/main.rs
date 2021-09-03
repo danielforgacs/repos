@@ -52,18 +52,15 @@ impl Parms {
                     println!("Missing dev dir after \"-d\" arg.");
                 };
             }
-        };
-        
-        Parms {
-            showdot,
-            devdir,
         }
+
+        Parms { showdot, devdir }
     }
 }
 
 impl Root {
     fn new(devdir: root::Devdir) -> Result<Self, std::io::Error> {
-        let is_startdir: bool =  match devdir {
+        let is_startdir: bool = match devdir {
             root::Devdir::Some(ref _dir) => true,
             _ => false,
         };
@@ -100,13 +97,14 @@ fn main() {
     list_non_master_repos();
 }
 
-fn check_status(dir: &str){
+fn check_status(dir: &str) {
     // println!("-- status checking dir: {}", dir);
     // let rawoutput = Command::new("git").arg("status").arg("--porcelain").output();
     let rawoutput = Command::new("git")
         .arg("status")
         .arg("--porcelain")
-        .current_dir(dir).output();
+        .current_dir(dir)
+        .output();
     let response: String = match rawoutput {
         Ok(resp) => {
             let stdout = match String::from_utf8(resp.stdout) {
@@ -114,7 +112,7 @@ fn check_status(dir: &str){
                 Err(error) => error.to_string(),
             };
             stdout
-        },
+        }
         Err(error) => error.to_string(),
     };
     println!("{}", response);
@@ -139,17 +137,14 @@ fn list_non_master_repos() {
                 let is_dir = match dir.file_type() {
                     Ok(isdir2) => isdir2.is_dir(),
                     Err(_error) => false,
-                    
                 };
                 if is_dir == false {
-                        continue
+                    continue;
                 }
                 // println!("###{}, {:?}", "OK", dir);
                 dir
-            },
-            _ => 
-                continue
-            ,  
+            }
+            _ => continue,
         };
         // println!("{:?}", dir);
 
@@ -166,17 +161,16 @@ fn list_non_master_repos() {
             }
         };
 
-        
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
             Ok(head) => head.trim().to_string(),
             _ => continue,
         };
-        
+
         if githead != "ref: refs/heads/master" {
             println!("{: <35} {}", stringdir, githead);
         };
 
         check_status(&format!("{}/{}", root.name, stringdir));
-    }    
+    }
 }
