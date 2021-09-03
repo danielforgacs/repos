@@ -53,7 +53,7 @@ impl Parms {
                 };
             }
         };
-
+        
         Parms {
             showdot,
             devdir,
@@ -101,7 +101,7 @@ fn main() {
 }
 
 fn check_status(dir: &str){
-    println!("-- status checking dir: {}", dir);
+    // println!("-- status checking dir: {}", dir);
     // let rawoutput = Command::new("git").arg("status").arg("--porcelain").output();
     let rawoutput = Command::new("git")
         .arg("status")
@@ -117,7 +117,7 @@ fn check_status(dir: &str){
         },
         Err(error) => error.to_string(),
     };
-    println!("{}", response);
+    // println!("{}", response);
 }
 
 fn list_non_master_repos() {
@@ -133,21 +133,27 @@ fn list_non_master_repos() {
     };
 
     for dir_opt in root.dirs {
+        // println!("{:?}", &dir_opt);
         let dir: DirEntry = match dir_opt {
             Ok(dir) => {
-                let dirtype = match dir.file_type() {
-                    Ok(dirtype) => dirtype.is_dir(),
-                    Err(_error) => continue,
+                let is_dir = match dir.file_type() {
+                    Ok(isdir2) => isdir2.is_dir(),
+                    Err(_error) => false,
                     
                 };
-                if !dirtype {
-                    continue
+                if is_dir == false {
+                        continue
                 }
-                
+                // println!("###{}, {:?}", "OK", dir);
                 dir
             },
-            _ => continue,
+            _ => 
+                continue
+            ,  
         };
+        // println!("{:?}", dir);
+
+        // println!(":{:?}", &dir_opt);
 
         let stringdir: String = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
