@@ -100,16 +100,20 @@ fn main() {
 }
 
 fn check_status(){
-    let output = Command::new("git").arg("status").arg("--porcelain").output();
-    let response: String = match output {
+    // let rawoutput = Command::new("git").arg("status").arg("--porcelain").output();
+    let rawoutput = Command::new("git")
+        .arg("status")
+        .arg("--porcelain")
+        .current_dir("/home/ford/storage/dev/Rust101/").output();
+    let response: String = match rawoutput {
         Ok(resp) => {
             let stdout = match String::from_utf8(resp.stdout) {
                 Ok(text) => text,
-                Err(_) => "_".to_string(),
+                Err(error) => error.to_string(),
             };
             stdout
         },
-        Err(_) => "_".to_string(),
+        Err(error) => error.to_string(),
     };
     println!("{}", response);
 }
