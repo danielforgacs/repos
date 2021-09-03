@@ -54,7 +54,7 @@ impl Parms {
 impl Root {
     fn new(devdir: root::Devdir) -> Result<Self, std::io::Error> {
         let is_startdir: bool =  match devdir {
-            root::Devdir::Some(ref dir) => true,
+            root::Devdir::Some(ref _dir) => true,
             _ => false,
         };
 
