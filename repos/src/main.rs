@@ -4,15 +4,13 @@ mod root {
     pub struct Root {
         pub name: String,
         pub dirs: ReadDir,
-        // alldirs_iter: std::fs::ReadDir,
     }
 
-    #[derive(Debug)]
     pub enum Devdir {
         Some(String),
         None,
     }
-    #[derive(Debug)]
+
     pub struct Parms {
         pub showdot: bool,
         pub devdir: Devdir,
@@ -37,6 +35,7 @@ impl Parms {
 
         let mut count = 0;
         let mut devdir = root::Devdir::None;
+
         for item in args.iter() {
             count += 1;
 
@@ -92,19 +91,16 @@ impl Root {
 }
 
 fn main() {
-    // check_status("/home/ford/storage/dev/Rust101/");
-    // check_status("/home/ford/storage/dev/__cpython3.9.6");
-    list_non_master_repos();
+    diagnose_repos();
 }
 
 fn check_status(dir: &str) -> String {
-    // println!("-- status checking dir: {}", dir);
-    // let rawoutput = Command::new("git").arg("status").arg("--porcelain").output();
     let rawoutput = Command::new("git")
         .arg("status")
         .arg("--porcelain")
         .current_dir(dir)
         .output();
+        
     let response: String = match rawoutput {
         Ok(resp) => {
             let stdout = match String::from_utf8(resp.stdout) {
@@ -115,14 +111,11 @@ fn check_status(dir: &str) -> String {
         }
         Err(error) => error.to_string(),
     };
-    // println!("{}", response);
-    response
+    response.trim().to_string()
 }
 
-fn list_non_master_repos() {
+fn diagnose_repos() {
     let parms = Parms::new();
-    // println!("{:?}", parms);
-
     let root = match Root::new(parms.devdir) {
         Ok(root) => root,
         Err(_) => {
@@ -132,7 +125,6 @@ fn list_non_master_repos() {
     };
 
     for dir_opt in root.dirs {
-        // println!("{:?}", &dir_opt);
         let dir: DirEntry = match dir_opt {
             Ok(dir) => {
                 let is_dir = match dir.file_type() {
@@ -142,47 +134,61 @@ fn list_non_master_repos() {
                 if is_dir == false {
                     continue;
                 }
-                // println!("###{}, {:?}", "OK", dir);
                 dir
             }
             _ => continue,
         };
-        // println!("{:?}", dir);
-        
-        // println!(":{:?}", &dir_opt);
-        
-        // check_status(&format!("{}/{}", root.name, stringdir));
+
         let stringdir: String = match dir.file_name().into_string() {
             Ok(dirn) => dirn,
             _ => continue,
         };
-        
+
         if stringdir.chars().nth(0) == Some('.') {
             if parms.showdot == false {
                 continue;
             }
         };
+        
         let status = check_status(&format!("{}/{}", root.name, stringdir));
-
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
-            Ok(head) => head.trim().to_string(),
+            Ok(head) => {
+                let branch = head.trim().to_string();
+                let branch = get_branch(branch);
+                branch
+            },
             _ => continue,
         };
 
-        println!("____________________________________________________________");
-        
+        let mut do_print = false;
+
         if status != "" {
-            let stralign = format!("[{}]", stringdir);
-            println!("{: <35}", stralign);
-            println!("{}", status);
-        };
-        
-        // println!("................................................");
-        if githead != "ref: refs/heads/master" {
-            let stralign = format!("[{}]", stringdir);
-            println!("{: <35} {}", stralign, githead);
+            do_print = true;
         };
 
+        if githead != "master" {
+            do_print = true;
+        };
+
+        if do_print {
+            let stralign = format!("[{}]", stringdir.trim());
+            println!("{}", "___________________________________________________________");
+            println!("{: <35} {}", stralign, githead.trim());
+
+            if status != "" {
+                println!("\t{}", status.trim());
+    
+            }
+        }
     }
+}
+
+
+fn get_branch(head: String) -> String {
+    let branch = match head.split("/").last() {
+        Some(element) => element,
+        None => "",
+    };
+    branch.to_string()
 }
