@@ -157,17 +157,27 @@ fn diagnose_repos() {
             _ => continue,
         };
 
-        println!("____________________________________________________________");
+        let mut do_print = false;
 
         if status != "" {
-            let stralign = format!("[{}]", stringdir);
-            println!("{: <35}", stralign);
-            println!("{}", status);
+            do_print = true;
+            // let stralign = format!("[{}]", stringdir);
+            // println!("{: <35}", stralign);
+            // println!("{}", status);
         };
 
         if githead != "ref: refs/heads/master" {
-            let stralign = format!("[{}]", stringdir);
-            println!("{: <35} {}", stralign, githead);
+            do_print = true;
+            // let stralign = format!("[{}]", stringdir);
+            // println!("{: <35} {}", stralign, githead);
         };
+
+        if do_print {
+            println!("____________________________________________________________");
+            let stralign = format!("[{}]", stringdir);
+            println!("{: <35} {}", stralign, githead.trim());
+            println!("\t{}", status.trim());
+
+        }
     }
 }
