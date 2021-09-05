@@ -167,7 +167,7 @@ fn diagnose_repos() {
             do_print = true;
         };
 
-        if githead != "ref: refs/heads/master" {
+        if githead != "master" {
             do_print = true;
         };
 
