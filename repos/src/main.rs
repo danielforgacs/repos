@@ -153,7 +153,11 @@ fn diagnose_repos() {
         let status = check_status(&format!("{}/{}", root.name, stringdir));
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
-            Ok(head) => head.trim().to_string(),
+            Ok(head) => {
+                let branch = head.trim().to_string();
+                let branch = get_branch(branch);
+                branch
+            },
             _ => continue,
         };
 
@@ -178,4 +182,9 @@ fn diagnose_repos() {
             }
         }
     }
+}
+
+
+fn get_branch(head: String) -> String {
+    head
 }
