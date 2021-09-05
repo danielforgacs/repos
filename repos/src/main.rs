@@ -111,7 +111,7 @@ fn check_status(dir: &str) -> String {
         }
         Err(error) => error.to_string(),
     };
-    response
+    response.trim().to_string()
 }
 
 fn diagnose_repos() {
@@ -169,8 +169,13 @@ fn diagnose_repos() {
 
         if do_print {
             let stralign = format!("[{}]", stringdir.trim());
-            println!("::{: <35} {}", stralign, githead.trim());
-            println!("\t{}", status.trim());
+            println!("{}", "___________________________________________________________");
+            println!("{: <35} {}", stralign, githead.trim());
+
+            if status != "" {
+                println!("\t{}", status.trim());
+    
+            }
         }
     }
 }
