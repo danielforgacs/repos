@@ -173,9 +173,9 @@ fn diagnose_repos() {
         };
 
         if do_print {
-            println!("____________________________________________________________");
+            // println!("____________________________________________________________");
             let stralign = format!("[{}]", stringdir);
-            println!("{: <35} {}", stralign, githead.trim());
+            println!("::{: <35} {}", stralign, githead.trim());
             println!("\t{}", status.trim());
 
         }
