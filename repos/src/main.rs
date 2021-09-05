@@ -186,5 +186,9 @@ fn diagnose_repos() {
 
 
 fn get_branch(head: String) -> String {
-    head
+    let branch = match head.split("/").last() {
+        Some(element) => element,
+        None => "",
+    };
+    branch.to_string()
 }
