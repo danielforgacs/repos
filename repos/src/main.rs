@@ -1,4 +1,4 @@
-const STATUS_LIMIT:usize = 255;
+const MAX_STATUS_LINES:usize = 5;
 
 mod root {
     use std::fs::ReadDir;
@@ -103,7 +103,7 @@ fn check_status(dir: &str) -> String {
         .current_dir(dir)
         .output();
         
-    let mut response: String = match rawoutput {
+    let response: String = match rawoutput {
         Ok(resp) => {
             let stdout = match String::from_utf8(resp.stdout) {
                 Ok(text) => text,
@@ -113,13 +113,32 @@ fn check_status(dir: &str) -> String {
         }
         Err(error) => error.to_string(),
     };
+    let mut newresponse: String = String::new();
 
-    if response.len() > STATUS_LIMIT {
-        response = response[..STATUS_LIMIT].to_string();
-        response.push_str("\n(...more)")
+    if response != "" {
+        let mut linecount = 0;
+        for line in response.trim().split('\n') {
+            linecount += 1;
+            if linecount > MAX_STATUS_LINES {
+                break
+            };
+            let mut newline: String = "".to_string();
+            // println!("{}", &line[..]);
+            if &line[..3] == "?? " {
+                newline = format!("\tuntracked: {}\n", &line[3..]);
+            };
+            newresponse.push_str(newline.as_str());
+            // println!("{} newline: {}", linecount, line);
+        };
     };
 
-    response
+    // if response.len() > MAX_STATUS_LINES {
+    //     response = response[..MAX_STATUS_LINES].to_string();
+    //     response.push_str("\n(...more)")
+    // };
+
+    newresponse
+    // "response".to_string()
 }
 
 fn diagnose_repos() {
@@ -185,7 +204,7 @@ fn diagnose_repos() {
             println!("{: <35} {}", stralign, githead.trim());
 
             if status != "" {
-                println!("\t{}", status.trim());
+                println!("{}", status);
     
             }
         }
