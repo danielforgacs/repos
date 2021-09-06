@@ -131,6 +131,10 @@ fn check_status(dir: &str) -> String {
                 newline = format!("\tuntracked: {}\n", &line[3..]);
             } else if &line[..3] == "D  "{
                 newline = format!("\tdeleted: {}\n", &line[3..]);
+            } else if &line[..2] == "M "{
+                newline = format!("\tstaged: {}\n", &line[3..]);
+            } else if &line[..2] == " M"{
+                newline = format!("\tmodified: {}\n", &line[3..]);
             } else {
                 newline = format!("\t{}\n", line);
             };
