@@ -117,28 +117,29 @@ fn check_status(dir: &str) -> String {
 
     if response != "" {
         let mut linecount = 0;
+
         for line in response.trim().split('\n') {
             linecount += 1;
+
             if linecount > MAX_STATUS_LINES {
                 break
             };
+
             let mut newline: String = "".to_string();
-            // println!("{}", &line[..]);
+
             if &line[..3] == "?? " {
                 newline = format!("\tuntracked: {}\n", &line[3..]);
+            } else if &line[..3] == "D  "{
+                newline = format!("\tdeleted: {}\n", &line[3..]);
+            } else {
+                newline = format!("\t{}\n", line);
             };
+
             newresponse.push_str(newline.as_str());
-            // println!("{} newline: {}", linecount, line);
         };
     };
 
-    // if response.len() > MAX_STATUS_LINES {
-    //     response = response[..MAX_STATUS_LINES].to_string();
-    //     response.push_str("\n(...more)")
-    // };
-
     newresponse
-    // "response".to_string()
 }
 
 fn diagnose_repos() {
