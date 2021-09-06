@@ -125,26 +125,21 @@ fn check_status(dir: &str) -> String {
                 break
             };
 
-            let newline: String;
-            let statusmark_end = 2;
-
-            // println!("{}", line);
-            if &line[..statusmark_end] == "??" {
-                newline = format!("\tuntracked: '{}'\n", &line[..]);
-            } else if &line[..statusmark_end] == "D " {
-                newline = format!("\tdeleted: '{}'\n", &line[..]);
-            } else if &line[..statusmark_end] == "M "{
-                newline = format!("\tstaged: '{}'\n", &line[..]);
-            } else if &line[..statusmark_end] == " M"{
-                newline = format!("\tmodified: '{}'\n", &line[..]);
-            } else if &line[..statusmark_end] == "A "{
-                newline = format!("\tnew file: '{}'\n", &line[..]);
-            } else if &line[..statusmark_end] == "AM"{
-                newline = format!("\tnew file 2: '{}'\n", &line[..]);
-            } else {
-                newline = format!("\t(unknown): {}\n", line);
+            let statusname = match &line[..2] {
+                "??" => "untracked:",
+                "D " => "deleted:",
+                "M " => "staged:",
+                " M" => "modified:",
+                "A " => "new file:",
+                "AM" => "new file 2:",
+                _ => "(unknown)",
             };
-
+            let newline: String;
+            if statusname == "deleted:" {
+                newline = format!("    {: <12} {}\n", statusname, &line[2..]);
+            } else {
+                newline = format!("    {: <12} {}\n", statusname, &line[3..]);
+            };
             newresponse.push_str(newline.as_str());
         };
 
