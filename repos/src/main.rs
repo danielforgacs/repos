@@ -125,7 +125,7 @@ fn check_status(dir: &str) -> String {
                 break
             };
 
-            let mut newline: String = "".to_string();
+            let newline: String;
             let statusmark_end = 2;
 
             // println!("{}", line);
@@ -147,6 +147,8 @@ fn check_status(dir: &str) -> String {
 
             newresponse.push_str(newline.as_str());
         };
+
+        newresponse = newresponse[..newresponse.len()-1].to_string()
     };
 
     newresponse
