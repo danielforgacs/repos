@@ -1,3 +1,5 @@
+const STATUS_LIMIT:usize = 255;
+
 mod root {
     use std::fs::ReadDir;
 
@@ -150,7 +152,11 @@ fn diagnose_repos() {
             }
         };
         
-        let status = check_status(&format!("{}/{}", root.name, stringdir));
+        let mut status = check_status(&format!("{}/{}", root.name, stringdir));
+        if status.len() > STATUS_LIMIT {
+            status = status[..STATUS_LIMIT].to_string();
+            status.push_str("\n(...more)")
+        };
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
             Ok(head) => {
