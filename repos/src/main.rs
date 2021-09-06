@@ -134,7 +134,12 @@ fn check_status(dir: &str) -> String {
                 "AM" => "new file 2:",
                 _ => "(unknown)",
             };
-            let newline = format!("    {: <12} {}\n", statusname, &line[2..]);
+            let newline: String;
+            if statusname == "deleted:" {
+                newline = format!("    {: <12} {}\n", statusname, &line[2..]);
+            } else {
+                newline = format!("    {: <12} {}\n", statusname, &line[3..]);
+            };
             newresponse.push_str(newline.as_str());
         };
 
