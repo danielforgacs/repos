@@ -1,4 +1,4 @@
-const STATUS_LIMIT:usize = 255;
+const MAX_STATUS_LINES:usize = 5;
 
 mod root {
     use std::fs::ReadDir;
@@ -113,7 +113,45 @@ fn check_status(dir: &str) -> String {
         }
         Err(error) => error.to_string(),
     };
-    response.trim().to_string()
+    let mut newresponse: String = String::new();
+
+    if response != "" {
+        let mut linecount = 0;
+
+        for line in response.trim().split('\n') {
+            linecount += 1;
+
+            if linecount > MAX_STATUS_LINES {
+                break
+            };
+
+            let newline: String;
+            let statusmark_end = 2;
+
+            // println!("{}", line);
+            if &line[..statusmark_end] == "??" {
+                newline = format!("\tuntracked: '{}'\n", &line[..]);
+            } else if &line[..statusmark_end] == "D " {
+                newline = format!("\tdeleted: '{}'\n", &line[..]);
+            } else if &line[..statusmark_end] == "M "{
+                newline = format!("\tstaged: '{}'\n", &line[..]);
+            } else if &line[..statusmark_end] == " M"{
+                newline = format!("\tmodified: '{}'\n", &line[..]);
+            } else if &line[..statusmark_end] == "A "{
+                newline = format!("\tnew file: '{}'\n", &line[..]);
+            } else if &line[..statusmark_end] == "AM"{
+                newline = format!("\tnew file 2: '{}'\n", &line[..]);
+            } else {
+                newline = format!("\t(unknown): {}\n", line);
+            };
+
+            newresponse.push_str(newline.as_str());
+        };
+
+        newresponse = newresponse[..newresponse.len()-1].to_string()
+    };
+
+    newresponse
 }
 
 fn diagnose_repos() {
@@ -152,11 +190,7 @@ fn diagnose_repos() {
             }
         };
         
-        let mut status = check_status(&format!("{}/{}", root.name, stringdir));
-        if status.len() > STATUS_LIMIT {
-            status = status[..STATUS_LIMIT].to_string();
-            status.push_str("\n(...more)")
-        };
+        let status = check_status(&format!("{}/{}", root.name, stringdir));
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
             Ok(head) => {
@@ -183,7 +217,7 @@ fn diagnose_repos() {
             println!("{: <35} {}", stralign, githead.trim());
 
             if status != "" {
-                println!("\t{}", status.trim());
+                println!("{}", status);
     
             }
         }
