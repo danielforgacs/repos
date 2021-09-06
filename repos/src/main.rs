@@ -1,4 +1,4 @@
-const MAX_STATUS_LINES:usize = 5;
+const MAX_STATUS_LINES: usize = 5;
 
 mod root {
     use std::fs::ReadDir;
@@ -102,7 +102,7 @@ fn check_status(dir: &str) -> String {
         .arg("--porcelain")
         .current_dir(dir)
         .output();
-        
+
     let response: String = match rawoutput {
         Ok(resp) => {
             let stdout = match String::from_utf8(resp.stdout) {
@@ -122,7 +122,7 @@ fn check_status(dir: &str) -> String {
             linecount += 1;
 
             if linecount > MAX_STATUS_LINES {
-                break
+                break;
             };
 
             let statusname = match &line[..2] {
@@ -141,9 +141,9 @@ fn check_status(dir: &str) -> String {
                 newline = format!("    {: <12} {}\n", statusname, &line[3..]);
             };
             newresponse.push_str(newline.as_str());
-        };
+        }
 
-        newresponse = newresponse[..newresponse.len()-1].to_string()
+        newresponse = newresponse[..newresponse.len() - 1].to_string()
     };
 
     newresponse
@@ -184,7 +184,7 @@ fn diagnose_repos() {
                 continue;
             }
         };
-        
+
         let status = check_status(&format!("{}/{}", root.name, stringdir));
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
@@ -192,7 +192,7 @@ fn diagnose_repos() {
                 let branch = head.trim().to_string();
                 let branch = get_branch(branch);
                 branch
-            },
+            }
             _ => continue,
         };
 
@@ -208,17 +208,18 @@ fn diagnose_repos() {
 
         if do_print {
             let stralign = format!("[{}]", stringdir.trim());
-            println!("{}", "___________________________________________________________");
+            println!(
+                "{}",
+                "___________________________________________________________"
+            );
             println!("{: <35} {}", stralign, githead.trim());
 
             if status != "" {
                 println!("{}", status);
-    
             }
         }
     }
 }
-
 
 fn get_branch(head: String) -> String {
     let branch = match head.split("/").last() {
