@@ -103,7 +103,7 @@ fn check_status(dir: &str) -> String {
         .current_dir(dir)
         .output();
         
-    let response: String = match rawoutput {
+    let mut response: String = match rawoutput {
         Ok(resp) => {
             let stdout = match String::from_utf8(resp.stdout) {
                 Ok(text) => text,
@@ -113,7 +113,13 @@ fn check_status(dir: &str) -> String {
         }
         Err(error) => error.to_string(),
     };
-    response.trim().to_string()
+
+    if response.len() > STATUS_LIMIT {
+        response = response[..STATUS_LIMIT].to_string();
+        response.push_str("\n(...more)")
+    };
+
+    response
 }
 
 fn diagnose_repos() {
@@ -152,11 +158,7 @@ fn diagnose_repos() {
             }
         };
         
-        let mut status = check_status(&format!("{}/{}", root.name, stringdir));
-        if status.len() > STATUS_LIMIT {
-            status = status[..STATUS_LIMIT].to_string();
-            status.push_str("\n(...more)")
-        };
+        let status = check_status(&format!("{}/{}", root.name, stringdir));
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
             Ok(head) => {
