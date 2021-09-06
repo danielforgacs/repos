@@ -125,16 +125,16 @@ fn check_status(dir: &str) -> String {
                 break
             };
 
-            let newline = match &line[..2] {
-                "??" => format!("\tuntracked: {}\n", &line[..]),
-                "D " => format!("\tdeleted: {}\n", &line[..]),
-                "M " => format!("\tstaged: {}\n", &line[..]),
-                " M" => format!("\tmodified: {}\n", &line[..]),
-                "A " => format!("\tnew file: {}\n", &line[..]),
-                "AM" => format!("\tnew file 2: {}\n", &line[..]),
-                _ => format!("\t(unknown): {}\n", line),
+            let statusname = match &line[..2] {
+                "??" => "untracked:",
+                "D " => "deleted:",
+                "M " => "staged:",
+                " M" => "modified:",
+                "A " => "new file:",
+                "AM" => "new file 2:",
+                _ => "(unknown)",
             };
-
+            let newline = format!("    {: <12} {}\n", statusname, &line[2..]);
             newresponse.push_str(newline.as_str());
         };
 
