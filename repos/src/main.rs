@@ -218,12 +218,14 @@ fn diagnose_repos() {
         };
 
         if do_print {
-            let stralign = format!("[{}]", stringdir.trim());
-            println!(
-                "{}",
-                "___________________________________________________________"
-            );
-            println!("{: <35} {}", stralign, githead.trim());
+            let stralign = format!("{}", stringdir.trim());
+            println!("___________________________________________________________");
+
+            if githead.trim() == "master" {
+                println!("{: <35} {}", stralign, githead.trim());
+            } else {
+                println!("{: <35} {: <15} *", stralign, githead.trim());
+            }
 
             if status != "" {
                 println!("{}", status);
