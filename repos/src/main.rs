@@ -122,9 +122,8 @@ fn check_status(dir: &str) -> String {
         for line in response.split('\n') {
             // println!("line: {}, len: {}", &line, line.len());
 
-
             if line.len() < STATUS_MARKER_LENGTH + 1 {
-                continue
+                continue;
             }
 
             linecount += 1;
@@ -144,7 +143,11 @@ fn check_status(dir: &str) -> String {
                 "AM" => "new file 2:",
                 _ => "(unknown)",
             };
-            let newline = format!("    {: <15} {}\n", statusname, &line[STATUS_MARKER_LENGTH+1..]);
+            let newline = format!(
+                "    {: <15} {}\n",
+                statusname,
+                &line[STATUS_MARKER_LENGTH + 1..]
+            );
             // let newline: String;
             // if statusname == "deleted:" {
             //     newline = format!("    {: <12} {}\n", statusname, &line[2..]);
