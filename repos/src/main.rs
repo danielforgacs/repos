@@ -122,14 +122,15 @@ fn check_status(dir: &str) -> String {
         for line in response.split('\n') {
             // println!("line: {}, len: {}", &line, line.len());
 
-
             if line.len() < STATUS_MARKER_LENGTH + 1 {
-                continue
+                continue;
             }
 
             linecount += 1;
 
             if linecount > MAX_STATUS_LINES {
+                newresponse.push_str("    (more...)\n");
+
                 break;
             };
             let statusname = match &line[..STATUS_MARKER_LENGTH] {
@@ -142,7 +143,11 @@ fn check_status(dir: &str) -> String {
                 "AM" => "new file 2:",
                 _ => "(unknown)",
             };
-            let newline = format!("    {: <15} {}\n", statusname, &line[STATUS_MARKER_LENGTH+1..]);
+            let newline = format!(
+                "    {: <15} {}\n",
+                statusname,
+                &line[STATUS_MARKER_LENGTH + 1..]
+            );
             // let newline: String;
             // if statusname == "deleted:" {
             //     newline = format!("    {: <12} {}\n", statusname, &line[2..]);
@@ -216,12 +221,14 @@ fn diagnose_repos() {
         };
 
         if do_print {
-            let stralign = format!("[{}]", stringdir.trim());
-            println!(
-                "{}",
-                "___________________________________________________________"
-            );
-            println!("{: <35} {}", stralign, githead.trim());
+            let stralign = format!("{}", stringdir.trim());
+            println!("___________________________________________________________");
+
+            if githead.trim() == "master" {
+                println!("{: <35} {}", stralign, githead.trim());
+            } else {
+                println!("{: <35} {: <15} *", stralign, githead.trim());
+            }
 
             if status != "" {
                 println!("{}", status);
