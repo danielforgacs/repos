@@ -1,4 +1,5 @@
 const MAX_STATUS_LINES: usize = 5;
+const STATUS_MARKER_LENGTH: usize = 2;
 
 mod root {
     use std::fs::ReadDir;
@@ -118,28 +119,36 @@ fn check_status(dir: &str) -> String {
     if response != "" {
         let mut linecount = 0;
 
-        for line in response.trim().split('\n') {
+        for line in response.split('\n') {
+            // println!("line: {}, len: {}", &line, line.len());
+
+
+            if line.len() < STATUS_MARKER_LENGTH + 1 {
+                continue
+            }
+
             linecount += 1;
 
             if linecount > MAX_STATUS_LINES {
                 break;
             };
-
-            let statusname = match &line[..2] {
+            let statusname = match &line[..STATUS_MARKER_LENGTH] {
                 "??" => "untracked:",
-                "D " => "deleted:",
+                " D" => "deleted:",
+                "D " => "deleted staged:",
                 "M " => "staged:",
                 " M" => "modified:",
                 "A " => "new file:",
                 "AM" => "new file 2:",
                 _ => "(unknown)",
             };
-            let newline: String;
-            if statusname == "deleted:" {
-                newline = format!("    {: <12} {}\n", statusname, &line[2..]);
-            } else {
-                newline = format!("    {: <12} {}\n", statusname, &line[3..]);
-            };
+            let newline = format!("    {: <15} {}\n", statusname, &line[STATUS_MARKER_LENGTH+1..]);
+            // let newline: String;
+            // if statusname == "deleted:" {
+            //     newline = format!("    {: <12} {}\n", statusname, &line[2..]);
+            // } else {
+            //     newline = format!("    {: <12} {}\n", statusname, &line[3..]);
+            // };
             newresponse.push_str(newline.as_str());
         }
 
