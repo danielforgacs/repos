@@ -1,3 +1,6 @@
+const MAX_STATUS_LINES: usize = 5;
+const STATUS_MARKER_LENGTH: usize = 2;
+
 mod root {
     use std::fs::ReadDir;
 
@@ -100,7 +103,7 @@ fn check_status(dir: &str) -> String {
         .arg("--porcelain")
         .current_dir(dir)
         .output();
-        
+
     let response: String = match rawoutput {
         Ok(resp) => {
             let stdout = match String::from_utf8(resp.stdout) {
@@ -111,7 +114,53 @@ fn check_status(dir: &str) -> String {
         }
         Err(error) => error.to_string(),
     };
-    response.trim().to_string()
+    let mut newresponse: String = String::new();
+
+    if response != "" {
+        let mut linecount = 0;
+
+        for line in response.split('\n') {
+            // println!("line: {}, len: {}", &line, line.len());
+
+            if line.len() < STATUS_MARKER_LENGTH + 1 {
+                continue;
+            }
+
+            linecount += 1;
+
+            if linecount > MAX_STATUS_LINES {
+                newresponse.push_str("    (more...)\n");
+
+                break;
+            };
+            let statusname = match &line[..STATUS_MARKER_LENGTH] {
+                "??" => "untracked:",
+                " D" => "deleted:",
+                "D " => "deleted staged:",
+                "M " => "staged:",
+                " M" => "modified:",
+                "A " => "new file:",
+                "AM" => "new file 2:",
+                _ => "(unknown)",
+            };
+            let newline = format!(
+                "    {: <15} {}\n",
+                statusname,
+                &line[STATUS_MARKER_LENGTH + 1..]
+            );
+            // let newline: String;
+            // if statusname == "deleted:" {
+            //     newline = format!("    {: <12} {}\n", statusname, &line[2..]);
+            // } else {
+            //     newline = format!("    {: <12} {}\n", statusname, &line[3..]);
+            // };
+            newresponse.push_str(newline.as_str());
+        }
+
+        newresponse = newresponse[..newresponse.len() - 1].to_string()
+    };
+
+    newresponse
 }
 
 fn diagnose_repos() {
@@ -149,7 +198,7 @@ fn diagnose_repos() {
                 continue;
             }
         };
-        
+
         let status = check_status(&format!("{}/{}", root.name, stringdir));
         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
         let githead: String = match read_to_string(&githead) {
@@ -157,7 +206,7 @@ fn diagnose_repos() {
                 let branch = head.trim().to_string();
                 let branch = get_branch(branch);
                 branch
-            },
+            }
             _ => continue,
         };
 
@@ -172,18 +221,21 @@ fn diagnose_repos() {
         };
 
         if do_print {
-            let stralign = format!("[{}]", stringdir.trim());
-            println!("{}", "___________________________________________________________");
-            println!("{: <35} {}", stralign, githead.trim());
+            let stralign = format!("{}", stringdir.trim());
+            println!("___________________________________________________________");
+
+            if githead.trim() == "master" {
+                println!("{: <35} {}", stralign, githead.trim());
+            } else {
+                println!("{: <35} {: <15} *", stralign, githead.trim());
+            }
 
             if status != "" {
-                println!("\t{}", status.trim());
-    
+                println!("{}", status);
             }
         }
     }
 }
-
 
 fn get_branch(head: String) -> String {
     let branch = match head.split("/").last() {
