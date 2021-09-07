@@ -130,6 +130,8 @@ fn check_status(dir: &str) -> String {
             linecount += 1;
 
             if linecount > MAX_STATUS_LINES {
+                newresponse.push_str("    (more...)\n");
+
                 break;
             };
             let statusname = match &line[..STATUS_MARKER_LENGTH] {
