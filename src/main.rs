@@ -46,6 +46,7 @@ impl DevDir {
                     continue
                 }
                 println!("{:?}", git_dir);
+                let xyz: () = git_dir;
                 // println!("{}", git_dir.is_dir());
 
 
