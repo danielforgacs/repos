@@ -38,8 +38,16 @@ impl DevDir {
                 }
                 // println!("{:?}", direntry.path());
 
-                let rep = direntry.path().as_path().to_str().unwrap().to_string() + ".git";
-                println!("{} - {:?}", rep, rep);
+                let rep = direntry.path().as_path().to_str().unwrap().to_string() + "/.git";
+                let mut git_dir = std::path::PathBuf::new();
+                git_dir.push(rep);
+                // let s:()=git_dir;
+                if !git_dir.is_dir() {
+                    continue
+                }
+                println!("{:?}", git_dir);
+                // println!("{}", git_dir.is_dir());
+
 
                 // println!("{:?}", sudir.unwrap().path());
 
