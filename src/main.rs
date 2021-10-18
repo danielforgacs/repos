@@ -1,6 +1,29 @@
 const MAX_STATUS_LINES: usize = 5;
 const STATUS_MARKER_LENGTH: usize = 2;
 
+struct DevDir {
+    path: String,
+    repopaths: Vec<Repo>,
+}
+
+struct Repo {
+    path: String,
+}
+
+impl DevDir {
+    fn new() -> Self {
+        let devdir = match std::env::var("DEVDIR") {
+            Ok(devdir) => devdir,
+            Err(_) => { "-".to_string() }
+        };
+        let repopaths: Vec<Repo> = Vec::new();
+        Self {
+            path: devdir,
+            repopaths,
+        }
+    }
+}
+
 mod root {
     use std::fs::ReadDir;
 
@@ -94,7 +117,17 @@ impl Root {
 }
 
 fn main() {
-    diagnose_repos();
+    // diagnose_repos();
+    check_repos();
+}
+
+fn check_repos() {
+    let devdir = DevDir::new();
+    println!("devdir: {}", devdir.path);
+
+    for repo in devdir.repopaths {
+        println!("repo: {}", repo.path);
+    }
 }
 
 fn check_status(dir: &str) -> String {
