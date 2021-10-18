@@ -12,13 +12,64 @@ struct Repo {
 
 impl DevDir {
     fn new() -> Self {
-        let devdir = match std::env::var("DEVDIR") {
-            Ok(devdir) => devdir,
+        let env_devdir: String = match std::env::var("DEVDIR") {
+            Ok(devd) => { devd },
             Err(_) => { "-".to_string() }
         };
+        // println!("env-devdir: {}", env_devdir);
         let repopaths: Vec<Repo> = Vec::new();
+        for root in std::fs::read_dir(&env_devdir) {
+            // println!(";;;{:?}", root);
+            for sudir in root {
+                let direntry = sudir.unwrap();
+                // println!("{:?}", direntry);
+
+                let dirtype = match direntry.file_type() {
+                    Ok(dirt) => {
+                        // println!("{:?}", dirt.is_dir());
+                        dirt.is_dir()
+                    }
+                    _ => { false }
+                };
+                // println!("{:?}", dirtype);
+                if !dirtype {
+                    // println!("{:?}", dirtype);
+                    continue
+                }
+                // println!("{:?}", direntry.path());
+
+                let rep = direntry.path().as_path().to_str().unwrap().to_string() + ".git";
+                println!("{} - {:?}", rep, rep);
+
+                // println!("{:?}", sudir.unwrap().path());
+
+            }
+        }
+        // match readdir {
+        //     Ok(rd) => {println!("{:?}", rd);
+        //     // let qw:()=rd;
+        //     for k in rd {
+        //         // println!("{:?}", k);
+        //         match k {
+        //             Ok(d) => {
+        //                 println!("{:?}", d);
+        //             }
+        //             _ => {}
+        //         }
+        //     }
+        // }
+        //     _ => {}
+        // }
+        // let q:()=readdir;
+        // for k in readdir {
+        //     println!("{:?}", k);
+        // }
+        // println!("++{:?}", readdir);
+        // for item in std::fs::read_dir(&devdir) {
+        //     println!("{:?}", item);
+        // }
         Self {
-            path: devdir,
+            path: env_devdir,
             repopaths,
         }
     }
@@ -123,11 +174,6 @@ fn main() {
 
 fn check_repos() {
     let devdir = DevDir::new();
-    println!("devdir: {}", devdir.path);
-
-    for repo in devdir.repopaths {
-        println!("repo: {}", repo.path);
-    }
 }
 
 fn check_status(dir: &str) -> String {
