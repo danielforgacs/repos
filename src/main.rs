@@ -1,61 +1,52 @@
+use std::path::PathBuf;
+
 const MAX_STATUS_LINES: usize = 5;
 const STATUS_MARKER_LENGTH: usize = 2;
 
 struct DevDir {
-    path: String,
+    path: PathBuf,
     repos: Vec<Repo>,
 }
 
 struct Repo {
     name: String,
-    path: String,
-    path_buf: std::path::PathBuf,
+    path: PathBuf,
 }
 
 impl DevDir {
-    fn new() -> Self {
-        let env_devdir: String = match std::env::var("DEVDIR") {
-            Ok(devd) => { devd },
+    fn new() {
+        let mut repos: Vec<Repo> = Vec::new();
+        let devdir_env: String = match std::env::var("DEVDIR") {
+            Ok(devdir) => { devdir },
             Err(_) => { "-".to_string() }
         };
-        let mut repos: Vec<Repo> = Vec::new();
-        for root in std::fs::read_dir(&env_devdir) {
-            for sudir in root {
-                let direntry = sudir.unwrap();
-                let dirtype = match direntry.file_type() {
-                    Ok(dirt) => {
-                        dirt.is_dir()
-                    }
-                    _ => { false }
-                };
-                if !dirtype {
-                    continue
-                }
-                let dirname = direntry.file_name().to_str().unwrap().to_string();
-                let path = direntry.path().to_str().unwrap().to_string();
-                let rep = {&path}.to_string() + "/.git";
-                let mut git_dir = std::path::PathBuf::new();
-                git_dir.push(rep);
-
-                if !git_dir.is_dir() {
-                    continue
-                }
-
-                let repo = Repo {
-                    name: dirname,
-                    path: path,
-                    path_buf: git_dir,
-                };
-                repos.push(repo);
+        let mut devdir = PathBuf::new();
+        devdir.push(devdir_env);
+        for entry in devdir.read_dir().unwrap() {
+            let entry = match entry {
+                Ok(entry) => { entry.path() },
+                Err(_) => { PathBuf::new() },
+            };
+            let entry_git = entry.to_str().unwrap().to_string() + "/.git";
+            if !std::path::Path::new(&entry_git).is_dir() {
+                continue
             }
         }
-        Self {
-            path: env_devdir,
+        DevDir {
+            path: devdir,
             repos,
-        }
+        };
     }
 }
 
+impl Repo {
+    fn new(name: String, path: std::path::PathBuf) -> Self {
+        Self {
+            name,
+            path,
+        }
+    }
+}
 mod root {
     use std::fs::ReadDir;
 
@@ -79,7 +70,6 @@ use root::Parms;
 use root::Root;
 use std::env::{args, current_dir};
 use std::fs::{read_dir, read_to_string, DirEntry};
-use std::path::PathBuf;
 use std::process::Command;
 
 impl Parms {
@@ -149,17 +139,17 @@ impl Root {
 }
 
 fn main() {
-    diagnose_repos();
+    // diagnose_repos();
     check_repos();
 }
 
 fn check_repos() {
     let devdir = DevDir::new();
-    for repo in devdir.repos {
-        let mut repotext = "__________________________________________".to_string();
-        repotext += format!("\nrepo: {}\n", repo.name).as_str();
-        print!("{}", repotext)
-    }
+    // for repo in devdir.repos {
+    //     let mut repotext = "__________________________________________".to_string();
+    //     repotext += format!("\nrepo: {}\n", repo.name).as_str();
+    //     print!("{}", repotext)
+    // }
 }
 
 fn check_status(dir: &str) -> String {
