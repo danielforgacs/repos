@@ -191,7 +191,13 @@ fn main() {
 fn check_repos() {
     let devdir = DevDir::new();
     for repo in devdir.repos {
-        println!("{:?}, {:?}", repo.path, repo.pbuf);
+        let mut repotext = "\n------------------------------".to_string();
+        repotext += format!("\npath: {}", repo.path).as_str();
+        print!("{}", repotext)
+        // repotext += format!("path: {}", repo.path).to_string();
+        // println!("{}, {}", repo.path, repo.pbuf);
+        // let xyz: () = repo.path;
+        // let xyz: () = repo.pbuf;
     }
 }
 
