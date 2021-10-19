@@ -190,6 +190,9 @@ fn main() {
 
 fn check_repos() {
     let devdir = DevDir::new();
+    for repo in devdir.repos {
+        println!("{:?}, {:?}", repo.path, repo.pbuf);
+    }
 }
 
 fn check_status(dir: &str) -> String {
