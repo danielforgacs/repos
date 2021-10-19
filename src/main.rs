@@ -3,11 +3,12 @@ const STATUS_MARKER_LENGTH: usize = 2;
 
 struct DevDir {
     path: String,
-    repopaths: Vec<Repo>,
+    repos: Vec<Repo>,
 }
 
 struct Repo {
     path: String,
+    pbuf: std::path::PathBuf,
 }
 
 impl DevDir {
@@ -17,7 +18,7 @@ impl DevDir {
             Err(_) => { "-".to_string() }
         };
         // println!("env-devdir: {}", env_devdir);
-        let repopaths: Vec<Repo> = Vec::new();
+        let mut repos: Vec<Repo> = Vec::new();
         for root in std::fs::read_dir(&env_devdir) {
             // println!(";;;{:?}", root);
             for sudir in root {
@@ -45,8 +46,14 @@ impl DevDir {
                 if !git_dir.is_dir() {
                     continue
                 }
-                println!("{:?}", git_dir);
-                let xyz: () = git_dir;
+                // println!("{:?}", git_dir);
+
+                let repo = Repo {
+                    path: git_dir.as_path().to_str().unwrap().to_string(),
+                    pbuf: git_dir,
+                };
+                repos.push(repo);
+                // let xyz: () = git_dir;
                 // println!("{}", git_dir.is_dir());
 
 
@@ -79,7 +86,7 @@ impl DevDir {
         // }
         Self {
             path: env_devdir,
-            repopaths,
+            repos,
         }
     }
 }
