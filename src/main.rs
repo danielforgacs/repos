@@ -18,79 +18,37 @@ impl DevDir {
             Ok(devd) => { devd },
             Err(_) => { "-".to_string() }
         };
-        // println!("env-devdir: {}", env_devdir);
         let mut repos: Vec<Repo> = Vec::new();
         for root in std::fs::read_dir(&env_devdir) {
-            // println!(";;;{:?}", root);
             for sudir in root {
                 let direntry = sudir.unwrap();
-                // println!("{:?}", direntry);
-
                 let dirtype = match direntry.file_type() {
                     Ok(dirt) => {
-                        // println!("{:?}", dirt.is_dir());
                         dirt.is_dir()
                     }
                     _ => { false }
                 };
-                // println!("{:?}", dirtype);
                 if !dirtype {
-                    // println!("{:?}", dirtype);
                     continue
                 }
-                // println!("{:?}", direntry.path());
                 let dirname = direntry.file_name().to_str().unwrap().to_string();
-                // println!("{:?}", dirname);
-                // let xyz: () = dirname;
                 let path = direntry.path().to_str().unwrap().to_string();
                 let rep = {&path}.to_string() + "/.git";
                 let mut git_dir = std::path::PathBuf::new();
                 git_dir.push(rep);
-                // let s:()=git_dir;
+
                 if !git_dir.is_dir() {
                     continue
                 }
-                // println!("{:?}", git_dir);
-                // println!("{:?}", path.file_name());
 
                 let repo = Repo {
-                    // path: git_dir.as_path().to_str().unwrap().to_string(),
                     name: dirname,
                     path: path,
                     path_buf: git_dir,
                 };
                 repos.push(repo);
-                // let xyz: () = git_dir;
-                // println!("{}", git_dir.is_dir());
-
-
-                // println!("{:?}", sudir.unwrap().path());
-
             }
         }
-        // match readdir {
-        //     Ok(rd) => {println!("{:?}", rd);
-        //     // let qw:()=rd;
-        //     for k in rd {
-        //         // println!("{:?}", k);
-        //         match k {
-        //             Ok(d) => {
-        //                 println!("{:?}", d);
-        //             }
-        //             _ => {}
-        //         }
-        //     }
-        // }
-        //     _ => {}
-        // }
-        // let q:()=readdir;
-        // for k in readdir {
-        //     println!("{:?}", k);
-        // }
-        // println!("++{:?}", readdir);
-        // for item in std::fs::read_dir(&devdir) {
-        //     println!("{:?}", item);
-        // }
         Self {
             path: env_devdir,
             repos,
@@ -191,7 +149,7 @@ impl Root {
 }
 
 fn main() {
-    // diagnose_repos();
+    diagnose_repos();
     check_repos();
 }
 
@@ -199,14 +157,8 @@ fn check_repos() {
     let devdir = DevDir::new();
     for repo in devdir.repos {
         let mut repotext = "__________________________________________".to_string();
-        // let mut repotext = "".to_string();
         repotext += format!("\nrepo: {}\n", repo.name).as_str();
-        // repotext += format!("\n").as_str();
         print!("{}", repotext)
-        // repotext += format!("path: {}", repo.path).to_string();
-        // println!("{}, {}", repo.path, repo.path_buf);
-        // let xyz: () = repo.path;
-        // let xyz: () = repo.path_buf;
     }
 }
 
