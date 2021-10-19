@@ -14,7 +14,7 @@ struct Repo {
 }
 
 impl DevDir {
-    fn new() {
+    fn new() -> Self {
         let mut repos: Vec<Repo> = Vec::new();
         let devdir_env: String = match std::env::var("DEVDIR") {
             Ok(devdir) => { devdir },
@@ -31,16 +31,19 @@ impl DevDir {
             if !std::path::Path::new(&entry_git).is_dir() {
                 continue
             }
+            let repo = Repo::new(entry);
+            repos.push(repo);
         }
         DevDir {
             path: devdir,
             repos,
-        };
+        }
     }
 }
 
 impl Repo {
-    fn new(name: String, path: std::path::PathBuf) -> Self {
+    fn new(path: PathBuf) -> Self {
+        let name = path.file_name().unwrap().to_str().unwrap().to_string();
         Self {
             name,
             path,
@@ -145,11 +148,11 @@ fn main() {
 
 fn check_repos() {
     let devdir = DevDir::new();
-    // for repo in devdir.repos {
-    //     let mut repotext = "__________________________________________".to_string();
-    //     repotext += format!("\nrepo: {}\n", repo.name).as_str();
-    //     print!("{}", repotext)
-    // }
+    for repo in devdir.repos {
+        let mut repotext = "__________________________________________".to_string();
+        repotext += format!("\n{}\n", repo.name).as_str();
+        print!("{}", repotext)
+    }
 }
 
 fn check_status(dir: &str) -> String {
