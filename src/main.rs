@@ -7,6 +7,7 @@ struct DevDir {
 }
 
 struct Repo {
+    name: String,
     path: String,
     pbuf: std::path::PathBuf,
 }
@@ -38,8 +39,11 @@ impl DevDir {
                     continue
                 }
                 // println!("{:?}", direntry.path());
-                let dirstring = direntry.path().to_str().unwrap().to_string();
-                let rep = {&dirstring}.to_string() + "/.git";
+                let dirname = direntry.file_name().to_str().unwrap().to_string();
+                // println!("{:?}", dirname);
+                // let xyz: () = dirname;
+                let path = direntry.path().to_str().unwrap().to_string();
+                let rep = {&path}.to_string() + "/.git";
                 let mut git_dir = std::path::PathBuf::new();
                 git_dir.push(rep);
                 // let s:()=git_dir;
@@ -47,10 +51,12 @@ impl DevDir {
                     continue
                 }
                 // println!("{:?}", git_dir);
+                // println!("{:?}", path.file_name());
 
                 let repo = Repo {
                     // path: git_dir.as_path().to_str().unwrap().to_string(),
-                    path: dirstring,
+                    name: dirname,
+                    path: path,
                     pbuf: git_dir,
                 };
                 repos.push(repo);
@@ -192,8 +198,10 @@ fn main() {
 fn check_repos() {
     let devdir = DevDir::new();
     for repo in devdir.repos {
-        let mut repotext = "\n------------------------------".to_string();
-        repotext += format!("\npath: {}", repo.path).as_str();
+        let mut repotext = "__________________________________________".to_string();
+        // let mut repotext = "".to_string();
+        repotext += format!("\nrepo: {}\n", repo.name).as_str();
+        // repotext += format!("\n").as_str();
         print!("{}", repotext)
         // repotext += format!("path: {}", repo.path).to_string();
         // println!("{}, {}", repo.path, repo.pbuf);
