@@ -9,7 +9,7 @@ struct DevDir {
 struct Repo {
     name: String,
     path: String,
-    pbuf: std::path::PathBuf,
+    path_buf: std::path::PathBuf,
 }
 
 impl DevDir {
@@ -57,7 +57,7 @@ impl DevDir {
                     // path: git_dir.as_path().to_str().unwrap().to_string(),
                     name: dirname,
                     path: path,
-                    pbuf: git_dir,
+                    path_buf: git_dir,
                 };
                 repos.push(repo);
                 // let xyz: () = git_dir;
@@ -204,9 +204,9 @@ fn check_repos() {
         // repotext += format!("\n").as_str();
         print!("{}", repotext)
         // repotext += format!("path: {}", repo.path).to_string();
-        // println!("{}, {}", repo.path, repo.pbuf);
+        // println!("{}, {}", repo.path, repo.path_buf);
         // let xyz: () = repo.path;
-        // let xyz: () = repo.pbuf;
+        // let xyz: () = repo.path_buf;
     }
 }
 
