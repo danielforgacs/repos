@@ -34,6 +34,7 @@ impl DevDir {
             let repo = Repo::new(entry);
             repos.push(repo);
         }
+        repos.sort_by(|repo_a, repo_b| repo_a.name.to_lowercase().cmp(&repo_b.name.to_lowercase()));
         DevDir {
             path: devdir,
             repos,
