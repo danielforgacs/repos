@@ -61,20 +61,18 @@ fn main() {
 }
 
 fn check_repos() {
-    let devdir_env: String = match std::env::var("DEVDIR") {
-        Ok(devdir) => { devdir },
-        Err(_) => { "-".to_string() }
-    };
+    let devdir_env: String = std::env::var("DEVDIR").unwrap();
     let devdir = DevDir::new(devdir_env);
+    let mut print_text = "".to_string();
     for repo in devdir.repos {
-        let mut repotext = "__________________________________________".to_string();
+        print_text += "__________________________________________";
         if repo.branch() == "master" {
-            repotext += format!("\n[ ] {}:\n", repo.name).as_str();
+            print_text += format!("\n[ ] {}:\n", repo.name).as_str();
         } else {
-            repotext += format!("\n[*] {}: {} \n", repo.name, repo.branch()).as_str();
+            print_text += format!("\n[*] {}: {} \n", repo.name, repo.branch()).as_str();
         }
-        print!("{}", repotext);
     }
+    print!("{}", print_text);
 }
 
 // const MAX_STATUS_LINES: usize = 5;
