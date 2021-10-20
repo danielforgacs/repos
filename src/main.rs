@@ -1,9 +1,6 @@
 use std::path::PathBuf;
 use std::fs::{read_to_string};
 
-// const MAX_STATUS_LINES: usize = 5;
-// const STATUS_MARKER_LENGTH: usize = 2;
-
 struct DevDir {
     path: PathBuf,
     repos: Vec<Repo>,
@@ -61,6 +58,9 @@ impl Repo {
         branch.to_string()
     }
 }
+
+// const MAX_STATUS_LINES: usize = 5;
+// const STATUS_MARKER_LENGTH: usize = 2;
 
 // mod root {
 //     use std::fs::ReadDir;
