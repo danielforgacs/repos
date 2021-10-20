@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::fs::{read_to_string};
 
 struct DevDir {
-    path: PathBuf,
+    _path: PathBuf,
     repos: Vec<Repo>,
 }
 
@@ -30,7 +30,7 @@ impl DevDir {
         }
         repos.sort_by(|repo_a, repo_b| repo_a.name.to_lowercase().cmp(&repo_b.name.to_lowercase()));
         DevDir {
-            path: devdir,
+            _path: devdir,
             repos,
         }
     }
