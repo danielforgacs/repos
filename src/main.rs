@@ -71,9 +71,9 @@ fn check_repos() {
     for repo in devdir.repos {
         print_text += "__________________________________________________";
         if repo.branch() == "master" {
-            print_text += format!("\n  {}:\n", repo.name).as_str();
+            print_text += format!("\n{}:\n", repo.name).as_str();
         } else {
-            print_text += format!("\n# {:<23}{:>25} \n", repo.name, repo.branch()).as_str();
+            print_text += format!("\n{:<25}{:>25} \n", repo.name, repo.branch()).as_str();
         }
     }
     print!("{}", print_text);
