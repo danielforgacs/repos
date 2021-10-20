@@ -12,14 +12,10 @@ struct Repo {
 }
 
 impl DevDir {
-    fn new() -> Self {
-        let mut repos: Vec<Repo> = Vec::new();
-        let devdir_env: String = match std::env::var("DEVDIR") {
-            Ok(devdir) => { devdir },
-            Err(_) => { "-".to_string() }
-        };
+    fn new(rootdir: String) -> Self {
         let mut devdir = PathBuf::new();
-        devdir.push(devdir_env);
+        devdir.push(rootdir);
+        let mut repos: Vec<Repo> = Vec::new();
         for entry in devdir.read_dir().unwrap() {
             let entry = match entry {
                 Ok(entry) => { entry.path() },
@@ -65,7 +61,11 @@ fn main() {
 }
 
 fn check_repos() {
-    let devdir = DevDir::new();
+    let devdir_env: String = match std::env::var("DEVDIR") {
+        Ok(devdir) => { devdir },
+        Err(_) => { "-".to_string() }
+    };
+    let devdir = DevDir::new(devdir_env);
     for repo in devdir.repos {
         let mut repotext = "__________________________________________".to_string();
         if repo.branch() == "master" {
@@ -74,7 +74,6 @@ fn check_repos() {
             repotext += format!("\n[*] {}: {} \n", repo.name, repo.branch()).as_str();
         }
         print!("{}", repotext);
-        // println!("{}", check_status(repo.path.to_str().unwrap()));
     }
 }
 
