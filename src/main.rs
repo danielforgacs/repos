@@ -59,6 +59,25 @@ impl Repo {
     }
 }
 
+fn main() {
+    // diagnose_repos();
+    check_repos();
+}
+
+fn check_repos() {
+    let devdir = DevDir::new();
+    for repo in devdir.repos {
+        let mut repotext = "__________________________________________".to_string();
+        if repo.branch() == "master" {
+            repotext += format!("\n[ ] {}:\n", repo.name).as_str();
+        } else {
+            repotext += format!("\n[*] {}: {} \n", repo.name, repo.branch()).as_str();
+        }
+        print!("{}", repotext);
+        // println!("{}", check_status(repo.path.to_str().unwrap()));
+    }
+}
+
 // const MAX_STATUS_LINES: usize = 5;
 // const STATUS_MARKER_LENGTH: usize = 2;
 
@@ -152,25 +171,6 @@ impl Repo {
 //         Result::Ok(Root { name, dirs })
 //     }
 // }
-
-fn main() {
-    // diagnose_repos();
-    check_repos();
-}
-
-fn check_repos() {
-    let devdir = DevDir::new();
-    for repo in devdir.repos {
-        let mut repotext = "__________________________________________".to_string();
-        if repo.branch() == "master" {
-            repotext += format!("\n[ ] {}:\n", repo.name).as_str();
-        } else {
-            repotext += format!("\n[*] {}: {} \n", repo.name, repo.branch()).as_str();
-        }
-        print!("{}", repotext);
-        // println!("{}", check_status(repo.path.to_str().unwrap()));
-    }
-}
 
 // fn check_status(dir: &str) -> String {
 //     let rawoutput = Command::new("git")
