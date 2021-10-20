@@ -49,6 +49,10 @@ impl Repo {
             path,
         }
     }
+
+    fn branch(&self) -> String {
+        "<branch>".to_string()
+    }
 }
 mod root {
     use std::fs::ReadDir;
@@ -150,8 +154,9 @@ fn check_repos() {
     let devdir = DevDir::new();
     for repo in devdir.repos {
         let mut repotext = "__________________________________________".to_string();
-        repotext += format!("\n{}\n", repo.name).as_str();
-        print!("{}", repotext)
+        repotext += format!("\n{}: {}\n", repo.name, repo.branch()).as_str();
+        print!("{}", repotext);
+        // println!("{}", check_status(repo.path.to_str().unwrap()));
     }
 }
 
