@@ -160,7 +160,11 @@ fn check_repos() {
     let devdir = DevDir::new();
     for repo in devdir.repos {
         let mut repotext = "__________________________________________".to_string();
-        repotext += format!("\n{}: {}\n", repo.name, repo.branch()).as_str();
+        if repo.branch() == "master" {
+            repotext += format!("\n[ ] {}:\n", repo.name).as_str();
+        } else {
+            repotext += format!("\n[*] {}: {} \n", repo.name, repo.branch()).as_str();
+        }
         print!("{}", repotext);
         // println!("{}", check_status(repo.path.to_str().unwrap()));
     }
