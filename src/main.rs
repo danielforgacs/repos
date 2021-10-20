@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use std::fs::{read_to_string};
+use std::process::Command;
 
 struct DevDir {
     _path: PathBuf,
@@ -9,6 +10,23 @@ struct DevDir {
 struct Repo {
     name: String,
     path: PathBuf,
+}
+
+struct RepoStatus {
+    // "??" => "untracked:",
+    untracked: bool,
+    // " D" => "deleted:",
+    deleted: bool,
+    // "D " => "deleted staged:",
+    deleted_staged: bool,
+    // "M " => "staged:",
+    staged: bool,
+    // " M" => "modified:",
+    modified: bool,
+    // "A " => "new file:",
+    new_file: bool,
+    // "AM" => "new file 2:",
+    new_file_2: bool,
 }
 
 impl DevDir {
@@ -57,6 +75,18 @@ impl Repo {
         }
         branch
     }
+
+    fn status(&self) {
+        let status = [false; 7];
+        let git_status = Command::new("git")
+            .arg("status")
+            .arg("--porcelain")
+            .current_dir(&self.path)
+            .output().unwrap().stdout;
+        let git_status = String::from_utf8(git_status).unwrap();
+        println!("{:#?}", git_status);
+
+    }
 }
 
 fn main() {
@@ -75,6 +105,7 @@ fn check_repos() {
         } else {
             print_text += format!("\n{:<25}{:>25} \n", repo.name, repo.branch()).as_str();
         }
+        repo.status();
     }
     print!("{}", print_text);
 }
