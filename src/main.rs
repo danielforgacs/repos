@@ -50,8 +50,12 @@ impl Repo {
         head_file.push(self.path.to_str().unwrap().to_string() + "/.git/HEAD");
         let githead: String = read_to_string(&head_file).unwrap();
         let githead = githead.trim().to_string();
-        let branch = githead.split("/").last().unwrap();
-        branch.to_string()
+        let mut branch = githead.split("/").last().unwrap().to_string();
+        if branch.len() > 15 {
+            branch = branch[..15].to_string();
+            branch += "~";
+        }
+        branch
     }
 }
 
@@ -69,7 +73,7 @@ fn check_repos() {
         if repo.branch() == "master" {
             print_text += format!("\n[ ] {}:\n", repo.name).as_str();
         } else {
-            print_text += format!("\n[*] {}: {} \n", repo.name, repo.branch()).as_str();
+            print_text += format!("\n[*] {:<15}{:>23} \n", repo.name, repo.branch()).as_str();
         }
     }
     print!("{}", print_text);
