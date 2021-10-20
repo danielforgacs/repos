@@ -69,11 +69,11 @@ fn check_repos() {
     let devdir = DevDir::new(devdir_env);
     let mut print_text = "".to_string();
     for repo in devdir.repos {
-        print_text += "__________________________________________";
+        print_text += "__________________________________________________";
         if repo.branch() == "master" {
             print_text += format!("\n  {}:\n", repo.name).as_str();
         } else {
-            print_text += format!("\n* {:<15}{:>25} \n", repo.name, repo.branch()).as_str();
+            print_text += format!("\n# {:<23}{:>25} \n", repo.name, repo.branch()).as_str();
         }
     }
     print!("{}", print_text);
