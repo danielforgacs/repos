@@ -51,9 +51,15 @@ impl Repo {
     }
 
     fn branch(&self) -> String {
-        "<branch>".to_string()
+        let mut head_file = PathBuf::new();
+        head_file.push(self.path.to_str().unwrap().to_string() + "/.git/HEAD");
+        let githead: String = read_to_string(&head_file).unwrap();
+        let githead = githead.trim().to_string();
+        let branch = githead.split("/").last().unwrap();
+        branch.to_string()
     }
 }
+
 mod root {
     use std::fs::ReadDir;
 
