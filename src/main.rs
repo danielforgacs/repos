@@ -15,7 +15,8 @@ struct Repo {
 #[derive(Debug)]
 struct RepoStatus {
     // "??" => "untracked:",
-    untracked: bool,
+    // untracked: bool,
+    untracked: Option<bool>,
     // " D" => "deleted:",
     deleted: bool,
     // "D " => "deleted staged:",
@@ -77,7 +78,7 @@ impl Repo {
         branch
     }
 
-    fn status(&self) {
+    fn status(&self) -> RepoStatus {
         let status_stdout = Command::new("git")
             .arg("status")
             .arg("--porcelain")
@@ -87,7 +88,7 @@ impl Repo {
         let mut status = RepoStatus::new();
         for line in status_stdout.lines() {
             match &line[..2] {
-                "??" => status.untracked = true,
+                "??" => status.untracked = Some(true),
                 " D" => status.deleted = true,
                 "D " => status.deleted_staged = true,
                 "M " => status.staged = true,
@@ -97,14 +98,14 @@ impl Repo {
                 _ => (),
             };
         }
-        println!("{:#?}", status);
+        status
     }
 }
 
 impl RepoStatus {
     fn new() -> Self {
         Self {
-            untracked: false,
+            untracked: None,
             deleted: false,
             deleted_staged: false,
             staged: false,
@@ -131,7 +132,11 @@ fn check_repos() {
         } else {
             print_text += format!("\n{:<25}{:>25} \n", repo.name, repo.branch()).as_str();
         }
-        repo.status();
+        let status = repo.status();
+        let status_text = format!("[{}][{}][{}][{}][{}][{}][{}]",
+            1, 2, 3, 4, 5, 6, 7
+        );
+        println!("{}", status_text);
     }
     print!("{}", print_text);
 }
