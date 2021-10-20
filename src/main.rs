@@ -12,6 +12,7 @@ struct Repo {
     path: PathBuf,
 }
 
+#[derive(Debug)]
 struct RepoStatus {
     // "??" => "untracked:",
     untracked: bool,
@@ -77,15 +78,40 @@ impl Repo {
     }
 
     fn status(&self) {
-        let status = [false; 7];
-        let git_status = Command::new("git")
+        let status_stdout = Command::new("git")
             .arg("status")
             .arg("--porcelain")
             .current_dir(&self.path)
             .output().unwrap().stdout;
-        let git_status = String::from_utf8(git_status).unwrap();
-        println!("{:#?}", git_status);
+        let status_stdout = String::from_utf8(status_stdout).unwrap();
+        let mut status = RepoStatus::new();
+        for line in status_stdout.lines() {
+            match &line[..2] {
+                "??" => status.untracked = true,
+                " D" => status.deleted = true,
+                "D " => status.deleted_staged = true,
+                "M " => status.staged = true,
+                " M" => status.modified = true,
+                "A " => status.new_file = true,
+                "AM" => status.new_file_2 = true,
+                _ => (),
+            };
+        }
+        println!("{:#?}", status);
+    }
+}
 
+impl RepoStatus {
+    fn new() -> Self {
+        Self {
+            untracked: false,
+            deleted: false,
+            deleted_staged: false,
+            staged: false,
+            modified: false,
+            new_file: false,
+            new_file_2: false,
+        }
     }
 }
 
