@@ -15,10 +15,11 @@ struct Repo {
 #[derive(Debug)]
 struct RepoStatus {
     // "??" => "untracked:",
-    // untracked: bool,
-    untracked: Option<bool>,
+    untracked: bool,
+    // untracked: Option<bool>,
     // " D" => "deleted:",
     deleted: bool,
+    // deleted: String,
     // "D " => "deleted staged:",
     deleted_staged: bool,
     // "M " => "staged:",
@@ -88,7 +89,7 @@ impl Repo {
         let mut status = RepoStatus::new();
         for line in status_stdout.lines() {
             match &line[..2] {
-                "??" => status.untracked = Some(true),
+                "??" => status.untracked = true,
                 " D" => status.deleted = true,
                 "D " => status.deleted_staged = true,
                 "M " => status.staged = true,
@@ -105,7 +106,7 @@ impl Repo {
 impl RepoStatus {
     fn new() -> Self {
         Self {
-            untracked: None,
+            untracked: false,
             deleted: false,
             deleted_staged: false,
             staged: false,
@@ -134,9 +135,15 @@ fn check_repos() {
         }
         let status = repo.status();
         let status_text = format!("[{}][{}][{}][{}][{}][{}][{}]",
-            1, 2, 3, 4, 5, 6, 7
+            if status.untracked { "U" } else { " " },
+            if status.deleted { "D" } else { " " },
+            if status.deleted_staged { "d" } else { " " },
+            if status.staged { "S" } else { " " },
+            if status.modified { "M" } else { " " },
+            if status.new_file { "N" } else { " " },
+            if status.new_file_2 { "n" } else { " " },
         );
-        println!("{}", status_text);
+        print_text += format!("{:>50}\n", status_text).as_str();
     }
     print!("{}", print_text);
 }
