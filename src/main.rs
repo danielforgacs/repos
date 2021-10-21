@@ -2,6 +2,8 @@ use std::path::PathBuf;
 use std::fs::{read_to_string};
 use std::process::Command;
 
+const BRANCH_NAME_WIDTH: usize = 18;
+
 struct DevDir {
     _path: PathBuf,
     repos: Vec<Repo>,
@@ -72,8 +74,8 @@ impl Repo {
         let githead: String = read_to_string(&head_file).unwrap();
         let githead = githead.trim().to_string();
         let mut branch = githead.split("/").last().unwrap().to_string();
-        if branch.len() > 15 {
-            branch = branch[..15].to_string();
+        if branch.len() > BRANCH_NAME_WIDTH {
+            branch = branch[..BRANCH_NAME_WIDTH-1].to_string();
             branch += "~";
         }
         branch
@@ -87,8 +89,9 @@ impl Repo {
             .output().unwrap().stdout;
         let status_stdout = String::from_utf8(status_stdout).unwrap();
         let mut status = RepoStatus::new();
+        let status_mark_width = 2;
         for line in status_stdout.lines() {
-            match &line[..2] {
+            match &line[..status_mark_width] {
                 "??" => status.untracked = true,
                 " D" => status.deleted = true,
                 "D " => status.deleted_staged = true,
@@ -125,25 +128,27 @@ fn main() {
 fn check_repos() {
     let devdir_env: String = std::env::var("DEVDIR").unwrap();
     let devdir = DevDir::new(devdir_env);
+    let empty_status = " ";
     let mut print_text = "".to_string();
     for repo in devdir.repos {
-        print_text += "\n______________________________________________________";
+        // print_text += "\n______________________________________________________";
         let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
-        print_text += format!("\n{:<25}{:<20}", repo.name, branch).as_str();
+        // print_text += format!("\n{:>22} {:<18}", repo.name, branch).as_str();
+        print_text += format!("\n{:>22} {:width$}", repo.name, branch, width=BRANCH_NAME_WIDTH+2).as_str();
         let status = repo.status();
         let status_text = format!("[{}{}{}{}{}{}{}]",
-            if status.untracked { "U" } else { " " },
-            if status.deleted { "D" } else { " " },
-            if status.deleted_staged { "d" } else { " " },
-            if status.staged { "S" } else { " " },
-            if status.modified { "M" } else { " " },
-            if status.new_file { "N" } else { " " },
-            if status.new_file_2 { "n" } else { " " },
+            if status.untracked { "U" } else { empty_status },
+            if status.deleted { "D" } else { empty_status },
+            if status.deleted_staged { "d" } else { empty_status },
+            if status.staged { "S" } else { empty_status },
+            if status.modified { "M" } else { empty_status },
+            if status.new_file { "N" } else { empty_status },
+            if status.new_file_2 { "n" } else { empty_status },
         );
-        print_text += format!("{:<55}", status_text).as_str();
+        print_text += format!("{}", status_text).as_str();
 
     }
-    print!("{}", print_text);
+    print!("{}\n", print_text);
 }
 
 // const MAX_STATUS_LINES: usize = 5;
