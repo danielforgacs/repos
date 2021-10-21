@@ -2,7 +2,8 @@ use std::path::PathBuf;
 use std::fs::{read_to_string};
 use std::process::Command;
 
-const BRANCH_NAME_WIDTH: usize = 18;
+const REPO_NAME_WIDTH: usize = 22;
+const BRANCH_NAME_WIDTH: usize = 22;
 
 struct DevDir {
     _path: PathBuf,
@@ -61,7 +62,12 @@ impl DevDir {
 
 impl Repo {
     fn new(path: PathBuf) -> Self {
-        let name = path.file_name().unwrap().to_str().unwrap().to_string();
+        let mut name = path.file_name().unwrap().to_str().unwrap().to_string();
+        // name = "0123456789abcdefghijklm-0123456789abcdefghijklm".to_string();
+        if name.len() > REPO_NAME_WIDTH {
+            name = String::from(&name[..REPO_NAME_WIDTH-1]);
+            name += "~";
+        }
         Self {
             name,
             path,
@@ -134,7 +140,8 @@ fn check_repos() {
         // print_text += "\n______________________________________________________";
         let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
         // print_text += format!("\n{:>22} {:<18}", repo.name, branch).as_str();
-        print_text += format!("\n{:>22} {:width$}", repo.name, branch, width=BRANCH_NAME_WIDTH+2).as_str();
+        // print_text += format!("\n{:>22} {:width$}", repo.name, branch, width=BRANCH_NAME_WIDTH+2).as_str();
+        print_text += format!("\n{:>rw$} {:bw$}", repo.name, branch, rw=REPO_NAME_WIDTH+2, bw=BRANCH_NAME_WIDTH+2).as_str();
         let status = repo.status();
         let status_text = format!("[{}{}{}{}{}{}{}]",
             if status.untracked { "U" } else { empty_status },
