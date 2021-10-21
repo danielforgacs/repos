@@ -19,10 +19,8 @@ struct Repo {
 struct RepoStatus {
     // "??" => "untracked:",
     untracked: bool,
-    // untracked: Option<bool>,
     // " D" => "deleted:",
     deleted: bool,
-    // deleted: String,
     // "D " => "deleted staged:",
     deleted_staged: bool,
     // "M " => "staged:",
@@ -63,15 +61,11 @@ impl DevDir {
 impl Repo {
     fn new(path: PathBuf) -> Self {
         let mut name = path.file_name().unwrap().to_str().unwrap().to_string();
-        // name = "0123456789abcdefghijklm-0123456789abcdefghijklm".to_string();
         if name.len() > REPO_NAME_WIDTH {
             name = String::from(&name[..REPO_NAME_WIDTH-1]);
             name += "~";
         }
-        Self {
-            name,
-            path,
-        }
+        Self { name, path }
     }
 
     fn branch(&self) -> String {
@@ -137,11 +131,8 @@ fn check_repos() {
     let empty_status = " ";
     let mut print_text = "".to_string();
     for repo in devdir.repos {
-        // print_text += "\n______________________________________________________";
         let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
-        // print_text += format!("\n{:>22} {:<18}", repo.name, branch).as_str();
-        // print_text += format!("\n{:>22} {:width$}", repo.name, branch, width=BRANCH_NAME_WIDTH+2).as_str();
-        print_text += format!("\n{:>rw$} {:bw$}", repo.name, branch, rw=REPO_NAME_WIDTH+2, bw=BRANCH_NAME_WIDTH+2).as_str();
+        print_text += format!("\n{:>rw$}  {:bw$}", repo.name, branch, rw=REPO_NAME_WIDTH+2, bw=BRANCH_NAME_WIDTH+2).as_str();
         let status = repo.status();
         let status_text = format!("[{}{}{}{}{}{}{}]",
             if status.untracked { "U" } else { empty_status },
@@ -153,7 +144,6 @@ fn check_repos() {
             if status.new_file_2 { "n" } else { empty_status },
         );
         print_text += format!("{}", status_text).as_str();
-
     }
     print!("{}\n", print_text);
 }
