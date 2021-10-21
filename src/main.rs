@@ -132,7 +132,6 @@ fn check_repos() {
     let mut print_text = "".to_string();
     for repo in devdir.repos {
         let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
-        print_text += format!("\n{:>rw$}  {:bw$}", repo.name, branch, rw=REPO_NAME_WIDTH+2, bw=BRANCH_NAME_WIDTH+2).as_str();
         let status = repo.status();
         let status_text = format!("[{}{}{}{}{}{}{}]",
             if status.untracked { "U" } else { empty_status },
@@ -143,7 +142,7 @@ fn check_repos() {
             if status.new_file { "N" } else { empty_status },
             if status.new_file_2 { "n" } else { empty_status },
         );
-        print_text += format!("{}", status_text).as_str();
+        print_text += format!("\n{:>rw$} {} {:bw$}", repo.name, status_text, branch, rw=REPO_NAME_WIDTH+2, bw=BRANCH_NAME_WIDTH+2).as_str();
     }
     print!("{}\n", print_text);
 }
