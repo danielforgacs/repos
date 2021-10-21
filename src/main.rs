@@ -127,14 +127,11 @@ fn check_repos() {
     let devdir = DevDir::new(devdir_env);
     let mut print_text = "".to_string();
     for repo in devdir.repos {
-        print_text += "__________________________________________________";
-        if repo.branch() == "master" {
-            print_text += format!("\n{}:\n", repo.name).as_str();
-        } else {
-            print_text += format!("\n{:<25}{:>25} \n", repo.name, repo.branch()).as_str();
-        }
+        print_text += "\n______________________________________________________";
+        let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
+        print_text += format!("\n{:<25}{:<20}", repo.name, branch).as_str();
         let status = repo.status();
-        let status_text = format!("[{}][{}][{}][{}][{}][{}][{}]",
+        let status_text = format!("[{}{}{}{}{}{}{}]",
             if status.untracked { "U" } else { " " },
             if status.deleted { "D" } else { " " },
             if status.deleted_staged { "d" } else { " " },
@@ -143,7 +140,8 @@ fn check_repos() {
             if status.new_file { "N" } else { " " },
             if status.new_file_2 { "n" } else { " " },
         );
-        print_text += format!("{:>50}\n", status_text).as_str();
+        print_text += format!("{:<55}", status_text).as_str();
+
     }
     print!("{}", print_text);
 }
