@@ -122,7 +122,7 @@ fn check_repos() {
     let devdir_env: String = std::env::var("DEVDIR").unwrap();
     let devdir = DevDir::new(devdir_env);
     let header = format!("{:>re$} |{:^st$}| {:br$}",
-        "repo", "status", "branch", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
+        "<------- repo", "status", "branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
     let empty_status = " ";
     let mut print_text = "".to_string();
     print_text.push_str(&header);
@@ -140,6 +140,14 @@ fn check_repos() {
         );
         print_text += format!("\n{:>rw$} {} {:bw$}", repo.name, status_text, branch, rw=REPO_NAME_WIDTH, bw=BRANCH_NAME_WIDTH).as_str();
     }
+    print_text += "\n\nU: untracked";
+    print_text += ", D: deleted";
+    print_text += ", d: deleted staged";
+    print_text += ", S: staged";
+    print_text += "\nM: modified";
+    print_text += ", N: new file";
+    print_text += ", n: new file 2";
+
     print!("{}\n", print_text);
 }
 
