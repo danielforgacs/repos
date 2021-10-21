@@ -122,7 +122,7 @@ fn check_repos() {
     let devdir_env: String = std::env::var("DEVDIR").unwrap();
     let devdir = DevDir::new(devdir_env);
     let header = format!("{:>re$} |{:^st$}| {:br$}",
-        "<------- repo", "status", "branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
+        "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
     let empty_status = " ";
     let mut print_text = "".to_string();
     print_text.push_str(&header);
