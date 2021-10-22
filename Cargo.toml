@@ -1,6 +1,9 @@
 [package]
 name = "repos"
-version = "0.1.0"
+# version = "v07.09.2021"
+# version = "v21.10.2021"
+version = "0.0.0"
+
 edition = "2021"
 
 [dependencies]
