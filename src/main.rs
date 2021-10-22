@@ -114,7 +114,7 @@ impl RepoStatus {
 }
 
 fn main() {
-    check_repos();
+    // check_repos();
 }
 
 fn check_repos() {
