@@ -29,7 +29,8 @@ struct RepoStatus {
 
 #[derive(StructOpt)]
 struct Opt {
-    #[structopt(parse(from_os_str), env="DEVDIR")]
+    /// Set "DEVDIR" env var for easier use.
+    #[structopt(parse(from_os_str), env="DEVDIR", default_value=".")]
     path: PathBuf,
 }
 
@@ -120,10 +121,15 @@ impl RepoStatus {
 
 fn main() {
     let opt = Opt::from_args();
+    if !opt.path.is_dir() {
+        println!("Bad path: \"{}\"!\nWhat a bimbo...?!??! How are you even a programmer? ;)", opt.path.as_path().display());
+        return
+    }
     check_repos(opt);
 }
 
 fn check_repos(opt: Opt) {
+    println!("{}", opt.path.as_path().display());
     let devdir = DevDir::new(opt.path);
     let header = format!("{:>re$} |{:^st$}| {:br$}",
         "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
