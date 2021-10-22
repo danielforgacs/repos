@@ -30,7 +30,7 @@ struct RepoStatus {
 #[derive(StructOpt)]
 struct Opt {
     #[structopt(parse(from_os_str), env="DEVDIR")]
-    path: Option<PathBuf>,
+    path: PathBuf,
 }
 
 impl DevDir {
@@ -124,7 +124,7 @@ fn main() {
 }
 
 fn check_repos(opt: Opt) {
-    let devdir = DevDir::new(opt.path.unwrap());
+    let devdir = DevDir::new(opt.path);
     let header = format!("{:>re$} |{:^st$}| {:br$}",
         "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
     let empty_status = " ";
