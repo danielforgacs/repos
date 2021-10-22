@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 use std::fs::{read_to_string};
 use std::process::Command;
+use structopt::StructOpt;
 
 const REPO_NAME_WIDTH: usize = 25;
 const BRANCH_NAME_WIDTH: usize = 50;
@@ -24,6 +25,12 @@ struct RepoStatus {
     modified: bool,
     new_file: bool,
     new_file_2: bool,
+}
+
+#[derive(StructOpt)]
+struct Opt {
+    #[structopt(parse(from_os_str), env="DEVDIR")]
+    path: Option<PathBuf>,
 }
 
 impl DevDir {
@@ -114,7 +121,8 @@ impl RepoStatus {
 }
 
 fn main() {
-    // check_repos();
+    let opt = Opt::from_args();
+    check_repos();
 }
 
 fn check_repos() {
