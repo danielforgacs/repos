@@ -30,7 +30,7 @@ struct RepoStatus {
 #[derive(StructOpt)]
 struct Opt {
     /// Set "DEVDIR" env var for easier use.
-    #[structopt(parse(from_os_str), env="DEVDIR", default_value=".")]
+    #[structopt(parse(from_os_str), env = "DEVDIR", default_value = ".")]
     path: PathBuf,
 }
 
@@ -39,12 +39,12 @@ impl DevDir {
         let mut repos: Vec<Repo> = Vec::new();
         for entry in devdir.read_dir().unwrap() {
             let entry = match entry {
-                Ok(entry) => { entry.path() },
-                Err(_) => { PathBuf::new() },
+                Ok(entry) => entry.path(),
+                Err(_) => PathBuf::new(),
             };
             let entry_git = entry.to_str().unwrap().to_string() + "/.git";
             if !std::path::Path::new(&entry_git).is_dir() {
-                continue
+                continue;
             }
             let repo = Repo::new(entry);
             repos.push(repo);
@@ -61,7 +61,7 @@ impl Repo {
     fn new(path: PathBuf) -> Self {
         let mut name = path.file_name().unwrap().to_str().unwrap().to_string();
         if name.len() > REPO_NAME_WIDTH {
-            name = String::from(&name[..REPO_NAME_WIDTH-1]);
+            name = String::from(&name[..REPO_NAME_WIDTH - 1]);
             name += "~";
         }
         Self { name, path }
@@ -74,7 +74,7 @@ impl Repo {
         let githead = githead.trim().to_string();
         let mut branch = githead.split("/").last().unwrap().to_string();
         if branch.len() > BRANCH_NAME_WIDTH {
-            branch = branch[..BRANCH_NAME_WIDTH-1].to_string();
+            branch = branch[..BRANCH_NAME_WIDTH - 1].to_string();
             branch += "~";
         }
         branch
@@ -85,7 +85,9 @@ impl Repo {
             .arg("status")
             .arg("--porcelain")
             .current_dir(&self.path)
-            .output().unwrap().stdout;
+            .output()
+            .unwrap()
+            .stdout;
         let status_stdout = String::from_utf8(status_stdout).unwrap();
         let mut status = RepoStatus::new();
         let status_mark_width = 2;
