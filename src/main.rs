@@ -34,9 +34,7 @@ struct Opt {
 }
 
 impl DevDir {
-    fn new(rootdir: String) -> Self {
-        let mut devdir = PathBuf::new();
-        devdir.push(rootdir);
+    fn new(devdir: PathBuf) -> Self {
         let mut repos: Vec<Repo> = Vec::new();
         for entry in devdir.read_dir().unwrap() {
             let entry = match entry {
@@ -122,12 +120,11 @@ impl RepoStatus {
 
 fn main() {
     let opt = Opt::from_args();
-    check_repos();
+    check_repos(opt);
 }
 
-fn check_repos() {
-    let devdir_env: String = std::env::var("DEVDIR").unwrap();
-    let devdir = DevDir::new(devdir_env);
+fn check_repos(opt: Opt) {
+    let devdir = DevDir::new(opt.path.unwrap());
     let header = format!("{:>re$} |{:^st$}| {:br$}",
         "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
     let empty_status = " ";
