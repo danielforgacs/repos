@@ -119,6 +119,22 @@ impl RepoStatus {
     }
 }
 
+impl ToString for RepoStatus {
+    fn to_string(&self) -> String {
+        let empty_status = " ";
+        let status_text = format!("[{}{}{}{}{}{}{}]",
+            if self.untracked { "U" } else { empty_status },
+            if self.deleted { "D" } else { empty_status },
+            if self.deleted_staged { "d" } else { empty_status },
+            if self.staged { "S" } else { empty_status },
+            if self.modified { "M" } else { empty_status },
+            if self.new_file { "N" } else { empty_status },
+            if self.new_file_2 { "n" } else { empty_status },
+        );
+        status_text
+    }
+}
+
 fn main() {
     let opt = Opt::from_args();
     if !opt.path.is_dir() {
@@ -133,22 +149,11 @@ fn check_repos(opt: Opt) {
     let devdir = DevDir::new(opt.path);
     let header = format!("{:>re$} |{:^st$}| {:br$}",
         "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
-    let empty_status = " ";
     let mut print_text = "".to_string();
     print_text.push_str(&header);
     for repo in devdir.repos {
         let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
-        let status = repo.status();
-        let status_text = format!("[{}{}{}{}{}{}{}]",
-            if status.untracked { "U" } else { empty_status },
-            if status.deleted { "D" } else { empty_status },
-            if status.deleted_staged { "d" } else { empty_status },
-            if status.staged { "S" } else { empty_status },
-            if status.modified { "M" } else { empty_status },
-            if status.new_file { "N" } else { empty_status },
-            if status.new_file_2 { "n" } else { empty_status },
-        );
-        print_text += format!("\n{:>rw$} {} {:bw$}", repo.name, status_text, branch, rw=REPO_NAME_WIDTH, bw=BRANCH_NAME_WIDTH).as_str();
+        print_text += format!("\n{:>rw$} {} {:bw$}", repo.name, repo.status().to_string(), branch, rw=REPO_NAME_WIDTH, bw=BRANCH_NAME_WIDTH).as_str();
     }
     print_text += "\n\nU: untracked";
     print_text += ", D: deleted";
