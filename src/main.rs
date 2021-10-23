@@ -165,14 +165,17 @@ fn check_repos(opt: Opt) {
     let mut print_text = "".to_string();
     print_text.push_str(&header);
     for repo in devdir.repos {
-        if repo.status().is_ok() {
-            continue;
-        }
-        let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
+        let branch = repo.branch();
+        let is_branch_master = branch == "master";
+        let status = repo.status();
+        // if repo.status().is_ok() {
+        //     continue;
+        // }
+        let branch_txt = if is_branch_master { "".to_string() } else { branch };
         print_text += format!("\n{:>rw$} {} {:bw$}",
             repo.name,
-            repo.status().to_string(),
-            branch,
+            status.to_string(),
+            branch_txt,
             rw=REPO_NAME_WIDTH,
             bw=BRANCH_NAME_WIDTH).as_str();
     }
