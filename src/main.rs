@@ -160,10 +160,10 @@ fn main() {
 fn check_repos(opt: Opt) {
     println!("{}", opt.path.as_path().display());
     let devdir = DevDir::new(opt.path);
-    let header = format!("{:>re$} |{:^st$}| {:br$}",
-        "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
+    // let header = format!("{:>re$} |{:^st$}| {:br$}",
+    //     "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
     let mut print_text = "".to_string();
-    print_text.push_str(&header);
+    // print_text.push_str(&header);
     for repo in devdir.repos {
         let branch = repo.branch();
         let is_branch_master = branch == "master";
@@ -179,8 +179,8 @@ fn check_repos(opt: Opt) {
             rw=REPO_NAME_WIDTH,
             bw=BRANCH_NAME_WIDTH).as_str();
     }
-    print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
-        \nM: modified, N: new file, n: new file 2";
+    // print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
+    //     \nM: modified, N: new file, n: new file 2";
 
     print!("{}\n", print_text);
 }
