@@ -3,8 +3,8 @@ use std::fs::{read_to_string};
 use std::process::Command;
 use structopt::StructOpt;
 
-const REPO_NAME_WIDTH: usize = 25;
-const BRANCH_NAME_WIDTH: usize = 50;
+const REPO_NAME_WIDTH: usize = 20;
+const BRANCH_NAME_WIDTH: usize = 35;
 
 struct DevDir {
     _path: PathBuf,
@@ -135,7 +135,7 @@ impl RepoStatus {
 impl ToString for RepoStatus {
     fn to_string(&self) -> String {
         let empty_status = " ";
-        let status_text = format!("[{}{}{}{}{}{}{}]",
+        let status_text = format!("{}{}{}{}{}{}{}",
             if self.untracked { "U" } else { empty_status },
             if self.deleted { "D" } else { empty_status },
             if self.deleted_staged { "d" } else { empty_status },
@@ -172,7 +172,8 @@ fn check_repos(opt: Opt) {
             continue;
         }
         let branch_txt = if is_branch_master { "".to_string() } else { branch };
-        print_text += format!("\n{:>rw$} {} {:bw$}",
+        // print_text += format!("\n{:>rw$} |{}| {:bw$}",
+        print_text += format!("\n{:>rw$} [{}] {:bw$}",
             repo.name,
             status.to_string(),
             branch_txt,
