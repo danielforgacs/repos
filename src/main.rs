@@ -155,7 +155,12 @@ fn check_repos(opt: Opt) {
     print_text.push_str(&header);
     for repo in devdir.repos {
         let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
-        print_text += format!("\n{:>rw$} {} {:bw$}", repo.name, repo.status().to_string(), branch, rw=REPO_NAME_WIDTH, bw=BRANCH_NAME_WIDTH).as_str();
+        print_text += format!("\n{:>rw$} {} {:bw$}",
+            repo.name,
+            repo.status().to_string(),
+            branch,
+            rw=REPO_NAME_WIDTH,
+            bw=BRANCH_NAME_WIDTH).as_str();
     }
     print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
         \nM: modified, N: new file, n: new file 2";
