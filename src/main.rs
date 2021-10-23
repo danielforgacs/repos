@@ -157,13 +157,8 @@ fn check_repos(opt: Opt) {
         let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
         print_text += format!("\n{:>rw$} {} {:bw$}", repo.name, repo.status().to_string(), branch, rw=REPO_NAME_WIDTH, bw=BRANCH_NAME_WIDTH).as_str();
     }
-    print_text += "\n\nU: untracked";
-    print_text += ", D: deleted";
-    print_text += ", d: deleted staged";
-    print_text += ", S: staged";
-    print_text += "\nM: modified";
-    print_text += ", N: new file";
-    print_text += ", n: new file 2";
+    print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
+        \nM: modified, N: new file, n: new file 2";
 
     print!("{}\n", print_text);
 }
