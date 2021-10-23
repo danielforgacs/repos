@@ -32,6 +32,9 @@ struct Opt {
     /// Set "DEVDIR" env var for easier use.
     #[structopt(parse(from_os_str), env = "DEVDIR", default_value = ".")]
     path: PathBuf,
+    /// Include repos with "master" branch and "Ok" status.
+    #[structopt(short = "-a")]
+    show_all: bool,
 }
 
 impl DevDir {
@@ -169,7 +172,9 @@ fn check_repos(opt: Opt) {
         let is_branch_master = branch == "master";
         let status = repo.status();
         if is_branch_master && repo.status().is_ok() {
-            continue;
+            if !opt.show_all {
+                continue;
+            }
         }
         let branch_txt = if is_branch_master { "".to_string() } else { branch };
         // print_text += format!("\n{:>rw$} |{}| {:bw$}",
