@@ -168,9 +168,9 @@ fn check_repos(opt: Opt) {
         let branch = repo.branch();
         let is_branch_master = branch == "master";
         let status = repo.status();
-        // if repo.status().is_ok() {
-        //     continue;
-        // }
+        if is_branch_master && repo.status().is_ok() {
+            continue;
+        }
         let branch_txt = if is_branch_master { "".to_string() } else { branch };
         print_text += format!("\n{:>rw$} {} {:bw$}",
             repo.name,
