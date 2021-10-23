@@ -119,6 +119,17 @@ impl RepoStatus {
             new_file_2: false,
         }
     }
+
+    fn is_ok(&self) -> bool {
+        let has_bad_stuff = self.untracked ||
+            self.deleted ||
+            self.deleted_staged ||
+            self.staged ||
+            self.modified ||
+            self.new_file ||
+            self.new_file_2;
+        !has_bad_stuff
+    }
 }
 
 impl ToString for RepoStatus {
@@ -154,6 +165,9 @@ fn check_repos(opt: Opt) {
     let mut print_text = "".to_string();
     print_text.push_str(&header);
     for repo in devdir.repos {
+        if repo.status().is_ok() {
+            continue;
+        }
         let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
         print_text += format!("\n{:>rw$} {} {:bw$}",
             repo.name,
