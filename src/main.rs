@@ -41,6 +41,14 @@ struct Opt {
     show_all: bool,
 }
 
+impl Opt {
+    fn new() -> Self {
+        let mut opt = Self::from_args();
+        opt.path = std::fs::canonicalize(opt.path).unwrap();
+        opt
+    }
+}
+
 impl DevDir {
     fn new(devdir: PathBuf) -> Self {
         let mut repos: Vec<Repo> = Vec::new();
@@ -159,13 +167,11 @@ impl ToString for RepoStatus {
 }
 
 fn main() {
-    let mut opt = Opt::from_args();
+    let opt = Opt::new();
     if !opt.path.is_dir() {
         println!("Bad path: \"{}\"!\nWhat a bimbo...?!??! How are you even a programmer? ;)", opt.path.as_path().display());
         return
     }
-    let abs_path = std::fs::canonicalize(&opt.path).unwrap();
-    opt.path = abs_path;
     check_repos(opt);
 }
 
