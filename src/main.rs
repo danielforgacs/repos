@@ -159,18 +159,25 @@ impl ToString for RepoStatus {
 }
 
 fn main() {
-    let opt = Opt::from_args();
-    if !opt.path.is_dir() {
-        println!("Bad path: \"{}\"!\nWhat a bimbo...?!??! How are you even a programmer? ;)", opt.path.as_path().display());
-        return
-    }
+    let mut opt = Opt::from_args();
+    let abs_path = match std::fs::canonicalize(&opt.path) {
+        Ok(path) => path,
+        Err(_) => {
+            println!(
+                "Bad path: \"{}\"!\nWhat a bimbo...?!??! How are you even a programmer? ;)",
+                opt.path.as_path().display()
+            );
+            return
+        }
+    };
+    opt.path = abs_path;
     check_repos(opt);
 }
 
 fn check_repos(opt: Opt) {
     let color_info = format!("{}", color::Fg(color::Rgb(75, 75, 75)));
-    let color_ok = format!("{}", color::Fg(color::Green));
-    let color_bad_status = format!("{}", color::Fg(color::Rgb(200, 80, 0)));
+    let color_ok = format!("{}", color::Fg(color::Rgb(0, 125, 0)));
+    let color_bad_status = format!("{}", color::Fg(color::Rgb(225, 25, 0)));
     let color_reset = format!("{}", color::Fg(color::Reset));
     print!("{}{}{}", color_info, opt.path.as_path().display(), color_reset);
     let devdir = DevDir::new(opt.path);
@@ -209,7 +216,7 @@ fn check_repos(opt: Opt) {
         print_text += &color_reset;
     }
     print_text += &color_info;
-    print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
+    print_text += "\nU: untracked, D: deleted, d: deleted staged, S: staged\
     \nM: modified, N: new file, n: new file 2";
     print_text += &color_reset;
     print!("{}\n", print_text);
