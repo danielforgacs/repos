@@ -162,7 +162,7 @@ fn main() {
 }
 
 fn check_repos(opt: Opt) {
-    println!("{}", opt.path.as_path().display());
+    print!("{}", opt.path.as_path().display());
     let devdir = DevDir::new(opt.path);
     let mut print_text = "".to_string();
     if VERBOSE {
