@@ -168,13 +168,15 @@ fn main() {
 }
 
 fn check_repos(opt: Opt) {
-    let color_dark = format!("{}", color::Fg(color::Rgb(40, 40, 40)));
+    let color_info = format!("{}", color::Fg(color::Rgb(75, 75, 75)));
+    let color_ok = format!("{}", color::Fg(color::Green));
+    let color_bad_status = format!("{}", color::Fg(color::Rgb(200, 80, 0)));
     let color_reset = format!("{}", color::Fg(color::Reset));
-    print!("{}{}{}", color_dark, opt.path.as_path().display(), color_reset);
+    print!("{}{}{}", color_info, opt.path.as_path().display(), color_reset);
     let devdir = DevDir::new(opt.path);
     let mut print_text = "".to_string();
     let header = format!("\n{}{:>re$} |{:^st$}| {:br$}{}",
-        color_dark,
+        color_info,
         "<------- Repo",
         "Status",
         "Branch ------->",
@@ -192,6 +194,10 @@ fn check_repos(opt: Opt) {
             if !opt.show_all {
                 continue;
             }
+            print_text += &color_ok;
+        }
+        if !repo.status().is_ok() {
+            print_text += &color_bad_status;
         }
         let branch_txt = if is_branch_master { "".to_string() } else { branch };
         print_text += format!("\n{:>rw$} [{}] {:bw$}",
@@ -200,8 +206,9 @@ fn check_repos(opt: Opt) {
             branch_txt,
             rw=REPO_NAME_WIDTH,
             bw=BRANCH_NAME_WIDTH).as_str();
+        print_text += &color_reset;
     }
-    print_text += &color_dark;
+    print_text += &color_info;
     print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
     \nM: modified, N: new file, n: new file 2";
     print_text += &color_reset;
