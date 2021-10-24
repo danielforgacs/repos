@@ -2,7 +2,8 @@
 name = "repos"
 # version = "v07.09.2021"
 # version = "v21.10.2021"
-version = "21.10.2021+DEV"
+# version = "21.10.2021+DEV"
+version = "24.10.2021"
 
 edition = "2021"
 
