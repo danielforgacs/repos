@@ -160,11 +160,16 @@ impl ToString for RepoStatus {
 
 fn main() {
     let mut opt = Opt::from_args();
-    if !opt.path.is_dir() {
-        println!("Bad path: \"{}\"!\nWhat a bimbo...?!??! How are you even a programmer? ;)", opt.path.as_path().display());
-        return
-    }
-    let abs_path = std::fs::canonicalize(&opt.path).unwrap();
+    let abs_path = match std::fs::canonicalize(&opt.path) {
+        Ok(path) => path,
+        Err(_) => {
+            println!(
+                "Bad path: \"{}\"!\nWhat a bimbo...?!??! How are you even a programmer? ;)",
+                opt.path.as_path().display()
+            );
+            return
+        }
+    };
     opt.path = abs_path;
     check_repos(opt);
 }
