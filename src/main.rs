@@ -217,7 +217,7 @@ fn check_repos(opt: Opt) {
         print_text += &color_reset;
     }
     print_text += &color_info;
-    print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
+    print_text += "\nU: untracked, D: deleted, d: deleted staged, S: staged\
     \nM: modified, N: new file, n: new file 2";
     print_text += &color_reset;
     print!("{}\n", print_text);
