@@ -168,13 +168,17 @@ fn main() {
 }
 
 fn check_repos(opt: Opt) {
-    print!("{}", opt.path.as_path().display());
+    let color_dark = format!("{}", color::Fg(color::Rgb(40, 40, 40)));
+    let color_reset = format!("{}", color::Fg(color::Reset));
+    print!("{}{}{}", color_dark, opt.path.as_path().display(), color_reset);
     let devdir = DevDir::new(opt.path);
     let mut print_text = "".to_string();
-    let header = format!("\n{:>re$} |{:^st$}| {:br$}",
+    let header = format!("\n{}{:>re$} |{:^st$}| {:br$}{}",
+        color_dark,
         "<------- Repo",
         "Status",
         "Branch ------->",
+        color_reset,
         re=REPO_NAME_WIDTH,
         st=7,
         br=BRANCH_NAME_WIDTH);
@@ -197,7 +201,9 @@ fn check_repos(opt: Opt) {
             rw=REPO_NAME_WIDTH,
             bw=BRANCH_NAME_WIDTH).as_str();
     }
+    print_text += &color_dark;
     print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
-        \nM: modified, N: new file, n: new file 2";
+    \nM: modified, N: new file, n: new file 2";
+    print_text += &color_reset;
     print!("{}\n", print_text);
 }
