@@ -1,9 +1,14 @@
 use std::path::PathBuf;
 use std::fs::{read_to_string};
 use std::process::Command;
+use structopt::StructOpt;
+use termion::color;
 
-const REPO_NAME_WIDTH: usize = 25;
-const BRANCH_NAME_WIDTH: usize = 50;
+const REPO_NAME_WIDTH: usize = 20;
+const BRANCH_NAME_WIDTH: usize = 35;
+const DEVDIR_ENV_VAR: &str = "DEVDIR";
+const GIT_SUBDIR: &str = "/.git";
+const GIT_HEAD_REL_PATH: &str = "/.git/HEAD";
 
 struct DevDir {
     _path: PathBuf,
@@ -26,23 +31,33 @@ struct RepoStatus {
     new_file_2: bool,
 }
 
+#[derive(StructOpt)]
+struct Opt {
+    /// Set "DEVDIR" env var for easier use.
+    #[structopt(parse(from_os_str), env = DEVDIR_ENV_VAR, default_value = ".")]
+    path: PathBuf,
+    /// Include repos with "master" branch and "Ok" status.
+    #[structopt(short = "-a")]
+    show_all: bool,
+}
+
 impl DevDir {
-    fn new(rootdir: String) -> Self {
-        let mut devdir = PathBuf::new();
-        devdir.push(rootdir);
+    fn new(devdir: PathBuf) -> Self {
         let mut repos: Vec<Repo> = Vec::new();
+
         for entry in devdir.read_dir().unwrap() {
             let entry = match entry {
-                Ok(entry) => { entry.path() },
-                Err(_) => { PathBuf::new() },
+                Ok(entry) => entry.path(),
+                Err(_) => PathBuf::new(),
             };
-            let entry_git = entry.to_str().unwrap().to_string() + "/.git";
+            let entry_git = entry.to_str().unwrap().to_string() + GIT_SUBDIR;
             if !std::path::Path::new(&entry_git).is_dir() {
-                continue
+                continue;
             }
             let repo = Repo::new(entry);
             repos.push(repo);
         }
+
         repos.sort_by(|repo_a, repo_b| repo_a.name.to_lowercase().cmp(&repo_b.name.to_lowercase()));
         DevDir {
             _path: devdir,
@@ -55,7 +70,7 @@ impl Repo {
     fn new(path: PathBuf) -> Self {
         let mut name = path.file_name().unwrap().to_str().unwrap().to_string();
         if name.len() > REPO_NAME_WIDTH {
-            name = String::from(&name[..REPO_NAME_WIDTH-1]);
+            name = String::from(&name[..REPO_NAME_WIDTH - 1]);
             name += "~";
         }
         Self { name, path }
@@ -63,12 +78,12 @@ impl Repo {
 
     fn branch(&self) -> String {
         let mut head_file = PathBuf::new();
-        head_file.push(self.path.to_str().unwrap().to_string() + "/.git/HEAD");
+        head_file.push(self.path.to_str().unwrap().to_string() + GIT_HEAD_REL_PATH);
         let githead: String = read_to_string(&head_file).unwrap();
         let githead = githead.trim().to_string();
         let mut branch = githead.split("/").last().unwrap().to_string();
         if branch.len() > BRANCH_NAME_WIDTH {
-            branch = branch[..BRANCH_NAME_WIDTH-1].to_string();
+            branch = branch[..BRANCH_NAME_WIDTH - 1].to_string();
             branch += "~";
         }
         branch
@@ -79,10 +94,13 @@ impl Repo {
             .arg("status")
             .arg("--porcelain")
             .current_dir(&self.path)
-            .output().unwrap().stdout;
+            .output()
+            .unwrap()
+            .stdout;
         let status_stdout = String::from_utf8(status_stdout).unwrap();
         let mut status = RepoStatus::new();
         let status_mark_width = 2;
+
         for line in status_stdout.lines() {
             match &line[..status_mark_width] {
                 "??" => status.untracked = true,
@@ -111,284 +129,95 @@ impl RepoStatus {
             new_file_2: false,
         }
     }
+
+    fn is_ok(&self) -> bool {
+        let has_bad_stuff = self.untracked ||
+            self.deleted ||
+            self.deleted_staged ||
+            self.staged ||
+            self.modified ||
+            self.new_file ||
+            self.new_file_2;
+        !has_bad_stuff
+    }
+}
+
+impl ToString for RepoStatus {
+    fn to_string(&self) -> String {
+        let empty_status = " ";
+        let status_text = format!("{}{}{}{}{}{}{}",
+            if self.untracked { "U" } else { empty_status },
+            if self.deleted { "D" } else { empty_status },
+            if self.deleted_staged { "d" } else { empty_status },
+            if self.staged { "S" } else { empty_status },
+            if self.modified { "M" } else { empty_status },
+            if self.new_file { "N" } else { empty_status },
+            if self.new_file_2 { "n" } else { empty_status },
+        );
+        status_text
+    }
 }
 
 fn main() {
-    // diagnose_repos();
-    check_repos();
+    let mut opt = Opt::from_args();
+    let abs_path = match std::fs::canonicalize(&opt.path) {
+        Ok(path) => path,
+        Err(_) => {
+            println!(
+                "Bad path: \"{}\"!\nWhat a bimbo...?!??! How are you even a programmer? ;)",
+                opt.path.as_path().display()
+            );
+            return
+        }
+    };
+    opt.path = abs_path;
+    check_repos(opt);
 }
 
-fn check_repos() {
-    let devdir_env: String = std::env::var("DEVDIR").unwrap();
-    let devdir = DevDir::new(devdir_env);
-    let header = format!("{:>re$} |{:^st$}| {:br$}",
-        "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
-    let empty_status = " ";
+fn check_repos(opt: Opt) {
+    let color_info = format!("{}", color::Fg(color::Rgb(75, 75, 75)));
+    let color_ok = format!("{}", color::Fg(color::Rgb(0, 125, 0)));
+    let color_bad_status = format!("{}", color::Fg(color::Rgb(225, 25, 0)));
+    let color_reset = format!("{}", color::Fg(color::Reset));
+    print!("{}{}{}", color_info, opt.path.as_path().display(), color_reset);
+    let devdir = DevDir::new(opt.path);
     let mut print_text = "".to_string();
+    let header = format!("\n{}{:>re$} |{:^st$}| {:br$}{}",
+        color_info,
+        "<------- Repo",
+        "Status",
+        "Branch ------->",
+        color_reset,
+        re=REPO_NAME_WIDTH,
+        st=7,
+        br=BRANCH_NAME_WIDTH);
     print_text.push_str(&header);
-    for repo in devdir.repos {
-        let branch = if repo.branch() == "master" { "".to_string() } else { repo.branch() };
-        let status = repo.status();
-        let status_text = format!("[{}{}{}{}{}{}{}]",
-            if status.untracked { "U" } else { empty_status },
-            if status.deleted { "D" } else { empty_status },
-            if status.deleted_staged { "d" } else { empty_status },
-            if status.staged { "S" } else { empty_status },
-            if status.modified { "M" } else { empty_status },
-            if status.new_file { "N" } else { empty_status },
-            if status.new_file_2 { "n" } else { empty_status },
-        );
-        print_text += format!("\n{:>rw$} {} {:bw$}", repo.name, status_text, branch, rw=REPO_NAME_WIDTH, bw=BRANCH_NAME_WIDTH).as_str();
-    }
-    print_text += "\n\nU: untracked";
-    print_text += ", D: deleted";
-    print_text += ", d: deleted staged";
-    print_text += ", S: staged";
-    print_text += "\nM: modified";
-    print_text += ", N: new file";
-    print_text += ", n: new file 2";
 
+    for repo in devdir.repos {
+        let branch = repo.branch();
+        let is_branch_master = branch == "master";
+        let status = repo.status();
+        if is_branch_master && repo.status().is_ok() {
+            if !opt.show_all {
+                continue;
+            }
+            print_text += &color_ok;
+        }
+        if !repo.status().is_ok() {
+            print_text += &color_bad_status;
+        }
+        let branch_txt = if is_branch_master { "".to_string() } else { branch };
+        print_text += format!("\n{:>rw$} [{}] {:bw$}",
+            repo.name,
+            status.to_string(),
+            branch_txt,
+            rw=REPO_NAME_WIDTH,
+            bw=BRANCH_NAME_WIDTH).as_str();
+        print_text += &color_reset;
+    }
+    print_text += &color_info;
+    print_text += "\nU: untracked, D: deleted, d: deleted staged, S: staged\
+    \nM: modified, N: new file, n: new file 2";
+    print_text += &color_reset;
     print!("{}\n", print_text);
 }
-
-// const MAX_STATUS_LINES: usize = 5;
-// const STATUS_MARKER_LENGTH: usize = 2;
-
-// mod root {
-//     use std::fs::ReadDir;
-//
-//     pub struct Root {
-//         pub name: String,
-//         pub dirs: ReadDir,
-//     }
-//
-//     pub enum Devdir {
-//         Some(String),
-//         None,
-//     }
-//
-//     pub struct Parms {
-//         pub showdot: bool,
-//         pub devdir: Devdir,
-//     }
-// }
-
-// use root::Parms;
-// use root::Root;
-// use std::env::{args, current_dir};
-// use std::fs::{read_dir, read_to_string, DirEntry};
-// use std::process::Command;
-
-// impl Parms {
-//     fn new() -> Self {
-//         let args: Vec<String> = args().skip(1).collect();
-//         let showdot = if args.iter().any(|i| i == "-dot") {
-//             true
-//         } else {
-//             false
-//         };
-//
-//         let mut count = 0;
-//         let mut devdir = root::Devdir::None;
-//
-//         for item in args.iter() {
-//             count += 1;
-//
-//             if item == "-d" {
-//                 let dirstr = match args.get(count) {
-//                     Some(dstr) => dstr,
-//                     None => "",
-//                 };
-//
-//                 if dirstr != "" {
-//                     devdir = root::Devdir::Some(args[count].as_str().to_string());
-//                 } else {
-//                     println!("Missing dev dir after \"-d\" arg.");
-//                 };
-//             }
-//         }
-//
-//         Parms { showdot, devdir }
-//     }
-// }
-
-// impl Root {
-//     fn new(devdir: root::Devdir) -> Result<Self, std::io::Error> {
-//         let is_startdir: bool = match devdir {
-//             root::Devdir::Some(ref _dir) => true,
-//             _ => false,
-//         };
-//
-//         let pwd: PathBuf = match current_dir() {
-//             Ok(pwd) => pwd,
-//             Err(error) => return Result::Err(error),
-//         };
-//
-//         let mut name: String = match pwd.as_path().to_str() {
-//             Some(pwd3) => String::from(pwd3),
-//             None => String::from(""),
-//         };
-//
-//         if is_startdir {
-//             name = match devdir {
-//                 root::Devdir::Some(dir) => dir,
-//                 _ => String::from(""),
-//             }
-//         }
-//
-//         let dirs = match read_dir(&name) {
-//             Ok(dirs) => dirs,
-//             Err(error) => return Result::Err(error),
-//         };
-//
-//         Result::Ok(Root { name, dirs })
-//     }
-// }
-
-// fn check_status(dir: &str) -> String {
-//     let rawoutput = Command::new("git")
-//         .arg("status")
-//         .arg("--porcelain")
-//         .current_dir(dir)
-//         .output();
-//
-//     let response: String = match rawoutput {
-//         Ok(resp) => {
-//             let stdout = match String::from_utf8(resp.stdout) {
-//                 Ok(text) => text,
-//                 Err(error) => error.to_string(),
-//             };
-//             stdout
-//         }
-//         Err(error) => error.to_string(),
-//     };
-//     let mut newresponse: String = String::new();
-//
-//     if response != "" {
-//         let mut linecount = 0;
-//
-//         for line in response.split('\n') {
-//             // println!("line: {}, len: {}", &line, line.len());
-//
-//             if line.len() < STATUS_MARKER_LENGTH + 1 {
-//                 continue;
-//             }
-//
-//             linecount += 1;
-//
-//             if linecount > MAX_STATUS_LINES {
-//                 newresponse.push_str("    (more...)\n");
-//
-//                 break;
-//             };
-//             let statusname = match &line[..STATUS_MARKER_LENGTH] {
-//                 "??" => "untracked:",
-//                 " D" => "deleted:",
-//                 "D " => "deleted staged:",
-//                 "M " => "staged:",
-//                 " M" => "modified:",
-//                 "A " => "new file:",
-//                 "AM" => "new file 2:",
-//                 _ => "(unknown)",
-//             };
-//             let newline = format!(
-//                 "    {: <15} {}\n",
-//                 statusname,
-//                 &line[STATUS_MARKER_LENGTH + 1..]
-//             );
-//             // let newline: String;
-//             // if statusname == "deleted:" {
-//             //     newline = format!("    {: <12} {}\n", statusname, &line[2..]);
-//             // } else {
-//             //     newline = format!("    {: <12} {}\n", statusname, &line[3..]);
-//             // };
-//             newresponse.push_str(newline.as_str());
-//         }
-//
-//         newresponse = newresponse[..newresponse.len() - 1].to_string()
-//     };
-//
-//     newresponse
-// }
-
-// fn diagnose_repos() {
-//     let parms = Parms::new();
-//     let root = match Root::new(parms.devdir) {
-//         Ok(root) => root,
-//         Err(_) => {
-//             println!("Could not read path.");
-//             return;
-//         }
-//     };
-//
-//     for dir_opt in root.dirs {
-//         let dir: DirEntry = match dir_opt {
-//             Ok(dir) => {
-//                 let is_dir = match dir.file_type() {
-//                     Ok(isdir2) => isdir2.is_dir(),
-//                     Err(_error) => false,
-//                 };
-//                 if is_dir == false {
-//                     continue;
-//                 }
-//                 dir
-//             }
-//             _ => continue,
-//         };
-//
-//         let stringdir: String = match dir.file_name().into_string() {
-//             Ok(dirn) => dirn,
-//             _ => continue,
-//         };
-//
-//         if stringdir.chars().nth(0) == Some('.') {
-//             if parms.showdot == false {
-//                 continue;
-//             }
-//         };
-//
-//         let status = check_status(&format!("{}/{}", root.name, stringdir));
-//         let githead: String = format!("{}/{}/.git/HEAD", root.name, stringdir);
-//         let githead: String = match read_to_string(&githead) {
-//             Ok(head) => {
-//                 let branch = head.trim().to_string();
-//                 let branch = get_branch(branch);
-//                 branch
-//             }
-//             _ => continue,
-//         };
-//
-//         let mut do_print = false;
-//
-//         if status != "" {
-//             do_print = true;
-//         };
-//
-//         if githead != "master" {
-//             do_print = true;
-//         };
-//
-//         if do_print {
-//             let stralign = format!("{}", stringdir.trim());
-//             println!("___________________________________________________________");
-//
-//             if githead.trim() == "master" {
-//                 println!("{: <35} {}", stralign, githead.trim());
-//             } else {
-//                 println!("{: <35} {: <15} *", stralign, githead.trim());
-//             }
-//
-//             if status != "" {
-//                 println!("{}", status);
-//             }
-//         }
-//     }
-// }
-
-// fn get_branch(head: String) -> String {
-//     let branch = match head.split("/").last() {
-//         Some(element) => element,
-//         None => "",
-//     };
-//     branch.to_string()
-// }
