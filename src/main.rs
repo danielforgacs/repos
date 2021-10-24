@@ -6,6 +6,9 @@ use structopt::StructOpt;
 const REPO_NAME_WIDTH: usize = 20;
 const BRANCH_NAME_WIDTH: usize = 35;
 const VERBOSE: bool = false;
+const DEVDIR_ENV_VAR: &str = "DEVDIR";
+const GIT_SUBDIR: &str = "/.git";
+const GIT_HEAD_REL_PATH: &str = "/.git/HEAD";
 
 struct DevDir {
     _path: PathBuf,
@@ -31,7 +34,7 @@ struct RepoStatus {
 #[derive(StructOpt)]
 struct Opt {
     /// Set "DEVDIR" env var for easier use.
-    #[structopt(parse(from_os_str), env = "DEVDIR", default_value = ".")]
+    #[structopt(parse(from_os_str), env = DEVDIR_ENV_VAR, default_value = ".")]
     path: PathBuf,
     /// Include repos with "master" branch and "Ok" status.
     #[structopt(short = "-a")]
@@ -46,7 +49,7 @@ impl DevDir {
                 Ok(entry) => entry.path(),
                 Err(_) => PathBuf::new(),
             };
-            let entry_git = entry.to_str().unwrap().to_string() + "/.git";
+            let entry_git = entry.to_str().unwrap().to_string() + GIT_SUBDIR;
             if !std::path::Path::new(&entry_git).is_dir() {
                 continue;
             }
@@ -73,7 +76,7 @@ impl Repo {
 
     fn branch(&self) -> String {
         let mut head_file = PathBuf::new();
-        head_file.push(self.path.to_str().unwrap().to_string() + "/.git/HEAD");
+        head_file.push(self.path.to_str().unwrap().to_string() + GIT_HEAD_REL_PATH);
         let githead: String = read_to_string(&head_file).unwrap();
         let githead = githead.trim().to_string();
         let mut branch = githead.split("/").last().unwrap().to_string();
