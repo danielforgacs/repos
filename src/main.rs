@@ -5,7 +5,6 @@ use structopt::StructOpt;
 
 const REPO_NAME_WIDTH: usize = 20;
 const BRANCH_NAME_WIDTH: usize = 35;
-const VERBOSE: bool = false;
 const DEVDIR_ENV_VAR: &str = "DEVDIR";
 const GIT_SUBDIR: &str = "/.git";
 const GIT_HEAD_REL_PATH: &str = "/.git/HEAD";
@@ -44,6 +43,7 @@ struct Opt {
 impl DevDir {
     fn new(devdir: PathBuf) -> Self {
         let mut repos: Vec<Repo> = Vec::new();
+
         for entry in devdir.read_dir().unwrap() {
             let entry = match entry {
                 Ok(entry) => entry.path(),
@@ -56,6 +56,7 @@ impl DevDir {
             let repo = Repo::new(entry);
             repos.push(repo);
         }
+
         repos.sort_by(|repo_a, repo_b| repo_a.name.to_lowercase().cmp(&repo_b.name.to_lowercase()));
         DevDir {
             _path: devdir,
@@ -98,6 +99,7 @@ impl Repo {
         let status_stdout = String::from_utf8(status_stdout).unwrap();
         let mut status = RepoStatus::new();
         let status_mark_width = 2;
+
         for line in status_stdout.lines() {
             match &line[..status_mark_width] {
                 "??" => status.untracked = true,
@@ -168,11 +170,13 @@ fn check_repos(opt: Opt) {
     print!("{}", opt.path.as_path().display());
     let devdir = DevDir::new(opt.path);
     let mut print_text = "".to_string();
-    if VERBOSE {
-        let header = format!("{:>re$} |{:^st$}| {:br$}",
-            "<------- Repo", "Status", "Branch ------->", re=REPO_NAME_WIDTH, st=7, br=BRANCH_NAME_WIDTH);
-            print_text.push_str(&header);
-    }
+    let header = format!("\n{:>re$} |{:^st$}| {:br$}",
+        "<------- Repo", "Status", "Branch ------->",
+        re=REPO_NAME_WIDTH,
+        st=7,
+        br=BRANCH_NAME_WIDTH);
+    print_text.push_str(&header);
+
     for repo in devdir.repos {
         let branch = repo.branch();
         let is_branch_master = branch == "master";
@@ -190,9 +194,7 @@ fn check_repos(opt: Opt) {
             rw=REPO_NAME_WIDTH,
             bw=BRANCH_NAME_WIDTH).as_str();
     }
-    if VERBOSE {
-        print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
-            \nM: modified, N: new file, n: new file 2";
-    }
+    print_text += "\n\nU: untracked, D: deleted, d: deleted staged, S: staged\
+        \nM: modified, N: new file, n: new file 2";
     print!("{}\n", print_text);
 }
