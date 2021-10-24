@@ -178,7 +178,7 @@ fn main() {
 fn check_repos(opt: Opt) {
     let color_info = format!("{}", color::Fg(color::Rgb(75, 75, 75)));
     let color_ok = format!("{}", color::Fg(color::Rgb(0, 125, 0)));
-    let color_bad_status = format!("{}", color::Fg(color::Rgb(225, 180, 0)));
+    let color_bad_status = format!("{}", color::Fg(color::Rgb(225, 25, 0)));
     let color_reset = format!("{}", color::Fg(color::Reset));
     print!("{}{}{}", color_info, opt.path.as_path().display(), color_reset);
     let devdir = DevDir::new(opt.path);
