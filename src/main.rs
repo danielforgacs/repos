@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::fs::{read_to_string};
 use std::process::Command;
 use structopt::StructOpt;
+use termion::color;
 
 const REPO_NAME_WIDTH: usize = 20;
 const BRANCH_NAME_WIDTH: usize = 35;
@@ -171,7 +172,9 @@ fn check_repos(opt: Opt) {
     let devdir = DevDir::new(opt.path);
     let mut print_text = "".to_string();
     let header = format!("\n{:>re$} |{:^st$}| {:br$}",
-        "<------- Repo", "Status", "Branch ------->",
+        "<------- Repo",
+        "Status",
+        "Branch ------->",
         re=REPO_NAME_WIDTH,
         st=7,
         br=BRANCH_NAME_WIDTH);
