@@ -17,7 +17,11 @@ struct Coord {
 impl Repo {
     fn new(name: &str, status: &str, branches: Vec<&str>) -> Self {
         let branches = branches.iter().map(|x| x.to_string()).collect();
-        Self { name: name.to_string(), status: status.to_string(), branches, }
+        Self {
+            name: name.to_string(),
+            status: status.to_string(),
+            branches,
+        }
     }
 }
 
