@@ -38,6 +38,10 @@ impl Coord {
     fn inc_row(&mut self) {
         self.row += 1;
     }
+
+    fn inc_column(&mut self) {
+        self.column += 15;
+    }
 }
 
 fn main() {
@@ -55,11 +59,20 @@ fn main() {
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
+        coord.row = 0;
+
         for repo in &repos {
+            coord.column = 0;
             write!(stdout, "{}", termion::cursor::Goto(coord.column + 1, coord.row + 1)).unwrap();
             write!(stdout, "{}", repo.name).unwrap();
+            coord.inc_column();
             write!(stdout, "{}", termion::cursor::Goto(coord.column + 1 + 20, coord.row + 1)).unwrap();
             write!(stdout, "{}", repo.status).unwrap();
+            for branch in &repo.branches {
+                coord.inc_column();
+                write!(stdout, "{}", termion::cursor::Goto(coord.column + 1, coord.row + 1)).unwrap();
+                write!(stdout, "{}", branch).unwrap();
+            }
             coord.inc_row();
         }
         keep_running = false;
