@@ -12,6 +12,7 @@ struct Coord {
     row: u16,
     current_column: u16,
     current_row: u16,
+    first_branch: bool,
 }
 
 impl Repo {
@@ -32,6 +33,7 @@ impl Coord {
             row: 0,
             current_column: 0,
             current_row: 0,
+            first_branch: true,
         }
     }
 
@@ -39,8 +41,27 @@ impl Coord {
         self.row += 1;
     }
 
-    fn inc_column(&mut self) {
-        self.column += 15;
+    fn name_column(&mut self) -> u16 {
+        self.first_branch = true;
+        self.column = 0;
+        self.column + 1
+    }
+
+    fn status_column(&mut self) -> u16 {
+        self.column = 20;
+        self.column + 1
+    }
+
+    fn branch_column(&mut self) -> u16 {
+        let status_width: u16 = 5;
+        if self.first_branch {
+            self.column += status_width;
+            self.column += 2;
+            self.first_branch = false;
+        } else {
+            self.column += 10;
+        }
+        self.column
     }
 }
 
@@ -62,15 +83,12 @@ fn main() {
         coord.row = 0;
 
         for repo in &repos {
-            coord.column = 0;
-            write!(stdout, "{}", termion::cursor::Goto(coord.column + 1, coord.row + 1)).unwrap();
+            write!(stdout, "{}", termion::cursor::Goto(coord.name_column(), coord.row + 1)).unwrap();
             write!(stdout, "{}", repo.name).unwrap();
-            coord.inc_column();
-            write!(stdout, "{}", termion::cursor::Goto(coord.column + 1 + 20, coord.row + 1)).unwrap();
+            write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row + 1)).unwrap();
             write!(stdout, "{}", repo.status).unwrap();
             for branch in &repo.branches {
-                coord.inc_column();
-                write!(stdout, "{}", termion::cursor::Goto(coord.column + 1, coord.row + 1)).unwrap();
+                write!(stdout, "{}", termion::cursor::Goto(coord.branch_column(), coord.row + 1)).unwrap();
                 write!(stdout, "{}", branch).unwrap();
             }
             coord.inc_row();
