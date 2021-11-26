@@ -1,5 +1,10 @@
 use std::io::Write;
 use termion::raw::IntoRawMode;
+use termion::color;
+use termion::input::TermRead;
+use termion::event::Key;
+
+const NAME_COLUMN_WIDTH: u16 = 20;
 
 struct Repo {
     name: String,
@@ -41,6 +46,16 @@ impl Coord {
         self.row += 1;
     }
 
+    fn go_up(&mut self) {
+        if self.current_row > 0 {
+            self.current_row -= 1;
+        }
+    }
+
+    fn go_down(&mut self) {
+        self.current_row += 1;
+    }
+
     fn start_rows(&mut self) {
         self.row = 0
     }
@@ -52,8 +67,7 @@ impl Coord {
     }
 
     fn status_column(&mut self) -> u16 {
-        let name_column_with: u16 = 15;
-        self.column = name_column_with;
+        self.column += NAME_COLUMN_WIDTH;
         self.column + 1
     }
 
@@ -68,6 +82,10 @@ impl Coord {
         }
         self.column + 1
     }
+
+    fn is_current_line(&self) -> bool {
+        self.row == self.current_row
+    }
 }
 
 fn main() {
@@ -81,6 +99,7 @@ fn main() {
         let repos = vec![repo1, repo2, repo3, repo4, repo5, repo6];
         repos
     };
+
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
     let mut coord = Coord::new();
@@ -91,7 +110,13 @@ fn main() {
 
         for repo in &repos {
             write!(stdout, "{}", termion::cursor::Goto(coord.name_column(), coord.row + 1)).unwrap();
-            write!(stdout, "{}", repo.name).unwrap();
+            if coord.is_current_line() {
+                    write!(stdout, "{}", color::Bg(color::Rgb(55, 55, 55))).unwrap();
+            }
+            write!(stdout, "{:w$}", repo.name, w=NAME_COLUMN_WIDTH as usize).unwrap();
+            if coord.is_current_line() {
+                    write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
+            }
             write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row + 1)).unwrap();
             write!(stdout, "{}", repo.status).unwrap();
 
@@ -103,6 +128,28 @@ fn main() {
             }
             coord.inc_row();
         }
-        keep_running = false;
+
+        stdout.flush().unwrap();
+
+        for c in std::io::stdin().keys() {
+            match c.unwrap() {
+                Key::Char('q') => {
+                    keep_running = false;
+                    break;
+                },
+                Key::Left => {},
+                Key::Right => {},
+                Key::Up | Key::Char('k') => {
+                    coord.go_up();
+                    break;
+                },
+                Key::Down | Key::Char('j') => {
+                    coord.go_down();
+                    break;
+                },
+                _ => {}
+            }
+        }
+
     }
 }
