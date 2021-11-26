@@ -131,9 +131,25 @@ fn main() {
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
+        let mut columt_counts: Vec<u16> = Vec::new();
         coord.reset();
 
         for repo in &repos {
+            let column_count = repo.branches.len() as u16 + 2;
+            columt_counts.push(column_count);
+
+            // if coord.current_column > column_count - 1 {
+            //     coord.current_column = column_count - 1;
+            // }
+
+                    // {
+                    //     write!(stdout, "{}", termion::cursor::Goto(5, 10)).unwrap();
+                    //     write!(stdout, "current column: {}, current column count: {}", coord.current_column, column_count).unwrap();
+                    //     write!(stdout, "{}", termion::cursor::Goto(5, coord.row()+11)).unwrap();
+                    //     write!(stdout, "branch count: {}, column count: {}", repo.branches.len(), column_count).unwrap();
+                    // }
+
+
             {
                 write!(stdout, "{}", termion::cursor::Goto(coord.name_column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
@@ -187,7 +203,11 @@ fn main() {
                 },
                 _ => {}
             }
+
         }
 
+        if coord.current_column > columt_counts[coord.current_row as usize] - 1 {
+            coord.current_column = columt_counts[coord.current_row as usize] - 1;
+        }
     }
 }
