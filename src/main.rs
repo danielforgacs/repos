@@ -65,7 +65,6 @@ impl Coord {
             self.first_branch = false;
         } else {
             self.column += branch_name.len() as u16 + gap;
-            // self.column += 15;
         }
         self.column + 1
     }
@@ -96,7 +95,6 @@ fn main() {
             write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row + 1)).unwrap();
             write!(stdout, "{}", repo.status).unwrap();
 
-            // let mut previous_branch = String::new();
             let mut previous_branch = "";
             for branch in &repo.branches {
                 write!(stdout, "{}", termion::cursor::Goto(coord.branch_column(previous_branch), coord.row + 1)).unwrap();
