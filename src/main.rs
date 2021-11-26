@@ -41,6 +41,10 @@ impl Coord {
         self.row += 1;
     }
 
+    fn start_rows(&mut self) {
+        self.row = 0
+    }
+
     fn name_column(&mut self) -> u16 {
         self.first_branch = true;
         self.column = 0;
@@ -48,48 +52,56 @@ impl Coord {
     }
 
     fn status_column(&mut self) -> u16 {
-        self.column = 20;
+        let name_column_with: u16 = 15;
+        self.column = name_column_with;
         self.column + 1
     }
 
-    fn branch_column(&mut self) -> u16 {
-        let status_width: u16 = 5;
+    fn branch_column(&mut self, branch_name: &str) -> u16 {
+        let status_column_width: u16 = 5;
+        let gap = 1;
         if self.first_branch {
-            self.column += status_width;
-            self.column += 2;
+            self.column += status_column_width + gap;
             self.first_branch = false;
         } else {
-            self.column += 10;
+            self.column += branch_name.len() as u16 + gap;
+            // self.column += 15;
         }
-        self.column
+        self.column + 1
     }
 }
 
 fn main() {
     let repos = {
-        let repo1 = Repo::new("alpha", "[   ]", vec!["master"]);
+        let repo1 = Repo::new("alpha", "12345", vec!["master"]);
         let repo2 = Repo::new("beta",  "[   ]", vec!["master", "dev"]);
         let repo3 = Repo::new("gamma", "[   ]", vec!["master", "hotfix"]);
         let repo4 = Repo::new("delta", "[   ]", vec!["master", "hotfix", "dev", "feature"]);
-        let repos = vec![repo1, repo2, repo3, repo4];
+        let repo5 = Repo::new("0123456789", "[01234]", vec!["0123456789", "0123456789", "0123456789", "0123456789"]);
+        let repo6 = Repo::new("abcdefghijklm", "ABCDEFGHIJK", vec!["abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm"]);
+        let repos = vec![repo1, repo2, repo3, repo4, repo5, repo6];
         repos
     };
-    let mut coord = Coord::new();
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
+    let mut coord = Coord::new();
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        coord.row = 0;
+        coord.start_rows();
 
         for repo in &repos {
             write!(stdout, "{}", termion::cursor::Goto(coord.name_column(), coord.row + 1)).unwrap();
             write!(stdout, "{}", repo.name).unwrap();
             write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row + 1)).unwrap();
             write!(stdout, "{}", repo.status).unwrap();
+
+            // let mut previous_branch = String::new();
+            let mut previous_branch = "";
             for branch in &repo.branches {
-                write!(stdout, "{}", termion::cursor::Goto(coord.branch_column(), coord.row + 1)).unwrap();
+                write!(stdout, "{}", termion::cursor::Goto(coord.branch_column(previous_branch), coord.row + 1)).unwrap();
                 write!(stdout, "{}", branch).unwrap();
+                previous_branch = branch;
             }
             coord.inc_row();
         }
