@@ -140,18 +140,6 @@ fn main() {
             let column_count = repo.branches.len() as u16 + 2;
             columt_counts.push(column_count);
 
-            // if coord.current_column > column_count - 1 {
-            //     coord.current_column = column_count - 1;
-            // }
-
-                    // {
-                    //     write!(stdout, "{}", termion::cursor::Goto(5, 10)).unwrap();
-                    //     write!(stdout, "current column: {}, current column count: {}", coord.current_column, column_count).unwrap();
-                    //     write!(stdout, "{}", termion::cursor::Goto(5, coord.row()+11)).unwrap();
-                    //     write!(stdout, "branch count: {}, column count: {}", repo.branches.len(), column_count).unwrap();
-                    // }
-
-
             {
                 write!(stdout, "{}", termion::cursor::Goto(coord.name_column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
@@ -160,7 +148,7 @@ fn main() {
             }
 
             {
-                write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row + 1)).unwrap();
+                write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", repo.status, w=STATUS_COLUMN_WIDTH as usize).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
@@ -169,7 +157,7 @@ fn main() {
             let mut previous_branch = "";
 
             for branch in &repo.branches {
-                write!(stdout, "{}", termion::cursor::Goto(coord.branch_column(previous_branch), coord.row + 1)).unwrap();
+                write!(stdout, "{}", termion::cursor::Goto(coord.branch_column(previous_branch), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{}", branch).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
