@@ -16,10 +16,11 @@ struct Repo {
 struct Coord {
     column: u16,
     column_id: u16,
-    row: u16,
     current_column: u16,
+    row: u16,
     current_row: u16,
     first_branch: bool,
+    row_count: usize,
 }
 
 impl Repo {
@@ -38,10 +39,11 @@ impl Coord {
         Self {
             column: 0,
             column_id: 0,
-            row: 0,
             current_column: 0,
+            row: 0,
             current_row: 0,
             first_branch: true,
+            row_count: 0,
         }
     }
 
@@ -61,9 +63,6 @@ impl Coord {
         self.row + 1
     }
 
-
-
-
     fn inc_row(&mut self) {
         self.row += 1;
     }
@@ -75,7 +74,9 @@ impl Coord {
     }
 
     fn go_down(&mut self) {
-        self.current_row += 1;
+        if self.current_row < self.row_count as u16 - 1 {
+            self.current_row += 1;
+        }
     }
 
     fn go_right(&mut self) {
@@ -133,6 +134,7 @@ fn main() {
         write!(stdout, "{}", termion::clear::All).unwrap();
         let mut columt_counts: Vec<u16> = Vec::new();
         coord.reset();
+        coord.row_count = repos.len();
 
         for repo in &repos {
             let column_count = repo.branches.len() as u16 + 2;
