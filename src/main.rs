@@ -5,6 +5,7 @@ use termion::input::TermRead;
 use termion::event::Key;
 
 const NAME_COLUMN_WIDTH: u16 = 20;
+const STATUS_COLUMN_WIDTH: u16 = 8;
 
 struct Repo {
     name: String,
@@ -82,10 +83,9 @@ impl Coord {
     }
 
     fn branch_column(&mut self, branch_name: &str) -> u16 {
-        let status_column_width: u16 = 5;
         let gap = 1;
         if self.first_branch {
-            self.column += status_column_width + gap;
+            self.column += STATUS_COLUMN_WIDTH + gap;
             self.first_branch = false;
         } else {
             self.column += branch_name.len() as u16 + gap;
