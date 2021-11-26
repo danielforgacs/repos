@@ -45,6 +45,25 @@ impl Coord {
         }
     }
 
+    fn reset(&mut self) {
+        self.row = 0;
+        self.column = 0;
+    }
+
+    fn name_column(&mut self) -> u16 {
+        self.first_branch = true;
+        self.column_id = 0;
+        self.column = 0;
+        self.column + 1
+    }
+
+    fn row(&self) -> u16 {
+        self.row + 1
+    }
+
+
+
+
     fn inc_row(&mut self) {
         self.row += 1;
     }
@@ -69,17 +88,6 @@ impl Coord {
         }
     }
 
-    fn start_rows(&mut self) {
-        self.row = 0
-    }
-
-    fn name_column(&mut self) -> u16 {
-        self.first_branch = true;
-        self.column_id = 0;
-        self.column = 0;
-        self.column + 1
-    }
-
     fn status_column(&mut self) -> u16 {
         self.column_id = 1;
         self.column += NAME_COLUMN_WIDTH;
@@ -98,12 +106,8 @@ impl Coord {
         self.column + 1
     }
 
-    fn is_current_line(&self) -> bool {
-        self.row == self.current_row
-    }
-
     fn is_current_cell(&self) -> bool {
-        self.column_id == self.current_column && self.is_current_line()
+        self.column_id == self.current_column && self.row == self.current_row
     }
 }
 
@@ -127,20 +131,21 @@ fn main() {
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        coord.start_rows();
+        coord.reset();
 
         for repo in &repos {
-            write!(stdout, "{}", termion::cursor::Goto(coord.name_column(), coord.row + 1)).unwrap();
             {
+                write!(stdout, "{}", termion::cursor::Goto(coord.name_column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", repo.name, w=NAME_COLUMN_WIDTH as usize).unwrap();
-                if coord.is_current_line() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
+                if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
-            write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row + 1)).unwrap();
+
             {
+                write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row + 1)).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", repo.status, w=STATUS_COLUMN_WIDTH as usize).unwrap();
-                if coord.is_current_line() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
+                if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
             let mut previous_branch = "";
@@ -149,9 +154,10 @@ fn main() {
                 write!(stdout, "{}", termion::cursor::Goto(coord.branch_column(previous_branch), coord.row + 1)).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{}", branch).unwrap();
-                if coord.is_current_line() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
+                if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
                 previous_branch = branch;
             }
+
             coord.inc_row();
         }
 
