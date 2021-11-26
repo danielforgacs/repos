@@ -5,7 +5,7 @@ use termion::input::TermRead;
 use termion::event::Key;
 
 const NAME_COLUMN_WIDTH: u16 = 20;
-const STATUS_COLUMN_WIDTH: u16 = 8;
+const STATUS_COLUMN_WIDTH: u16 = 5;
 
 struct Repo {
     name: String,
@@ -15,6 +15,7 @@ struct Repo {
 
 struct Coord {
     column: u16,
+    column_id: u16,
     row: u16,
     current_column: u16,
     current_row: u16,
@@ -36,6 +37,7 @@ impl Coord {
     fn new() -> Self {
         Self {
             column: 0,
+            column_id: 0,
             row: 0,
             current_column: 0,
             current_row: 0,
@@ -73,16 +75,19 @@ impl Coord {
 
     fn name_column(&mut self) -> u16 {
         self.first_branch = true;
+        self.column_id = 0;
         self.column = 0;
         self.column + 1
     }
 
     fn status_column(&mut self) -> u16 {
+        self.column_id = 1;
         self.column += NAME_COLUMN_WIDTH;
         self.column + 1
     }
 
     fn branch_column(&mut self, branch_name: &str) -> u16 {
+        self.column_id += 1;
         let gap = 1;
         if self.first_branch {
             self.column += STATUS_COLUMN_WIDTH + gap;
@@ -98,7 +103,7 @@ impl Coord {
     }
 
     fn is_current_cell(&self) -> bool {
-        self.column == self.current_column && self.row == self.current_row
+        self.column_id == self.current_column && self.is_current_line()
     }
 }
 
@@ -134,7 +139,7 @@ fn main() {
             write!(stdout, "{}", termion::cursor::Goto(coord.status_column(), coord.row + 1)).unwrap();
             {
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "{}", repo.status).unwrap();
+                write!(stdout, "{:w$}", repo.status, w=STATUS_COLUMN_WIDTH as usize).unwrap();
                 if coord.is_current_line() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
@@ -142,7 +147,9 @@ fn main() {
 
             for branch in &repo.branches {
                 write!(stdout, "{}", termion::cursor::Goto(coord.branch_column(previous_branch), coord.row + 1)).unwrap();
+                if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{}", branch).unwrap();
+                if coord.is_current_line() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
                 previous_branch = branch;
             }
             coord.inc_row();
