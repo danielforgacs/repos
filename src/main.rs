@@ -53,7 +53,7 @@ impl Coord {
         self.row
     }
 
-    fn next_row(&mut self) {
+    fn finished_row(&mut self) {
         self.column = 0;
         self.column_id = 0;
         self.row += 1;
@@ -157,7 +157,7 @@ fn main() {
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
-            coord.next_row();
+            coord.finished_row();
         }
 
         stdout.flush().unwrap();
