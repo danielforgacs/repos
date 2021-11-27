@@ -4,8 +4,8 @@ use termion::color;
 use termion::input::TermRead;
 use termion::event::Key;
 
-const NAME_COLUMN_WIDTH: u16 = 20;
-const STATUS_COLUMN_WIDTH: u16 = 5;
+const NAME_COLUMN_WIDTH: u16 = 15;
+const STATUS_COLUMN_WIDTH: u16 = 15;
 
 struct Repo {
     name: String,
@@ -20,7 +20,6 @@ struct Coord {
     row_column_counts: Vec<u16>,
     row: u16,
     current_row: u16,
-    first_branch: bool,
     row_count: usize,
 }
 
@@ -44,7 +43,6 @@ impl Coord {
             row_column_counts: Vec::new(),
             row: 0,
             current_row: 0,
-            first_branch: true,
             row_count: 0,
         }
     }
@@ -59,6 +57,8 @@ impl Coord {
     }
 
     fn next_row(&mut self) {
+        self.column = 0;
+        self.column_id = 0;
         self.row += 1;
     }
 
@@ -93,33 +93,15 @@ impl Coord {
         }
     }
 
-    fn name_column(&mut self) -> u16 {
-        self.first_branch = true;
-        self.column_id = 0;
-        self.column = 0;
-        self.column
-    }
-
-    fn status_column(&mut self) -> u16 {
-        self.column_id = 1;
-        self.column += NAME_COLUMN_WIDTH;
-        self.column + 1
-    }
-
-    fn branch_column(&mut self, branch_name: &str) -> u16 {
+    fn column(&mut self) -> u16 {
+        let value = self.column;
+        self.column += 15;
         self.column_id += 1;
-        let gap = 1;
-        if self.first_branch {
-            self.column += STATUS_COLUMN_WIDTH + gap;
-            self.first_branch = false;
-        } else {
-            self.column += branch_name.len() as u16 + gap;
-        }
-        self.column + 1
+        value
     }
 
     fn is_current_cell(&self) -> bool {
-        self.column_id == self.current_column_id && self.row == self.current_row
+        self.column_id == self.current_column_id + 1&& self.row == self.current_row
     }
 }
 
@@ -154,27 +136,24 @@ fn main() {
             coord.row_column_counts.push(repo.branches.len() as u16 + 2);
 
             {
-                write!(stdout, "{}", goto(coord.name_column(), coord.row())).unwrap();
+                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", repo.name, w=NAME_COLUMN_WIDTH as usize).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
             {
-                write!(stdout, "{}", goto(coord.status_column(), coord.row())).unwrap();
+                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", repo.status, w=STATUS_COLUMN_WIDTH as usize).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
-            let mut previous_branch = "";
-
             for branch in &repo.branches {
-                write!(stdout, "{}", goto(coord.branch_column(previous_branch), coord.row())).unwrap();
+                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{}", branch).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
-                previous_branch = branch;
             }
 
             coord.next_row();
