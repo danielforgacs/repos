@@ -17,6 +17,7 @@ struct Coord {
     column: u16,
     column_id: u16,
     current_column: u16,
+    row_column_counts: Vec<u16>,
     row: u16,
     current_row: u16,
     first_branch: bool,
@@ -40,6 +41,7 @@ impl Coord {
             column: 0,
             column_id: 0,
             current_column: 0,
+            row_column_counts: Vec::new(),
             row: 0,
             current_row: 0,
             first_branch: true,
@@ -71,21 +73,30 @@ impl Coord {
         if self.current_row > 0 {
             self.current_row -= 1;
         }
+        self.validate_current_column()
     }
 
     fn go_down(&mut self) {
         if self.current_row < self.row_count as u16 - 1 {
             self.current_row += 1;
         }
+        self.validate_current_column()
     }
 
     fn go_right(&mut self) {
         self.current_column += 1;
+        self.validate_current_column()
     }
 
     fn go_left(&mut self) {
         if self.current_column > 0 {
             self.current_column -= 1;
+        }
+    }
+
+    fn validate_current_column(&mut self) {
+        if self.current_column > self.row_column_counts[self.current_row as usize] - 1 {
+            self.current_column = self.row_column_counts[self.current_row as usize] - 1
         }
     }
 
@@ -136,13 +147,11 @@ fn main() {
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        let mut columt_counts: Vec<u16> = Vec::new();
         coord.reset();
         coord.row_count = repos.len();
 
         for repo in &repos {
-            let column_count = repo.branches.len() as u16 + 2;
-            columt_counts.push(column_count);
+            coord.row_column_counts.push(repo.branches.len() as u16 + 2);
 
             {
                 write!(stdout, "{}", goto(coord.name_column(), coord.row())).unwrap();
@@ -197,11 +206,6 @@ fn main() {
                 },
                 _ => {}
             }
-
-        }
-
-        if coord.current_column > columt_counts[coord.current_row as usize] - 1 {
-            coord.current_column = columt_counts[coord.current_row as usize] - 1;
         }
     }
 }
