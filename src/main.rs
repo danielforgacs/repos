@@ -95,14 +95,17 @@ impl Tui {
             Some(w) => w as u16 + 1,
             Option::None => self.column_width() as u16,
         };
-        let value = self.column;
+        let width = match self.column_id {
+            0 => 0,
+            _ => width,
+        };
         self.column += width;
         self.column_id += 1;
-        value
+        self.column
     }
 
     fn column_width(&self) -> usize {
-        15
+        25
     }
 
     fn is_current_cell(&self) -> bool {
@@ -154,14 +157,14 @@ fn main() {
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
-            let mut previous_branch_width: u16 = 0;
+            let mut previous_branch_width: Option<usize> = Option::None;
 
             for branch in &repo.branches {
-                write!(stdout, "{}", goto(coord.column(Some(10)), coord.row())).unwrap();
+                write!(stdout, "{}", goto(coord.column(previous_branch_width), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", branch, w=coord.column_width()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
-                previous_branch_width = branch.len() as u16;
+                previous_branch_width = Some(branch.len());
             }
 
             coord.finished_row();
