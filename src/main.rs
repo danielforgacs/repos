@@ -4,9 +4,6 @@ use termion::color;
 use termion::input::TermRead;
 use termion::event::Key;
 
-const NAME_COLUMN_WIDTH: u16 = 15;
-const STATUS_COLUMN_WIDTH: u16 = 15;
-
 struct Repo {
     name: String,
     status: String,
@@ -100,6 +97,10 @@ impl Coord {
         value
     }
 
+    fn column_width(&self) -> usize {
+        15
+    }
+
     fn is_current_cell(&self) -> bool {
         self.column_id == self.current_column_id + 1&& self.row == self.current_row
     }
@@ -138,14 +139,14 @@ fn main() {
             {
                 write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "{:w$}", repo.name, w=NAME_COLUMN_WIDTH as usize).unwrap();
+                write!(stdout, "{:w$}", repo.name, w=coord.column_width()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
             {
                 write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "{:w$}", repo.status, w=STATUS_COLUMN_WIDTH as usize).unwrap();
+                write!(stdout, "{:w$}", repo.status, w=coord.column_width()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
