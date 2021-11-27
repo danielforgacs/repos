@@ -153,7 +153,7 @@ fn main() {
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "{}", branch).unwrap();
+                write!(stdout, "{:w$}", branch, w=coord.column_width()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
