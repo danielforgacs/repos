@@ -10,7 +10,7 @@ struct Repo {
     branches: Vec<String>,
 }
 
-struct Coord {
+struct Tui {
     column: u16,
     column_id: u16,
     current_column_id: u16,
@@ -31,7 +31,7 @@ impl Repo {
     }
 }
 
-impl Coord {
+impl Tui {
     fn new() -> Self {
         Self {
             column: 0,
@@ -130,7 +130,7 @@ fn main() {
 
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
-    let mut coord = Coord::new();
+    let mut coord = Tui::new();
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
