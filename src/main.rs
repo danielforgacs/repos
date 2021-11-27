@@ -90,9 +90,13 @@ impl Coord {
         }
     }
 
-    fn column(&mut self) -> u16 {
+    fn column(&mut self, width: Option<usize>) -> u16 {
+        let width = match width {
+            Some(w) => w as u16 + 1,
+            Option::None => 15,
+        };
         let value = self.column;
-        self.column += 15;
+        self.column += width;
         self.column_id += 1;
         value
     }
@@ -137,24 +141,27 @@ fn main() {
             coord.row_column_counts.push(repo.branches.len() as u16 + 2);
 
             {
-                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
+                write!(stdout, "{}", goto(coord.column(Option::None), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", repo.name, w=coord.column_width()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
             {
-                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
+                write!(stdout, "{}", goto(coord.column(Option::None), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", repo.status, w=coord.column_width()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
+            let mut previous_branch_width: u16 = 0;
+
             for branch in &repo.branches {
-                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
+                write!(stdout, "{}", goto(coord.column(Some(10)), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
                 write!(stdout, "{:w$}", branch, w=coord.column_width()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
+                previous_branch_width = branch.len() as u16;
             }
 
             coord.finished_row();
