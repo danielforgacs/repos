@@ -93,7 +93,7 @@ impl Tui {
     fn column(&mut self, width: Option<usize>) -> u16 {
         let width = match width {
             Some(w) => w as u16 + 1,
-            Option::None => 15,
+            Option::None => self.column_width() as u16,
         };
         let value = self.column;
         self.column += width;
