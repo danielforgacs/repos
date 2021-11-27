@@ -16,7 +16,7 @@ struct Repo {
 struct Coord {
     column: u16,
     column_id: u16,
-    current_column: u16,
+    current_column_id: u16,
     row_column_counts: Vec<u16>,
     row: u16,
     current_row: u16,
@@ -40,7 +40,7 @@ impl Coord {
         Self {
             column: 0,
             column_id: 0,
-            current_column: 0,
+            current_column_id: 0,
             row_column_counts: Vec::new(),
             row: 0,
             current_row: 0,
@@ -77,24 +77,20 @@ impl Coord {
     }
 
     fn go_right(&mut self) {
-        self.current_column += 1;
+        self.current_column_id += 1;
         self.validate_current_column()
     }
 
     fn go_left(&mut self) {
-        if self.current_column > 0 {
-            self.current_column -= 1;
+        if self.current_column_id > 0 {
+            self.current_column_id -= 1;
         }
     }
 
     fn validate_current_column(&mut self) {
-        if self.current_column > self.row_column_counts[self.current_row as usize] - 1 {
-            self.current_column = self.row_column_counts[self.current_row as usize] - 1
+        if self.current_column_id > self.row_column_counts[self.current_row as usize] - 1 {
+            self.current_column_id = self.row_column_counts[self.current_row as usize] - 1
         }
-    }
-
-    fn column(&mut self) -> u16 {
-
     }
 
     fn name_column(&mut self) -> u16 {
@@ -123,7 +119,7 @@ impl Coord {
     }
 
     fn is_current_cell(&self) -> bool {
-        self.column_id == self.current_column && self.row == self.current_row
+        self.column_id == self.current_column_id && self.row == self.current_row
     }
 }
 
