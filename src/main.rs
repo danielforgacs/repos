@@ -63,7 +63,7 @@ impl Coord {
         self.row
     }
 
-    fn inc_row(&mut self) {
+    fn next_row(&mut self) {
         self.row += 1;
     }
 
@@ -168,7 +168,7 @@ fn main() {
                 previous_branch = branch;
             }
 
-            coord.inc_row();
+            coord.next_row();
         }
 
         stdout.flush().unwrap();
