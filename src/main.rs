@@ -54,13 +54,6 @@ impl Coord {
         self.column = 0;
     }
 
-    fn name_column(&mut self) -> u16 {
-        self.first_branch = true;
-        self.column_id = 0;
-        self.column = 0;
-        self.column
-    }
-
     fn row(&self) -> u16 {
         self.row
     }
@@ -98,6 +91,17 @@ impl Coord {
         if self.current_column > self.row_column_counts[self.current_row as usize] - 1 {
             self.current_column = self.row_column_counts[self.current_row as usize] - 1
         }
+    }
+
+    fn column(&mut self) -> u16 {
+
+    }
+
+    fn name_column(&mut self) -> u16 {
+        self.first_branch = true;
+        self.column_id = 0;
+        self.column = 0;
+        self.column
     }
 
     fn status_column(&mut self) -> u16 {
