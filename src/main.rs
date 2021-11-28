@@ -63,19 +63,17 @@ impl Tui {
         if self.current_row > 0 {
             self.current_row -= 1;
         }
-        self.validate_current_column()
+        self.set_coord_limits()
     }
 
     fn go_down(&mut self) {
-        if self.current_row < self.row_count as u16 - 1 {
-            self.current_row += 1;
-        }
-        self.validate_current_column()
+        self.current_row += 1;
+        self.set_coord_limits()
     }
 
     fn go_right(&mut self) {
         self.current_column_id += 1;
-        self.validate_current_column()
+        self.set_coord_limits()
     }
 
     fn go_left(&mut self) {
@@ -84,9 +82,13 @@ impl Tui {
         }
     }
 
-    fn validate_current_column(&mut self) {
+    fn set_coord_limits(&mut self) {
         if self.current_column_id > self.row_column_counts[self.current_row as usize] - 1 {
-            self.current_column_id = self.row_column_counts[self.current_row as usize] - 1
+            self.current_column_id = self.row_column_counts[self.current_row as usize] - 1;
+        }
+
+        if self.current_row >  self.row_count as u16 - 1 {
+            self.current_row = self.row_count as u16 - 1;
         }
     }
 
