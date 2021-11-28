@@ -158,8 +158,7 @@ fn tui() {
         repos
     };
 
-    let current_cell_color = color::Bg(color::Rgb(55, 55, 55));
-
+    let current_cell_color = color::Bg(color::Rgb(75, 30,15));
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
     let mut coord = Tui::new();
