@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::path::{PathBuf};
 use termion::raw::IntoRawMode;
 use termion::color;
 use termion::input::TermRead;
@@ -8,6 +9,7 @@ struct Repo {
     name: String,
     status: String,
     branches: Vec<String>,
+    path: PathBuf,
 }
 
 struct Tui {
@@ -27,6 +29,7 @@ impl Repo {
             name: name.to_string(),
             status: status.to_string(),
             branches,
+            path: PathBuf::new(),
         }
     }
 }
@@ -123,16 +126,16 @@ fn main() {
     tui();
 }
 
-fn get_dev_dir() -> std::path::PathBuf {
+fn get_dev_dir() -> PathBuf {
     let dev_path = match std::env::var("DEVDIR") {
-        Ok(path) => std::path::PathBuf::from(path),
-        Err(_) => std::path::PathBuf::from(std::env::current_dir().unwrap()),
+        Ok(path) => PathBuf::from(path),
+        Err(_) => PathBuf::from(std::env::current_dir().unwrap()),
     };
     dev_path
 }
 
-fn list_repos(root: std::path::PathBuf) -> Vec<std::path::PathBuf> {
-    let mut repos: Vec<std::path::PathBuf> = Vec::new();
+fn list_repos(root: PathBuf) -> Vec<PathBuf> {
+    let mut repos: Vec<PathBuf> = Vec::new();
 
     for read_dir in root.read_dir() {
         for dir in read_dir {
