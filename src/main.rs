@@ -5,15 +5,10 @@ use termion::color;
 use termion::input::TermRead;
 use termion::event::Key;
 
-struct RepoWip {
+struct Repo {
     name: String,
     status: String,
     branches: Vec<String>,
-    path: PathBuf,
-}
-
-struct Repo {
-    name: String,
     path: PathBuf,
 }
 
@@ -27,7 +22,7 @@ struct Tui {
     row_count: usize,
 }
 
-impl RepoWip {
+impl Repo {
     fn new(name: &str, status: &str, branches: Vec<&str>) -> Self {
         let branches = branches.iter().map(|x| x.to_string()).collect();
         Self {
@@ -35,15 +30,6 @@ impl RepoWip {
             status: status.to_string(),
             branches,
             path: PathBuf::new(),
-        }
-    }
-}
-
-impl Repo {
-    fn new(path: PathBuf) -> Self {
-        Self {
-            name: path.file_name().expect("Can't get path file name.").to_str().unwrap().to_string(),
-            path,
         }
     }
 }
@@ -165,12 +151,12 @@ fn list_repos(root: PathBuf) -> Vec<PathBuf> {
 
 fn tui() {
     let repos = {
-        let repo1 = RepoWip::new("alpha", "12345", vec!["master"]);
-        let repo2 = RepoWip::new("beta",  "[   ]", vec!["master", "dev"]);
-        let repo3 = RepoWip::new("gamma", "[   ]", vec!["master", "hotfix"]);
-        let repo4 = RepoWip::new("delta", "[   ]", vec!["master", "hotfix", "dev", "feature"]);
-        let repo5 = RepoWip::new("0123456789", "[01234]", vec!["0123456789", "0123456789", "0123456789", "0123456789"]);
-        let repo6 = RepoWip::new("abcdefghijklm", "ABCDEFGHIJK", vec!["abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm"]);
+        let repo1 = Repo::new("alpha", "12345", vec!["master"]);
+        let repo2 = Repo::new("beta",  "[   ]", vec!["master", "dev"]);
+        let repo3 = Repo::new("gamma", "[   ]", vec!["master", "hotfix"]);
+        let repo4 = Repo::new("delta", "[   ]", vec!["master", "hotfix", "dev", "feature"]);
+        let repo5 = Repo::new("0123456789", "[01234]", vec!["0123456789", "0123456789", "0123456789", "0123456789"]);
+        let repo6 = Repo::new("abcdefghijklm", "ABCDEFGHIJK", vec!["abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm"]);
         let repos = vec![repo1, repo2, repo3, repo4, repo5, repo6];
         repos
     };
