@@ -118,11 +118,16 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 }
 
 fn main() {
+    get_dev_dir();
+    // tui();
+}
+
+fn get_dev_dir() -> std::path::PathBuf {
     let dev_path = match std::env::var("DEVDIR") {
         Ok(path) => std::path::PathBuf::from(path),
         Err(_) => std::path::PathBuf::from(std::env::current_dir().unwrap()),
     };
-    // tui();
+    dev_path
 }
 
 fn tui() {
