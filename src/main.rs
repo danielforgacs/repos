@@ -118,8 +118,9 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 }
 
 fn main() {
-    get_dev_dir();
-    // tui();
+    let dev_dir = get_dev_dir();
+    let repo_paths = list_repos(dev_dir);
+    tui();
 }
 
 fn get_dev_dir() -> std::path::PathBuf {
@@ -128,6 +129,21 @@ fn get_dev_dir() -> std::path::PathBuf {
         Err(_) => std::path::PathBuf::from(std::env::current_dir().unwrap()),
     };
     dev_path
+}
+
+fn list_repos(root: std::path::PathBuf) -> Vec<std::path::PathBuf> {
+    let mut repos: Vec<std::path::PathBuf> = Vec::new();
+
+    for read_dir in root.read_dir() {
+        for dir in read_dir {
+            let repo_dir = dir.expect("msg").path().join(".git");
+
+            if repo_dir.is_dir() {
+                repos.push(repo_dir)
+            }
+        }
+    }
+    repos
 }
 
 fn tui() {
