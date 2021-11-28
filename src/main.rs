@@ -44,7 +44,7 @@ impl Tui {
         }
     }
 
-    fn reset(&mut self) {
+    fn start_view(&mut self) {
         self.row = 0;
         self.column = 0;
     }
@@ -167,7 +167,7 @@ fn tui() {
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        coord.reset();
+        coord.start_view();
         coord.row_count = repos.len();
 
         for repo in &repos {
