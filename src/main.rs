@@ -118,6 +118,10 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 }
 
 fn main() {
+    tui();
+}
+
+fn tui() {
     let repos = {
         let repo1 = Repo::new("alpha", "12345", vec!["master"]);
         let repo2 = Repo::new("beta",  "[   ]", vec!["master", "dev"]);
