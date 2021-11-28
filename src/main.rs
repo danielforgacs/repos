@@ -150,18 +150,6 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
 }
 
 fn tui(repos: Vec<Repo>) {
-    // let repos = {
-    //     let path = PathBuf::from("");
-    //     let repo1 = Repo::new(path.to_path_buf(), "alpha", "12345", vec!["master"]);
-    //     let repo2 = Repo::new(path.to_path_buf(), "beta",  "[   ]", vec!["master", "dev"]);
-    //     let repo3 = Repo::new(path.to_path_buf(), "gamma", "[   ]", vec!["master", "hotfix"]);
-    //     let repo4 = Repo::new(path.to_path_buf(), "delta", "[   ]", vec!["master", "hotfix", "dev", "feature"]);
-    //     let repo5 = Repo::new(path.to_path_buf(), "0123456789", "[01234]", vec!["0123456789", "0123456789", "0123456789", "0123456789"]);
-    //     let repo6 = Repo::new(path.to_path_buf(), "abcdefghijklm", "ABCDEFGHIJK", vec!["abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm"]);
-    //     let repos = vec![repo1, repo2, repo3, repo4, repo5, repo6];
-    //     repos
-    // };
-
     let current_cell_color = color::Bg(color::Rgb(75, 30,15));
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
