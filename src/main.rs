@@ -122,7 +122,7 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 
 fn main() {
     let dev_dir = get_dev_dir();
-    let repo_paths = list_repos(dev_dir);
+    let repo_paths = find_repo_dirs(dev_dir);
     tui();
 }
 
@@ -134,7 +134,7 @@ fn get_dev_dir() -> PathBuf {
     dev_path
 }
 
-fn list_repos(root: PathBuf) -> Vec<PathBuf> {
+fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
     let mut repos: Vec<PathBuf> = Vec::new();
 
     for read_dir in root.read_dir() {
