@@ -125,7 +125,7 @@ fn main() {
     let dev_dir = get_dev_dir();
     let repo_paths = find_repo_dirs(dev_dir);
     let repos: Vec<Repo> = repo_paths.iter().map(|path| Repo::new(path.to_path_buf(), "name", "status", vec!["master"])).collect();
-    // tui();
+    tui(repos);
 }
 
 fn get_dev_dir() -> PathBuf {
@@ -141,28 +141,26 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
 
     for read_dir in root.read_dir() {
         for dir in read_dir {
-            let repo_dir = dir.expect("msg").path().join(".git");
-
-            if repo_dir.is_dir() {
-                repos.push(repo_dir)
+            if dir.as_ref().expect("msg").path().join(".git").is_dir() {
+                repos.push(dir.unwrap().path().to_path_buf())
             }
         }
     }
     repos
 }
 
-fn tui() {
-    let repos = {
-        let path = PathBuf::from("");
-        let repo1 = Repo::new(path.to_path_buf(), "alpha", "12345", vec!["master"]);
-        let repo2 = Repo::new(path.to_path_buf(), "beta",  "[   ]", vec!["master", "dev"]);
-        let repo3 = Repo::new(path.to_path_buf(), "gamma", "[   ]", vec!["master", "hotfix"]);
-        let repo4 = Repo::new(path.to_path_buf(), "delta", "[   ]", vec!["master", "hotfix", "dev", "feature"]);
-        let repo5 = Repo::new(path.to_path_buf(), "0123456789", "[01234]", vec!["0123456789", "0123456789", "0123456789", "0123456789"]);
-        let repo6 = Repo::new(path.to_path_buf(), "abcdefghijklm", "ABCDEFGHIJK", vec!["abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm"]);
-        let repos = vec![repo1, repo2, repo3, repo4, repo5, repo6];
-        repos
-    };
+fn tui(repos: Vec<Repo>) {
+    // let repos = {
+    //     let path = PathBuf::from("");
+    //     let repo1 = Repo::new(path.to_path_buf(), "alpha", "12345", vec!["master"]);
+    //     let repo2 = Repo::new(path.to_path_buf(), "beta",  "[   ]", vec!["master", "dev"]);
+    //     let repo3 = Repo::new(path.to_path_buf(), "gamma", "[   ]", vec!["master", "hotfix"]);
+    //     let repo4 = Repo::new(path.to_path_buf(), "delta", "[   ]", vec!["master", "hotfix", "dev", "feature"]);
+    //     let repo5 = Repo::new(path.to_path_buf(), "0123456789", "[01234]", vec!["0123456789", "0123456789", "0123456789", "0123456789"]);
+    //     let repo6 = Repo::new(path.to_path_buf(), "abcdefghijklm", "ABCDEFGHIJK", vec!["abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm"]);
+    //     let repos = vec![repo1, repo2, repo3, repo4, repo5, repo6];
+    //     repos
+    // };
 
     let current_cell_color = color::Bg(color::Rgb(75, 30,15));
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
