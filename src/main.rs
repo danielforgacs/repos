@@ -7,9 +7,9 @@ use termion::event::Key;
 
 struct Repo {
     name: String,
+    path: PathBuf,
     status: String,
     branches: Vec<String>,
-    path: PathBuf,
 }
 
 struct Tui {
@@ -23,13 +23,13 @@ struct Tui {
 }
 
 impl Repo {
-    fn new(name: &str, status: &str, branches: Vec<&str>) -> Self {
+    fn new(path: PathBuf, name: &str, status: &str, branches: Vec<&str>) -> Self {
         let branches = branches.iter().map(|x| x.to_string()).collect();
         Self {
             name: name.to_string(),
             status: status.to_string(),
             branches,
-            path: PathBuf::new(),
+            path,
         }
     }
 }
@@ -123,7 +123,8 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 fn main() {
     let dev_dir = get_dev_dir();
     let repo_paths = find_repo_dirs(dev_dir);
-    tui();
+    let repos: Vec<Repo> = repo_paths.iter().map(|path| Repo::new(path.to_path_buf(), "name", "status", vec!["master"])).collect();
+    // tui();
 }
 
 fn get_dev_dir() -> PathBuf {
@@ -151,12 +152,13 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
 
 fn tui() {
     let repos = {
-        let repo1 = Repo::new("alpha", "12345", vec!["master"]);
-        let repo2 = Repo::new("beta",  "[   ]", vec!["master", "dev"]);
-        let repo3 = Repo::new("gamma", "[   ]", vec!["master", "hotfix"]);
-        let repo4 = Repo::new("delta", "[   ]", vec!["master", "hotfix", "dev", "feature"]);
-        let repo5 = Repo::new("0123456789", "[01234]", vec!["0123456789", "0123456789", "0123456789", "0123456789"]);
-        let repo6 = Repo::new("abcdefghijklm", "ABCDEFGHIJK", vec!["abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm"]);
+        let path = PathBuf::from("");
+        let repo1 = Repo::new(path.to_path_buf(), "alpha", "12345", vec!["master"]);
+        let repo2 = Repo::new(path.to_path_buf(), "beta",  "[   ]", vec!["master", "dev"]);
+        let repo3 = Repo::new(path.to_path_buf(), "gamma", "[   ]", vec!["master", "hotfix"]);
+        let repo4 = Repo::new(path.to_path_buf(), "delta", "[   ]", vec!["master", "hotfix", "dev", "feature"]);
+        let repo5 = Repo::new(path.to_path_buf(), "0123456789", "[01234]", vec!["0123456789", "0123456789", "0123456789", "0123456789"]);
+        let repo6 = Repo::new(path.to_path_buf(), "abcdefghijklm", "ABCDEFGHIJK", vec!["abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm", "ABCDEFGHIJK", "abcdefghijklm"]);
         let repos = vec![repo1, repo2, repo3, repo4, repo5, repo6];
         repos
     };
