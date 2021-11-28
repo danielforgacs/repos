@@ -45,8 +45,10 @@ impl Tui {
     }
 
     fn start_view(&mut self) {
-        self.row = 0;
         self.column = 0;
+        self.column_id = 0;
+        self.row = 0;
+        self.row_count = 0;
     }
 
     fn row(&self) -> u16 {
