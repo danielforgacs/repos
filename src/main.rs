@@ -23,8 +23,8 @@ struct Tui {
 }
 
 impl Repo {
-    fn new(path: PathBuf, name: &str, status: &str, branches: Vec<&str>) -> Self {
-        let branches = branches.iter().map(|x| x.to_string()).collect();
+    fn new(path: PathBuf, status: &str) -> Self {
+        let branches = Vec::new();
         let name = path.file_name().expect("can't get repo name from path").to_str().unwrap().to_string();
         Self {
             name: name.to_string(),
@@ -124,7 +124,7 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 fn main() {
     let dev_dir = get_dev_dir();
     let repo_paths = find_repo_dirs(dev_dir);
-    let repos: Vec<Repo> = repo_paths.iter().map(|path| Repo::new(path.to_path_buf(), "name", "status", vec!["master"])).collect();
+    let repos: Vec<Repo> = repo_paths.iter().map(|path| Repo::new(path.to_path_buf(), "status")).collect();
     tui(repos);
 }
 
