@@ -25,6 +25,7 @@ struct Tui {
 impl Repo {
     fn new(path: PathBuf, name: &str, status: &str, branches: Vec<&str>) -> Self {
         let branches = branches.iter().map(|x| x.to_string()).collect();
+        let name = path.file_name().expect("can't get repo name from path").to_str().unwrap().to_string();
         Self {
             name: name.to_string(),
             status: status.to_string(),
