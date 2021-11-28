@@ -26,12 +26,19 @@ impl Repo {
     fn new(path: PathBuf, status: &str) -> Self {
         let branches = Vec::new();
         let name = path.file_name().expect("can't get repo name from path").to_str().unwrap().to_string();
-        Self {
+        let mut repo = Self {
             name: name.to_string(),
             status: status.to_string(),
             branches,
             path,
-        }
+        };
+        repo.update_branches();
+        repo
+    }
+
+    fn update_branches(&mut self) {
+        let branches = vec!["a".to_string()];
+        self.branches = branches;
     }
 }
 
@@ -149,19 +156,21 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
     repos
 }
 
-fn tui(repos: Vec<Repo>) {
+fn tui(mut repos: Vec<Repo>) {
     let current_cell_color = color::Bg(color::Rgb(75, 30,15));
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
     let mut coord = Tui::new();
+    let repo_count = repos.len();
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
         coord.reset();
-        coord.row_count = repos.len();
+        coord.row_count = repo_count;
 
-        for repo in &repos {
+        for repo in repos.iter_mut() {
             coord.row_column_counts.push(repo.branches.len() as u16 + 2);
+            repo.update_branches();
 
             {
                 write!(stdout, "{}", goto(coord.column(Option::None), coord.row())).unwrap();
