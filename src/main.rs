@@ -44,11 +44,9 @@ impl Tui {
         }
     }
 
-    fn start_view(&mut self) {
-        self.column = 0;
-        self.column_id = 0;
+    fn reset(&mut self) {
         self.row = 0;
-        self.row_count = 0;
+        self.column = 0;
     }
 
     fn row(&self) -> u16 {
@@ -65,17 +63,19 @@ impl Tui {
         if self.current_row > 0 {
             self.current_row -= 1;
         }
-        self.set_coord_limits()
+        self.validate_current_column()
     }
 
     fn go_down(&mut self) {
-        self.current_row += 1;
-        self.set_coord_limits()
+        if self.current_row < self.row_count as u16 - 1 {
+            self.current_row += 1;
+        }
+        self.validate_current_column()
     }
 
     fn go_right(&mut self) {
         self.current_column_id += 1;
-        self.set_coord_limits()
+        self.validate_current_column()
     }
 
     fn go_left(&mut self) {
@@ -84,13 +84,9 @@ impl Tui {
         }
     }
 
-    fn set_coord_limits(&mut self) {
+    fn validate_current_column(&mut self) {
         if self.current_column_id > self.row_column_counts[self.current_row as usize] - 1 {
-            self.current_column_id = self.row_column_counts[self.current_row as usize] - 1;
-        }
-
-        if self.current_row >  self.row_count as u16 - 1 {
-            self.current_row = self.row_count as u16 - 1;
+            self.current_column_id = self.row_column_counts[self.current_row as usize] - 1
         }
     }
 
@@ -169,7 +165,7 @@ fn tui() {
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        coord.start_view();
+        coord.reset();
         coord.row_count = repos.len();
 
         for repo in &repos {
