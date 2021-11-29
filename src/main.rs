@@ -37,8 +37,13 @@ impl Repo {
     }
 
     fn update_branches(&mut self) {
-        let branches = vec!["a".to_string()];
-        self.branches = branches;
+        let mut branches: Vec<String> = Vec::new();
+        let output = std::process::Command::new("git").arg("branch").current_dir(&self.path).output().expect("Could not get branches");
+        if !output.status.success() {
+            branches.push("(no branch)".to_string());
+        }
+        let git_output: Vec<String> = String::from_utf8(output.stdout).expect("can't extract git output.").lines().map(|x| x.to_string()).collect();
+        self.branches = git_output;
     }
 }
 
