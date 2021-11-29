@@ -1,9 +1,9 @@
 use std::io::Write;
-use std::path::{PathBuf};
-use termion::raw::IntoRawMode;
+use std::path::PathBuf;
 use termion::color;
-use termion::input::TermRead;
 use termion::event::Key;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
 
 struct Repo {
     name: String,
@@ -25,7 +25,12 @@ struct Tui {
 impl Repo {
     fn new(path: PathBuf, status: &str) -> Self {
         let branches = Vec::new();
-        let name = path.file_name().expect("can't get repo name from path").to_str().unwrap().to_string();
+        let name = path
+            .file_name()
+            .expect("can't get repo name from path")
+            .to_str()
+            .unwrap()
+            .to_string();
         let mut repo = Self {
             name: name.to_string(),
             status: status.to_string(),
@@ -38,11 +43,19 @@ impl Repo {
 
     fn update_branches(&mut self) {
         let mut branches: Vec<String> = Vec::new();
-        let output = std::process::Command::new("git").arg("branch").current_dir(&self.path).output().expect("Could not get branches");
+        let output = std::process::Command::new("git")
+            .arg("branch")
+            .current_dir(&self.path)
+            .output()
+            .expect("Could not get branches");
         if !output.status.success() {
             branches.push("(no branch)".to_string());
         }
-        let mut git_output: Vec<String> = String::from_utf8(output.stdout).expect("can't extract git output.").lines().map(|x| x[2..].to_string()).collect();
+        let mut git_output: Vec<String> = String::from_utf8(output.stdout)
+            .expect("can't extract git output.")
+            .lines()
+            .map(|x| x[2..].to_string())
+            .collect();
         git_output.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
         self.branches = git_output;
     }
@@ -126,7 +139,7 @@ impl Tui {
     }
 
     fn is_current_cell(&self) -> bool {
-        self.column_id == self.current_column_id + 1&& self.row == self.current_row
+        self.column_id == self.current_column_id + 1 && self.row == self.current_row
     }
 }
 
@@ -137,7 +150,10 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 fn main() {
     let dev_dir = get_dev_dir();
     let repo_paths = find_repo_dirs(dev_dir);
-    let repos: Vec<Repo> = repo_paths.iter().map(|path| Repo::new(path.to_path_buf(), "status")).collect();
+    let repos: Vec<Repo> = repo_paths
+        .iter()
+        .map(|path| Repo::new(path.to_path_buf(), "status"))
+        .collect();
     tui(repos);
 }
 
@@ -159,12 +175,17 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
             }
         }
     }
-    repos.sort_by(|a, b| a.to_str().unwrap().to_lowercase().cmp(&b.to_str().unwrap().to_lowercase()));
+    repos.sort_by(|a, b| {
+        a.to_str()
+            .unwrap()
+            .to_lowercase()
+            .cmp(&b.to_str().unwrap().to_lowercase())
+    });
     repos
 }
 
 fn tui(mut repos: Vec<Repo>) {
-    let current_cell_color = color::Bg(color::Rgb(75, 30,15));
+    let current_cell_color = color::Bg(color::Rgb(75, 30, 15));
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
     let mut coord = Tui::new();
@@ -216,23 +237,23 @@ fn tui(mut repos: Vec<Repo>) {
                 Key::Char('q') => {
                     keep_running = false;
                     break;
-                },
+                }
                 Key::Right | Key::Char('l') => {
                     coord.go_right();
                     break;
-                },
+                }
                 Key::Left | Key::Char('h') => {
                     coord.go_left();
                     break;
-                },
+                }
                 Key::Up | Key::Char('k') => {
                     coord.go_up();
                     break;
-                },
+                }
                 Key::Down | Key::Char('j') => {
                     coord.go_down();
                     break;
-                },
+                }
                 _ => {}
             }
         }
