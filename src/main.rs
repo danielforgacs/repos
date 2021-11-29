@@ -43,7 +43,7 @@ impl Repo {
             branches.push("(no branch)".to_string());
         }
         let mut git_output: Vec<String> = String::from_utf8(output.stdout).expect("can't extract git output.").lines().map(|x| x[2..].to_string()).collect();
-        git_output.sort();
+        git_output.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
         self.branches = git_output;
     }
 }
