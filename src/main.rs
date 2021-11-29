@@ -176,7 +176,6 @@ fn tui(mut repos: Vec<Repo>) {
 
         for repo in repos.iter_mut() {
             coord.row_column_counts.push(repo.branches.len() as u16 + 2);
-            repo.update_branches();
 
             {
                 write!(stdout, "{}", goto(coord.column(Option::None), coord.row())).unwrap();
@@ -206,6 +205,10 @@ fn tui(mut repos: Vec<Repo>) {
         }
 
         stdout.flush().unwrap();
+
+        for repo in repos.iter_mut() {
+            repo.update_branches();
+        }
 
         for c in std::io::stdin().keys() {
             match c.unwrap() {
