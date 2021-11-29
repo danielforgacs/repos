@@ -42,7 +42,8 @@ impl Repo {
         if !output.status.success() {
             branches.push("(no branch)".to_string());
         }
-        let git_output: Vec<String> = String::from_utf8(output.stdout).expect("can't extract git output.").lines().map(|x| x.to_string()).collect();
+        let mut git_output: Vec<String> = String::from_utf8(output.stdout).expect("can't extract git output.").lines().map(|x| x[2..].to_string()).collect();
+        git_output.sort();
         self.branches = git_output;
     }
 }
