@@ -32,7 +32,7 @@ impl Repo {
             .unwrap()
             .to_string();
         let mut repo = Self {
-            name: name.to_string(),
+            name,
             status: status.to_string(),
             branches,
             path,
@@ -56,7 +56,7 @@ impl Repo {
             .lines()
             .map(|x| x[2..].to_string())
             .collect();
-        git_output.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
+        git_output.sort_by_key(|a| a.to_lowercase());
         self.branches = git_output;
     }
 }
@@ -158,17 +158,16 @@ fn main() {
 }
 
 fn get_dev_dir() -> PathBuf {
-    let dev_path = match std::env::var("DEVDIR") {
+    match std::env::var("DEVDIR") {
         Ok(path) => PathBuf::from(path),
-        Err(_) => PathBuf::from(std::env::current_dir().unwrap()),
-    };
-    dev_path
+        Err(_) => std::env::current_dir().unwrap(),
+    }
 }
 
 fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
     let mut repos: Vec<PathBuf> = Vec::new();
 
-    for read_dir in root.read_dir() {
+    if let Ok(read_dir) = root.read_dir() {
         for dir in read_dir {
             if dir.as_ref().expect("msg").path().join(".git").is_dir() {
                 repos.push(dir.unwrap().path().to_path_buf())
