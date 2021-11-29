@@ -159,6 +159,7 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
             }
         }
     }
+    repos.sort_by(|a, b| a.to_str().unwrap().to_lowercase().cmp(&b.to_str().unwrap().to_lowercase()));
     repos
 }
 
