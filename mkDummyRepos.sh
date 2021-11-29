@@ -47,3 +47,21 @@ git gc --aggressive --prune=all
 
 cd $startdir
 # ///////////////////////
+
+# ///////////////////////
+echo "--> Creating dummy repos."
+cd $DEVDIR
+repodir="_DEL_new_w_bad_status"
+mkdir $repodir
+cd $repodir
+
+git init && git commit --allow-empty -m "init."
+touch file_1 file_2 file_3
+git add . && git commit -m 'added files.'
+echo "stuff" >> file_1 && git add file_1
+echo "stuff" >> file_2
+rm file_3
+touch file_4
+
+cd $startdir
+# ///////////////////////
