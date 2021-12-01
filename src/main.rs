@@ -8,8 +8,19 @@ use termion::raw::IntoRawMode;
 struct Repo {
     name: String,
     path: PathBuf,
-    status: String,
+    status_old: String,
+    status: RepoStatus,
     branches: Vec<String>,
+}
+#[derive(Debug)]
+struct RepoStatus {
+    untracked: bool,
+    deleted: bool,
+    deleted_staged: bool,
+    staged: bool,
+    modified: bool,
+    new_file: bool,
+    new_file_2: bool,
 }
 
 struct Tui {
@@ -20,6 +31,47 @@ struct Tui {
     row: u16,
     current_row: u16,
     row_count: usize,
+}
+
+impl RepoStatus {
+    fn new() -> Self {
+        Self {
+            untracked: false,
+            deleted: false,
+            deleted_staged: false,
+            staged: false,
+            modified: false,
+            new_file: false,
+            new_file_2: false,
+        }
+    }
+
+    fn is_ok(&self) -> bool {
+        let has_bad_stuff = self.untracked ||
+            self.deleted ||
+            self.deleted_staged ||
+            self.staged ||
+            self.modified ||
+            self.new_file ||
+            self.new_file_2;
+        !has_bad_stuff
+    }
+}
+
+impl ToString for RepoStatus {
+    fn to_string(&self) -> String {
+        let empty_status = " ";
+        let status_text = format!("{}{}{}{}{}{}{}",
+            if self.untracked { "U" } else { empty_status },
+            if self.deleted { "D" } else { empty_status },
+            if self.deleted_staged { "d" } else { empty_status },
+            if self.staged { "S" } else { empty_status },
+            if self.modified { "M" } else { empty_status },
+            if self.new_file { "N" } else { empty_status },
+            if self.new_file_2 { "n" } else { empty_status },
+        );
+        status_text
+    }
 }
 
 impl Repo {
@@ -33,11 +85,13 @@ impl Repo {
             .to_string();
         let mut repo = Self {
             name,
-            status: status.to_string(),
+            status_old: status.to_string(),
+            status: RepoStatus::new(),
             branches,
             path,
         };
         repo.update_branches();
+        repo.update_status();
         repo
     }
 
@@ -61,6 +115,8 @@ impl Repo {
     }
 
     fn update_status(&mut self) {
+        let status_mark_width = 2;
+        // let mut status = RepoStatus::new();
         let output = std::process::Command::new("git")
             .arg("status")
             .arg("--porcelain")
@@ -70,8 +126,16 @@ impl Repo {
         for line in String::from_utf8(output.stdout)
             .expect("can't get status output")
             .lines() {
-                println!("{:?}", line)
-
+                match &line[..status_mark_width] {
+                    "??" => self.status.untracked = true,
+                    " D" => self.status.deleted = true,
+                    "D " => self.status.deleted_staged = true,
+                    "M " => self.status.staged = true,
+                    " M" => self.status.modified = true,
+                    "A " => self.status.new_file = true,
+                    "AM" => self.status.new_file_2 = true,
+                    _ => (),
+                };
             }
     }
 }
@@ -169,10 +233,7 @@ fn main() {
         .iter()
         .map(|path| Repo::new(path.to_path_buf(), "status"))
         .collect();
-    // tui(repos);
-    for mut r in repos {
-        r.update_status();
-    }
+    tui(repos);
 }
 
 fn get_dev_dir() -> PathBuf {
@@ -224,7 +285,7 @@ fn tui(mut repos: Vec<Repo>) {
             {
                 write!(stdout, "{}", goto(coord.column(Option::None), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "{:w$}", repo.status, w=coord.column_width()).unwrap();
+                write!(stdout, "[{:w$}]", repo.status.to_string(), w=coord.column_width()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
