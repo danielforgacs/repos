@@ -202,20 +202,20 @@ impl Tui {
     fn column(&mut self, width: Option<usize>) -> u16 {
         let width = match width {
             Some(w) => w as u16 + 1,
-            Option::None => self.column_width() as u16,
+            Option::None => 25,
         };
         let width = match self.column_id {
             0 => 0,
             _ => width,
         };
-        self.column += width;
+        self.column += width + 2;
         self.column_id += 1;
         self.column
     }
 
-    fn column_width(&self) -> usize {
-        25
-    }
+    // fn column_width(&self) -> usize {
+    //     25
+    // }
 
     fn is_current_cell(&self) -> bool {
         self.column_id == self.current_column_id + 1 && self.row == self.current_row
@@ -278,23 +278,27 @@ fn tui(mut repos: Vec<Repo>) {
             {
                 write!(stdout, "{}", goto(coord.column(Option::None), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "{:w$}", repo.name, w=coord.column_width()).unwrap();
+                // write!(stdout, "{:w$}", repo.name, w=coord.column_width()).unwrap();
+                write!(stdout, "{}", repo.name).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
             {
                 write!(stdout, "{}", goto(coord.column(Option::None), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "[{:w$}]", repo.status.to_string(), w=coord.column_width()).unwrap();
+                write!(stdout, "[{}]", repo.status.to_string()).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
-            let mut previous_branch_width: Option<usize> = Option::None;
+            // let mut previous_branch_width: Option<usize> = Option::None;
+
+            let mut previous_branch_width: Option<usize> = Some(repo.status.to_string().len());
 
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(coord.column(previous_branch_width), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "{:w$}", branch, w=coord.column_width()).unwrap();
+                // write!(stdout, "{:w$}", branch, w=coord.column_width()).unwrap();
+                write!(stdout, "{}", branch).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
                 previous_branch_width = Some(branch.len());
             }
