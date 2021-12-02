@@ -252,47 +252,47 @@ fn tui(mut repos: Vec<Repo>) {
     let current_cell_color = color::Bg(color::Rgb(75, 30, 15));
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
-    let mut coord = Tui::new();
+    let mut tui = Tui::new();
     let repo_count = repos.len();
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        coord.reset();
-        coord.row_count = repo_count;
+        tui.reset();
+        tui.row_count = repo_count;
 
         for repo in repos.iter_mut() {
-            coord.row_column_counts.push(repo.branches.len() as u16 + 2);
+            tui.row_column_counts.push(repo.branches.len() as u16 + 2);
 
-            write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
-            if coord.is_current_cell() {
+            write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
+            if tui.is_current_cell() {
                 write!(stdout, "{}", current_cell_color).unwrap();
             }
             write!(stdout, "{}", repo.name).unwrap();
-            if coord.is_current_cell() {
+            if tui.is_current_cell() {
                 write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
             }
 
-            write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
-            if coord.is_current_cell() {
+            write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
+            if tui.is_current_cell() {
                 write!(stdout, "{}", current_cell_color).unwrap();
             }
             write!(stdout, "[{}]", repo.status.to_string()).unwrap();
-            if coord.is_current_cell() {
+            if tui.is_current_cell() {
                 write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
             }
 
             for branch in &repo.branches {
-                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
-                if coord.is_current_cell() {
+                write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
+                if tui.is_current_cell() {
                     write!(stdout, "{}", current_cell_color).unwrap();
                 }
                 write!(stdout, "{}", branch).unwrap();
-                if coord.is_current_cell() {
+                if tui.is_current_cell() {
                     write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
                 }
             }
 
-            coord.finished_row();
+            tui.finished_row();
         }
 
         stdout.flush().unwrap();
@@ -308,19 +308,19 @@ fn tui(mut repos: Vec<Repo>) {
                     break;
                 }
                 Key::Right | Key::Char('l') => {
-                    coord.go_right();
+                    tui.go_right();
                     break;
                 }
                 Key::Left | Key::Char('h') => {
-                    coord.go_left();
+                    tui.go_left();
                     break;
                 }
                 Key::Up | Key::Char('k') => {
-                    coord.go_up();
+                    tui.go_up();
                     break;
                 }
                 Key::Down | Key::Char('j') => {
-                    coord.go_down();
+                    tui.go_down();
                     break;
                 }
                 _ => {}
