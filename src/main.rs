@@ -122,7 +122,11 @@ impl Repo {
             .current_dir(&self.path)
             .output()
             .expect("can't get current branch");
-        self.current_branch = String::from_utf8(branch.stdout).expect("can't convert branch name");
+        self.current_branch = String::from_utf8(branch.stdout)
+            .expect("can't convert branch name")
+            .as_str()
+            .trim()
+            .to_string();
     }
 
     fn update_status(&mut self) {
@@ -294,8 +298,8 @@ fn tui(mut repos: Vec<Repo>) {
             if tui.is_current_cell() {
                 write!(stdout, "{}", current_cell_color).unwrap();
             }
-            // write!(stdout, "{}", repo.name).unwrap();
-            write!(stdout, "{}", repo.is_clean()).unwrap();
+            write!(stdout, "{}", repo.name).unwrap();
+            // write!(stdout, "+{}|{}+", repo.current_branch, repo.status.is_ok()).unwrap();
             if tui.is_current_cell() {
                 write!(stdout, "{}", reset_gb).unwrap();
             }
