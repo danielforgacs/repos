@@ -269,7 +269,7 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
 
 fn tui(mut repos: Vec<Repo>) {
     let current_cell_color = color::Bg(color::Rgb(75, 30, 15));
-    let good_row = color::Fg(color::Rgb(0, 255, 0));
+    let clean_row_color = color::Fg(color::Rgb(0, 255, 0));
     let reset_gb = color::Bg(color::Reset);
     let reset_fg = color::Fg(color::Reset);
 
@@ -287,7 +287,7 @@ fn tui(mut repos: Vec<Repo>) {
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
 
             if repo.is_clean() {
-                write!(stdout, "{}", good_row).unwrap();
+                write!(stdout, "{}", clean_row_color).unwrap();
             }
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
