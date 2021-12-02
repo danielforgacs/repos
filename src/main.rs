@@ -148,6 +148,10 @@ impl Repo {
                 };
             }
     }
+
+    fn is_clean(&self) -> bool {
+        self.current_branch == "master".to_string() && self.status.is_ok()
+    }
 }
 
 impl Tui {
@@ -282,7 +286,7 @@ fn tui(mut repos: Vec<Repo>) {
         for repo in repos.iter_mut() {
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
 
-            if repo.status.is_ok() {
+            if repo.is_clean() {
                 write!(stdout, "{}", good_row).unwrap();
             }
 
@@ -290,7 +294,8 @@ fn tui(mut repos: Vec<Repo>) {
             if tui.is_current_cell() {
                 write!(stdout, "{}", current_cell_color).unwrap();
             }
-            write!(stdout, "{}", repo.name).unwrap();
+            // write!(stdout, "{}", repo.name).unwrap();
+            write!(stdout, "{}", repo.is_clean()).unwrap();
             if tui.is_current_cell() {
                 write!(stdout, "{}", reset_gb).unwrap();
             }
@@ -304,7 +309,7 @@ fn tui(mut repos: Vec<Repo>) {
                 write!(stdout, "{}", reset_gb).unwrap();
             }
 
-            if repo.status.is_ok() {
+            if repo.is_clean() {
                 write!(stdout, "{}", reset_fg).unwrap();
             }
 
@@ -323,10 +328,6 @@ fn tui(mut repos: Vec<Repo>) {
         }
 
         stdout.flush().unwrap();
-
-        for repo in repos.iter_mut() {
-            repo.update_branches();
-        }
 
         for c in std::io::stdin().keys() {
             match c.unwrap() {
