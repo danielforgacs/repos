@@ -263,25 +263,33 @@ fn tui(mut repos: Vec<Repo>) {
         for repo in repos.iter_mut() {
             coord.row_column_counts.push(repo.branches.len() as u16 + 2);
 
-            {
-                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
-                if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "{}", repo.name).unwrap();
-                if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
+            write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
+            if coord.is_current_cell() {
+                write!(stdout, "{}", current_cell_color).unwrap();
+            }
+            write!(stdout, "{}", repo.name).unwrap();
+            if coord.is_current_cell() {
+                write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
             }
 
-            {
-                write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
-                if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                write!(stdout, "[{}]", repo.status.to_string()).unwrap();
-                if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
+            write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
+            if coord.is_current_cell() {
+                write!(stdout, "{}", current_cell_color).unwrap();
+            }
+            write!(stdout, "[{}]", repo.status.to_string()).unwrap();
+            if coord.is_current_cell() {
+                write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
             }
 
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(coord.column(), coord.row())).unwrap();
-                if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
+                if coord.is_current_cell() {
+                    write!(stdout, "{}", current_cell_color).unwrap();
+                }
                 write!(stdout, "{}", branch).unwrap();
-                if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
+                if coord.is_current_cell() {
+                    write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
+                }
             }
 
             coord.finished_row();
