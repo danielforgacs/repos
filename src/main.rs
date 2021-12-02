@@ -197,9 +197,11 @@ impl Tui {
     }
 
     fn column(&mut self) -> u16 {
-        if self.column_id > 0 {
-            self.column += 18;
-        }
+        match self.column_id {
+            0 => {},
+            1 => self.column += 28,
+            _ => self.column += 10,
+        };
         self.column_id += 1;
         self.column
     }
