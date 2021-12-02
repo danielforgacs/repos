@@ -8,7 +8,6 @@ use termion::raw::IntoRawMode;
 struct Repo {
     name: String,
     path: PathBuf,
-    status_old: String,
     status: RepoStatus,
     branches: Vec<String>,
 }
@@ -75,7 +74,7 @@ impl ToString for RepoStatus {
 }
 
 impl Repo {
-    fn new(path: PathBuf, status: &str) -> Self {
+    fn new(path: PathBuf) -> Self {
         let branches = Vec::new();
         let name = path
             .file_name()
@@ -85,7 +84,6 @@ impl Repo {
             .to_string();
         let mut repo = Self {
             name,
-            status_old: status.to_string(),
             status: RepoStatus::new(),
             branches,
             path,
@@ -226,7 +224,7 @@ fn main() {
     let repo_paths = find_repo_dirs(dev_dir);
     let repos: Vec<Repo> = repo_paths
         .iter()
-        .map(|path| Repo::new(path.to_path_buf(), "status"))
+        .map(|path| Repo::new(path.to_path_buf()))
         .collect();
     tui(repos);
 }
