@@ -10,6 +10,7 @@ struct Repo {
     path: PathBuf,
     status: RepoStatus,
     branches: Vec<String>,
+    current_branch: String,
 }
 #[derive(Debug)]
 struct RepoStatus {
@@ -87,9 +88,11 @@ impl Repo {
             status: RepoStatus::new(),
             branches,
             path,
+            current_branch: String::new(),
         };
         repo.update_branches();
         repo.update_status();
+        repo.update_current_branch();
         repo
     }
 
@@ -110,6 +113,15 @@ impl Repo {
             .collect();
         git_output.sort_by_key(|a| a.to_lowercase());
         self.branches = git_output;
+    }
+
+    fn update_current_branch(&mut self) {
+        let branch = std::process::Command::new("git")
+            .arg("branch")
+            .arg("--show-current")
+            .current_dir(&self.path)
+            .output()
+            .expect("can't get current branch");
     }
 
     fn update_status(&mut self) {
