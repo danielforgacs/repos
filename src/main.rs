@@ -116,7 +116,6 @@ impl Repo {
 
     fn update_status(&mut self) {
         let status_mark_width = 2;
-        // let mut status = RepoStatus::new();
         let output = std::process::Command::new("git")
             .arg("status")
             .arg("--porcelain")
@@ -213,10 +212,6 @@ impl Tui {
         self.column
     }
 
-    // fn column_width(&self) -> usize {
-    //     25
-    // }
-
     fn is_current_cell(&self) -> bool {
         self.column_id == self.current_column_id + 1 && self.row == self.current_row
     }
@@ -253,6 +248,7 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
             }
         }
     }
+
     repos.sort_by_key(|x| x
         .to_str()
         .unwrap()
@@ -278,7 +274,6 @@ fn tui(mut repos: Vec<Repo>) {
             {
                 write!(stdout, "{}", goto(coord.column(Option::None), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                // write!(stdout, "{:w$}", repo.name, w=coord.column_width()).unwrap();
                 write!(stdout, "{}", repo.name).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
@@ -290,14 +285,11 @@ fn tui(mut repos: Vec<Repo>) {
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
             }
 
-            // let mut previous_branch_width: Option<usize> = Option::None;
-
             let mut previous_branch_width: Option<usize> = Some(repo.status.to_string().len());
 
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(coord.column(previous_branch_width), coord.row())).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
-                // write!(stdout, "{:w$}", branch, w=coord.column_width()).unwrap();
                 write!(stdout, "{}", branch).unwrap();
                 if coord.is_current_cell() { write!(stdout, "{}", color::Bg(color::Reset)).unwrap(); }
                 previous_branch_width = Some(branch.len());
