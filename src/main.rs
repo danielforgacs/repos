@@ -122,6 +122,7 @@ impl Repo {
             .current_dir(&self.path)
             .output()
             .expect("can't get current branch");
+        self.current_branch = String::from_utf8(branch.stdout).expect("can't convert branch name");
     }
 
     fn update_status(&mut self) {
