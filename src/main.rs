@@ -209,10 +209,6 @@ impl Tui {
     fn is_current_cell(&self) -> bool {
         self.column_id == self.current_column_id + 1 && self.row == self.current_row
     }
-
-    fn is_current_row(&self) -> bool {
-        self.row == self.current_row
-    }
 }
 
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
@@ -283,7 +279,7 @@ fn tui(mut repos: Vec<Repo>) {
             }
             write!(stdout, "{}", repo.name).unwrap();
             if tui.is_current_cell() {
-                write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
+                write!(stdout, "{}", reset_gb).unwrap();
             }
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
@@ -292,7 +288,7 @@ fn tui(mut repos: Vec<Repo>) {
             }
             write!(stdout, "[{}]", repo.status.to_string()).unwrap();
             if tui.is_current_cell() {
-                write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
+                write!(stdout, "{}", reset_gb).unwrap();
             }
 
             if repo.status.is_ok() {
@@ -306,7 +302,7 @@ fn tui(mut repos: Vec<Repo>) {
                 }
                 write!(stdout, "{}", branch).unwrap();
                 if tui.is_current_cell() {
-                    write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
+                    write!(stdout, "{}", reset_gb).unwrap();
                 }
             }
 
