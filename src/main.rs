@@ -209,6 +209,10 @@ impl Tui {
     fn is_current_cell(&self) -> bool {
         self.column_id == self.current_column_id + 1 && self.row == self.current_row
     }
+
+    fn is_current_row(&self) -> bool {
+        self.row == self.current_row
+    }
 }
 
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
@@ -252,6 +256,10 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
 
 fn tui(mut repos: Vec<Repo>) {
     let current_cell_color = color::Bg(color::Rgb(75, 30, 15));
+    let good_row = color::Fg(color::Rgb(0, 255, 0));
+    let reset_gb = color::Bg(color::Reset);
+    let reset_fg = color::Fg(color::Reset);
+
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
     let mut tui = Tui::new();
@@ -264,6 +272,10 @@ fn tui(mut repos: Vec<Repo>) {
 
         for repo in repos.iter_mut() {
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
+
+            if repo.status.is_ok() {
+                write!(stdout, "{}", good_row).unwrap();
+            }
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             if tui.is_current_cell() {
@@ -281,6 +293,10 @@ fn tui(mut repos: Vec<Repo>) {
             write!(stdout, "[{}]", repo.status.to_string()).unwrap();
             if tui.is_current_cell() {
                 write!(stdout, "{}", color::Bg(color::Reset)).unwrap();
+            }
+
+            if repo.status.is_ok() {
+                write!(stdout, "{}", reset_fg).unwrap();
             }
 
             for branch in &repo.branches {
