@@ -299,7 +299,6 @@ fn tui(mut repos: Vec<Repo>) {
                 write!(stdout, "{}", current_cell_color).unwrap();
             }
             write!(stdout, "{}", repo.name).unwrap();
-            // write!(stdout, "+{}|{}+", repo.current_branch, repo.status.is_ok()).unwrap();
             if tui.is_current_cell() {
                 write!(stdout, "{}", reset_gb).unwrap();
             }
