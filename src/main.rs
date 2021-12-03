@@ -392,9 +392,9 @@ fn tui(mut repos: Vec<Repo>) {
 
         stdout.flush().unwrap();
 
-        // for repo in repos.iter_mut() {
-        //     repo.update();
-        // }
+        for repo in repos.iter_mut() {
+            repo.update();
+        }
 
         for c in std::io::stdin().keys() {
             match c.unwrap() {
@@ -420,7 +420,7 @@ fn tui(mut repos: Vec<Repo>) {
                 }
                 Key::Char('\n') => {
                     match tui.current_column_id {
-                        1 => { repos[tui.current_row as usize].clear_stat() }
+                        1 => { repos[tui.current_row as usize].clear_stat(); break }
                         _ => {}
                     }
                     break;
