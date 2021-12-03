@@ -299,10 +299,10 @@ fn tui(mut repos: Vec<Repo>) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
-    let fg_master_ok = color::Fg(color::Rgb(0, 255, 0));
-    let fg_master_not_ok = color::Fg(color::Rgb(255, 175, 0));
-    let fg_not_master_ok = color::Fg(color::Rgb(0, 255, 255));
-    let fg_not_master_not_ok = color::Fg(color::Rgb(255, 0, 0));
+    let fg_master_ok = color::Fg(color::Rgb(0, 125, 0));
+    let fg_master_not_ok = color::Fg(color::Rgb(255, 255, 0));
+    let fg_not_master_ok = color::Fg(color::Rgb(0, 200, 255));
+    let fg_not_master_not_ok = color::Fg(color::Rgb(200, 0, 0));
 
     let fg_active_branch = color::Fg(color::Rgb(35, 200, 35));
     let fg_inactive_branch = color::Fg(color::Rgb(35, 35, 35));
