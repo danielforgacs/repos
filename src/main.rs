@@ -344,6 +344,12 @@ fn tui(mut repos: Vec<Repo>) {
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
+                match repo.get_repo_state() {
+                    RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
+                    RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
+                    RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
+                    RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
+                }
                 write!(stdout, "[{}]", repo.status.to_string()).unwrap();
                 write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
             }
