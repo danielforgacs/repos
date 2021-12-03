@@ -188,7 +188,6 @@ impl Repo {
             .current_dir(&self.path)
             .output()
             .expect("Could not checkout repos.");
-        println!("output: {:?}", output.to_owned());
         self.update();
         self.name = "LKJHLKJH".to_string();
     }
@@ -337,35 +336,30 @@ fn tui(mut repos: Vec<Repo>) {
         tui.row_count = repo_count;
 
         for repo in repos.iter_mut() {
-            repo.update();
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
+            match repo.get_repo_state() {
+                RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
+                RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
+                RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
+                RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
+            }
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                match repo.get_repo_state() {
-                    RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
-                    RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
-                    RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
-                    RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
-                }
                 write!(stdout, "{:w$}", repo.name, w=28).unwrap();
-                write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
             }
 
-
+            write!(stdout, "{}", bg_reset).unwrap();
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
+
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                match repo.get_repo_state() {
-                    RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
-                    RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
-                    RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
-                    RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
-                }
                 write!(stdout, "[{}]", repo.status.to_string()).unwrap();
-                write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
             }
+
+            write!(stdout, "{}", fg_reset).unwrap();
+            write!(stdout, "{}", bg_reset).unwrap();
 
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
@@ -387,16 +381,10 @@ fn tui(mut repos: Vec<Repo>) {
             tui.finished_row();
         }
 
-        // let current_repo = repos[tui.current_row as usize];
-
         write!(stdout, "{}", goto(5, &(repos.len() as u16) + 2)).unwrap();
         write!(stdout, "{}:{}", tui.current_column_id, repos[tui.current_row as usize].name).unwrap();
 
         stdout.flush().unwrap();
-
-        for repo in repos.iter_mut() {
-            repo.update();
-        }
 
         for c in std::io::stdin().keys() {
             match c.unwrap() {
@@ -422,7 +410,10 @@ fn tui(mut repos: Vec<Repo>) {
                 }
                 Key::Char('\n') => {
                     match tui.current_column_id {
-                        1 => { repos[tui.current_row as usize].clear_stat(); break }
+                        1 => {
+                            repos[tui.current_row as usize].clear_stat();
+                            break
+                        }
                         _ => {}
                     }
                     break;
