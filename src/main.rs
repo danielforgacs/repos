@@ -322,16 +322,18 @@ fn tui(mut repos: Vec<Repo>) {
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
                 write!(stdout, "{}", repo.name).unwrap();
-                if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
             }
+            if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
+            if tui.is_current_cell() { write!(stdout, "{}", fg_reset).unwrap(); }
 
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
                 write!(stdout, "[{}]", repo.status.to_string()).unwrap();
-                if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
             }
+            if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
+            if tui.is_current_cell() { write!(stdout, "{}", fg_reset).unwrap(); }
 
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
@@ -339,8 +341,9 @@ fn tui(mut repos: Vec<Repo>) {
                 {
                     if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
                     write!(stdout, "{}", branch).unwrap();
-                    if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
                 }
+                if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
+                if tui.is_current_cell() { write!(stdout, "{}", fg_reset).unwrap(); }
             }
 
             tui.finished_row();
