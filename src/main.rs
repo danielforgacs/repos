@@ -251,6 +251,11 @@ impl Tui {
         self.column
     }
 
+    fn adjust_column_width(&mut self, width: u16) {
+        self.column -= 10;
+        self.column += width + 1;
+    }
+
     fn is_current_cell(&self) -> bool {
         self.column_id == self.current_column_id + 1 && self.row == self.current_row
     }
@@ -356,6 +361,8 @@ fn tui(mut repos: Vec<Repo>) {
                     write!(stdout, "{}", branch).unwrap();
                     write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
                 }
+
+                tui.adjust_column_width(branch.len() as u16);
             }
 
             tui.finished_row();
