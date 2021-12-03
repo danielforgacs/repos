@@ -368,6 +368,11 @@ fn tui(mut repos: Vec<Repo>) {
             tui.finished_row();
         }
 
+        let current_repo = &repos[tui.current_row as usize];
+
+        write!(stdout, "{}", goto(5, &(repos.len() as u16) + 2)).unwrap();
+        write!(stdout, "{}", current_repo.name).unwrap();
+
         stdout.flush().unwrap();
 
         for c in std::io::stdin().keys() {
