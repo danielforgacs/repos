@@ -379,9 +379,10 @@ fn tui(mut repos: Vec<Repo>) {
 
         stdout.flush().unwrap();
 
-        // for repo in repos {
-        //     repo.update();
-        // }
+        // for mut repo in repos {
+        for repo in repos.iter_mut() {
+            repo.update();
+        }
 
         for c in std::io::stdin().keys() {
             match c.unwrap() {
