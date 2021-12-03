@@ -164,10 +164,6 @@ impl Repo {
             }
     }
 
-    fn is_clean(&self) -> bool {
-        self.current_branch == "master".to_string() && self.status.is_ok()
-    }
-
     fn get_repo_state(&self) -> RepoState {
         match self.current_branch.as_ref() {
             "master" => {
@@ -379,7 +375,6 @@ fn tui(mut repos: Vec<Repo>) {
 
         stdout.flush().unwrap();
 
-        // for mut repo in repos {
         for repo in repos.iter_mut() {
             repo.update();
         }
