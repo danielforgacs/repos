@@ -5,6 +5,13 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
+enum RepoState {
+    MasterOk,
+    MasterNotOk,
+    NotMasterOK,
+    NotMasterNotOK,
+}
+
 struct Repo {
     name: String,
     path: PathBuf,
@@ -274,6 +281,8 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
 fn tui(mut repos: Vec<Repo>) {
     let current_cell_color = color::Bg(color::Rgb(75, 30, 15));
     let clean_row_color = color::Fg(color::Rgb(0, 255, 0));
+    let non_current_branch_color = color::Fg(color::Rgb(55, 55, 55));
+    let untrack_non_master_color = color::Fg(color::Rgb(255, 0, 0));
     let reset_gb = color::Bg(color::Reset);
     let reset_fg = color::Fg(color::Reset);
 
@@ -293,16 +302,20 @@ fn tui(mut repos: Vec<Repo>) {
             if repo.is_clean() {
                 write!(stdout, "{}", clean_row_color).unwrap();
             }
-
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             if tui.is_current_cell() {
                 write!(stdout, "{}", current_cell_color).unwrap();
             }
+            if !repo.status.is_ok() && repo.current_branch != "master".to_string() {
+                write!(stdout, "{}", untrack_non_master_color).unwrap();
+            }
             write!(stdout, "{}", repo.name).unwrap();
+            if !repo.status.is_ok() && repo.current_branch != "master".to_string() {
+                write!(stdout, "{}", reset_fg).unwrap();
+            }
             if tui.is_current_cell() {
                 write!(stdout, "{}", reset_gb).unwrap();
             }
-
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             if tui.is_current_cell() {
                 write!(stdout, "{}", current_cell_color).unwrap();
@@ -311,7 +324,6 @@ fn tui(mut repos: Vec<Repo>) {
             if tui.is_current_cell() {
                 write!(stdout, "{}", reset_gb).unwrap();
             }
-
             if repo.is_clean() {
                 write!(stdout, "{}", reset_fg).unwrap();
             }
@@ -321,7 +333,13 @@ fn tui(mut repos: Vec<Repo>) {
                 if tui.is_current_cell() {
                     write!(stdout, "{}", current_cell_color).unwrap();
                 }
+                if branch != &repo.current_branch {
+                    write!(stdout, "{}", non_current_branch_color).unwrap();
+                }
                 write!(stdout, "{}", branch).unwrap();
+                if branch != &repo.current_branch {
+                    write!(stdout, "{}", reset_fg).unwrap();
+                }
                 if tui.is_current_cell() {
                     write!(stdout, "{}", reset_gb).unwrap();
                 }
