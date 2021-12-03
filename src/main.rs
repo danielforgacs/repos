@@ -331,7 +331,7 @@ fn tui(mut repos: Vec<Repo>) {
                     RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
                     RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
                 }
-                write!(stdout, "{}", repo.name).unwrap();
+                write!(stdout, "{:w$}", repo.name, w=28).unwrap();
                 write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
             }
 
