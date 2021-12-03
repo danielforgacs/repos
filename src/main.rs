@@ -163,6 +163,23 @@ impl Repo {
     fn is_clean(&self) -> bool {
         self.current_branch == "master".to_string() && self.status.is_ok()
     }
+
+    fn get_repo_state(&self) -> RepoState {
+        match self.current_branch.as_ref() {
+            "master" => {
+                match self.status.is_ok() {
+                    true => return RepoState::MasterOk,
+                    false => return RepoState::MasterNotOk,
+                }
+            },
+            _ => {
+                match self.status.is_ok() {
+                    true => return RepoState::NotMasterOK,
+                    false => return RepoState::NotMasterNotOK,
+                }
+            },
+        };
+    }
 }
 
 impl Tui {
@@ -299,20 +316,11 @@ fn tui(mut repos: Vec<Repo>) {
         for repo in repos.iter_mut() {
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
 
-            if repo.is_clean() {
-                write!(stdout, "{}", clean_row_color).unwrap();
-            }
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             if tui.is_current_cell() {
                 write!(stdout, "{}", current_cell_color).unwrap();
             }
-            if !repo.status.is_ok() && repo.current_branch != "master".to_string() {
-                write!(stdout, "{}", untrack_non_master_color).unwrap();
-            }
             write!(stdout, "{}", repo.name).unwrap();
-            if !repo.status.is_ok() && repo.current_branch != "master".to_string() {
-                write!(stdout, "{}", reset_fg).unwrap();
-            }
             if tui.is_current_cell() {
                 write!(stdout, "{}", reset_gb).unwrap();
             }
@@ -324,22 +332,13 @@ fn tui(mut repos: Vec<Repo>) {
             if tui.is_current_cell() {
                 write!(stdout, "{}", reset_gb).unwrap();
             }
-            if repo.is_clean() {
-                write!(stdout, "{}", reset_fg).unwrap();
-            }
 
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
                 if tui.is_current_cell() {
                     write!(stdout, "{}", current_cell_color).unwrap();
                 }
-                if branch != &repo.current_branch {
-                    write!(stdout, "{}", non_current_branch_color).unwrap();
-                }
                 write!(stdout, "{}", branch).unwrap();
-                if branch != &repo.current_branch {
-                    write!(stdout, "{}", reset_fg).unwrap();
-                }
                 if tui.is_current_cell() {
                     write!(stdout, "{}", reset_gb).unwrap();
                 }
