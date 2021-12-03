@@ -190,6 +190,7 @@ impl Repo {
             .expect("Could not checkout repos.");
         println!("output: {:?}", output.to_owned());
         self.update();
+        self.name = "LKJHLKJH".to_string();
     }
 }
 
@@ -336,6 +337,7 @@ fn tui(mut repos: Vec<Repo>) {
         tui.row_count = repo_count;
 
         for repo in repos.iter_mut() {
+            repo.update();
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
