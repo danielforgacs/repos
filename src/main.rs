@@ -182,11 +182,13 @@ impl Repo {
     }
 
     fn clear_stat(&mut self) {
-        std::process::Command::new("git")
+        let output = std::process::Command::new("git")
             .arg("checkout")
+            .arg(".")
             .current_dir(&self.path)
             .output()
             .expect("Could not checkout repos.");
+        println!("output: {:?}", output.to_owned());
         self.update();
     }
 }
@@ -421,6 +423,7 @@ fn tui(mut repos: Vec<Repo>) {
                         1 => { repos[tui.current_row as usize].clear_stat() }
                         _ => {}
                     }
+                    break;
                 }
                 _ => {}
             }
