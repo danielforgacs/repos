@@ -97,10 +97,14 @@ impl Repo {
             path,
             current_branch: String::new(),
         };
-        repo.update_branches();
-        repo.update_status();
-        repo.update_current_branch();
+        repo.update();
         repo
+    }
+
+    fn update(&mut self) {
+        self.update_branches();
+        self.update_status();
+        self.update_current_branch();
     }
 
     fn update_branches(&mut self) {
@@ -374,6 +378,10 @@ fn tui(mut repos: Vec<Repo>) {
         write!(stdout, "{}", current_repo.name).unwrap();
 
         stdout.flush().unwrap();
+
+        // for repo in repos {
+        //     repo.update();
+        // }
 
         for c in std::io::stdin().keys() {
             match c.unwrap() {
