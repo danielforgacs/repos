@@ -385,6 +385,11 @@ fn tui(mut repos: Vec<Repo>) {
                     tui.go_down();
                     break;
                 }
+                Key::Char('\n') => {
+                    write!(stdout, "{}", goto(5, 25)).unwrap();
+                    write!(stdout, "{}.{}", tui.current_row, tui.current_column_id).unwrap();
+                    stdout.flush().unwrap();
+                }
                 _ => {}
             }
         }
