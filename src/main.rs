@@ -180,6 +180,15 @@ impl Repo {
             },
         };
     }
+
+    fn clear_stat(&mut self) {
+        std::process::Command::new("git")
+            .arg("checkout")
+            .current_dir(&self.path)
+            .output()
+            .expect("Could not checkout repos.");
+        self.update();
+    }
 }
 
 impl Tui {
@@ -374,16 +383,16 @@ fn tui(mut repos: Vec<Repo>) {
             tui.finished_row();
         }
 
-        let current_repo = &repos[tui.current_row as usize];
+        // let current_repo = repos[tui.current_row as usize];
 
         write!(stdout, "{}", goto(5, &(repos.len() as u16) + 2)).unwrap();
-        write!(stdout, "{}", current_repo.name).unwrap();
+        write!(stdout, "{}:{}", tui.current_column_id, repos[tui.current_row as usize].name).unwrap();
 
         stdout.flush().unwrap();
 
-        for repo in repos.iter_mut() {
-            repo.update();
-        }
+        // for repo in repos.iter_mut() {
+        //     repo.update();
+        // }
 
         for c in std::io::stdin().keys() {
             match c.unwrap() {
@@ -408,10 +417,10 @@ fn tui(mut repos: Vec<Repo>) {
                     break;
                 }
                 Key::Char('\n') => {
-                    let repo = &repos[tui.current_row as usize];
-                    write!(stdout, "{}", goto(5, 26)).unwrap();
-                    write!(stdout, "{}.{}", repo.name, tui.current_column_id).unwrap();
-                    stdout.flush().unwrap();
+                    match tui.current_column_id {
+                        1 => { repos[tui.current_row as usize].clear_stat() }
+                        _ => {}
+                    }
                 }
                 _ => {}
             }
