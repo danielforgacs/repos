@@ -297,7 +297,12 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
 
 fn tui(mut repos: Vec<Repo>) {
     let current_cell_color = color::Bg(color::Rgb(75, 30, 15));
-    let clean_row_color = color::Fg(color::Rgb(0, 255, 0));
+    let master_ok_color = color::Fg(color::Rgb(0, 255, 0));
+    let master_not_ok_color = color::Fg(color::Rgb(255, 255, 0));
+    let not_master_ok_color = color::Fg(color::Rgb(144, 255, 110));
+    let not_master_not_ok_color = color::Fg(color::Rgb(144, 255, 110));
+
+
     let non_current_branch_color = color::Fg(color::Rgb(55, 55, 55));
     let untrack_non_master_color = color::Fg(color::Rgb(255, 0, 0));
     let reset_gb = color::Bg(color::Reset);
@@ -317,30 +322,27 @@ fn tui(mut repos: Vec<Repo>) {
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
-            if tui.is_current_cell() {
-                write!(stdout, "{}", current_cell_color).unwrap();
+            {
+                if tui.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
+                write!(stdout, "{}", repo.name).unwrap();
+                if tui.is_current_cell() { write!(stdout, "{}", reset_gb).unwrap(); }
             }
-            write!(stdout, "{}", repo.name).unwrap();
-            if tui.is_current_cell() {
-                write!(stdout, "{}", reset_gb).unwrap();
-            }
+
+
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
-            if tui.is_current_cell() {
-                write!(stdout, "{}", current_cell_color).unwrap();
-            }
-            write!(stdout, "[{}]", repo.status.to_string()).unwrap();
-            if tui.is_current_cell() {
-                write!(stdout, "{}", reset_gb).unwrap();
+            {
+                if tui.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
+                write!(stdout, "[{}]", repo.status.to_string()).unwrap();
+                if tui.is_current_cell() { write!(stdout, "{}", reset_gb).unwrap(); }
             }
 
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
-                if tui.is_current_cell() {
-                    write!(stdout, "{}", current_cell_color).unwrap();
-                }
-                write!(stdout, "{}", branch).unwrap();
-                if tui.is_current_cell() {
-                    write!(stdout, "{}", reset_gb).unwrap();
+
+                {
+                    if tui.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
+                    write!(stdout, "{}", branch).unwrap();
+                    if tui.is_current_cell() { write!(stdout, "{}", reset_gb).unwrap(); }
                 }
             }
 
