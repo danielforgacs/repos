@@ -4,6 +4,7 @@ then
 fi
 
 startdir=${PWD}
+rm -rf $DEVDIR/_DEL_*
 
 # ///////////////////////
 echo "--> Creating dummy repos."
