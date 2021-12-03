@@ -296,17 +296,14 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
 }
 
 fn tui(mut repos: Vec<Repo>) {
-    let current_cell_color = color::Bg(color::Rgb(75, 30, 15));
-    let master_ok_color = color::Fg(color::Rgb(0, 255, 0));
-    let master_not_ok_color = color::Fg(color::Rgb(255, 255, 0));
-    let not_master_ok_color = color::Fg(color::Rgb(144, 255, 110));
-    let not_master_not_ok_color = color::Fg(color::Rgb(144, 255, 110));
+    let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
+    let fg_master_ok = color::Fg(color::Rgb(0, 255, 0));
+    let fg_master_not_ok = color::Fg(color::Rgb(255, 255, 0));
+    let fg_not_master_ok = color::Fg(color::Rgb(144, 255, 110));
+    let fg_not_master_not_ok = color::Fg(color::Rgb(144, 255, 110));
 
-
-    let non_current_branch_color = color::Fg(color::Rgb(55, 55, 55));
-    let untrack_non_master_color = color::Fg(color::Rgb(255, 0, 0));
-    let reset_gb = color::Bg(color::Reset);
-    let reset_fg = color::Fg(color::Reset);
+    let bg_reset = color::Bg(color::Reset);
+    let fg_reset = color::Fg(color::Reset);
 
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut keep_running = true;
@@ -323,26 +320,26 @@ fn tui(mut repos: Vec<Repo>) {
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             {
-                if tui.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
+                if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
                 write!(stdout, "{}", repo.name).unwrap();
-                if tui.is_current_cell() { write!(stdout, "{}", reset_gb).unwrap(); }
+                if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
             }
 
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             {
-                if tui.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
+                if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
                 write!(stdout, "[{}]", repo.status.to_string()).unwrap();
-                if tui.is_current_cell() { write!(stdout, "{}", reset_gb).unwrap(); }
+                if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
             }
 
             for branch in &repo.branches {
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
 
                 {
-                    if tui.is_current_cell() { write!(stdout, "{}", current_cell_color).unwrap(); }
+                    if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
                     write!(stdout, "{}", branch).unwrap();
-                    if tui.is_current_cell() { write!(stdout, "{}", reset_gb).unwrap(); }
+                    if tui.is_current_cell() { write!(stdout, "{}", bg_reset).unwrap(); }
                 }
             }
 
