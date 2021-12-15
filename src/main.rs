@@ -189,6 +189,7 @@ impl Repo {
             .output()
             .expect("Could not checkout repos.");
         // self.update();
+        self.update_status();
         self.branches = vec!["a", "b", "c"].iter().map(|&x| x.to_string()).collect();
         self.name = "LKJHLKJH".to_string();
     }
