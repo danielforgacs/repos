@@ -182,16 +182,19 @@ impl Repo {
     }
 
     fn clear_stat(&mut self) {
-        let output = std::process::Command::new("git")
+        std::process::Command::new("git")
+            .arg("reset")
+            .arg(".")
+            .current_dir(&self.path)
+            .output()
+            .expect("Could not checkout repos.");
+        std::process::Command::new("git")
             .arg("checkout")
             .arg(".")
             .current_dir(&self.path)
             .output()
             .expect("Could not checkout repos.");
-        // self.update();
-        self.update_status();
-        self.branches = vec!["a", "b", "c"].iter().map(|&x| x.to_string()).collect();
-        self.name = "LKJHLKJH".to_string();
+        self.update();
     }
 }
 
