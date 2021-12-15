@@ -85,3 +85,18 @@ touch file_4
 
 cd $startdir
 # ///////////////////////
+
+# ///////////////////////
+echo "--> Creating dummy repos."
+cd $DEVDIR
+repodir="_DEL_not_master_OK"
+mkdir $repodir
+cd $repodir
+
+git init && git commit --allow-empty -m "init."
+git checkout -b "wip-branch"
+touch file_1 file_2 file_3
+git add . && git commit -m 'added files.'
+
+cd $startdir
+# ///////////////////////
