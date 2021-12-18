@@ -196,6 +196,16 @@ impl Repo {
             .expect("Could not checkout repos.");
         self.update();
     }
+
+    // fn checkout_branch(&mut self, branch: &str) {
+    fn checkout_branch(&mut self, branch: String) {
+        std::process::Command::new("git")
+            .arg("checkout")
+            .arg(branch)
+            .current_dir(&self.path)
+            .output()
+            .expect("Could not checkout repos.");
+    }
 }
 
 impl Tui {
@@ -418,6 +428,10 @@ fn tui(mut repos: Vec<Repo>) {
                         1 => {
                             repos[tui.current_row as usize].clear_stat();
                             break
+                        }
+                        2..=5 => {
+                            let branch = repos[tui.current_row as usize].branches[tui.current_column_id as usize - 2].to_owned();
+                            repos[tui.current_row as usize].checkout_branch(branch);
                         }
                         _ => {}
                     }
