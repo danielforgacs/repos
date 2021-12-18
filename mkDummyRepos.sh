@@ -9,7 +9,7 @@ rm -rf $DEVDIR/_DEL_*
 # ///////////////////////
 echo "--> Creating dummy repos."
 cd $DEVDIR
-repodir="_DEL_new_empty"
+repodir="__DEL_WIP_REPO_0001"
 mkdir $repodir
 cd $repodir
 
@@ -21,7 +21,7 @@ cd $startdir
 # ///////////////////////
 echo "--> Creating dummy repos."
 cd $DEVDIR
-repodir="_DEL_new_w_branches"
+repodir="__DEL_WIP_REPO_0002"
 mkdir $repodir
 cd $repodir
 
@@ -36,7 +36,7 @@ cd $startdir
 # ///////////////////////
 echo "--> Creating dummy repos."
 cd $DEVDIR
-repodir="_DEL_new_w_branches-gc"
+repodir="__DEL_WIP_REPO_0003"
 mkdir $repodir
 cd $repodir
 
@@ -52,7 +52,7 @@ cd $startdir
 # ///////////////////////
 echo "--> Creating dummy repos."
 cd $DEVDIR
-repodir="_DEL_new_w_bad_status"
+repodir="__DEL_WIP_REPO_0004"
 mkdir $repodir
 cd $repodir
 
@@ -70,7 +70,7 @@ cd $startdir
 # ///////////////////////
 echo "--> Creating dummy repos."
 cd $DEVDIR
-repodir="_DEL_not_master_bad_status"
+repodir="__DEL_WIP_REPO_0005"
 mkdir $repodir
 cd $repodir
 
@@ -89,7 +89,7 @@ cd $startdir
 # ///////////////////////
 echo "--> Creating dummy repos."
 cd $DEVDIR
-repodir="_DEL_not_master_OK"
+repodir="__DEL_WIP_REPO_0006"
 mkdir $repodir
 cd $repodir
 
