@@ -1,10 +1,8 @@
-if [ -z ${DEVDIR+x} ];
-then
-    return
-fi
-
 startdir=${PWD}
-rm -rf $DEVDIR/_DEL_*
+devdir=$startdir/__DEL_repos
+export DEVDIR=$devdir
+rm -rf $DEVDIR
+mkdir $DEVDIR
 
 # ///////////////////////
 echo "--> Creating dummy repos."
