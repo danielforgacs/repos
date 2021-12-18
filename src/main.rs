@@ -83,28 +83,19 @@ impl ToString for RepoStatus {
 
 impl Repo {
     fn new(path: PathBuf) -> Self {
-        let branches = Vec::new();
         let name = path
             .file_name()
             .expect("can't get repo name from path")
             .to_str()
             .unwrap()
             .to_string();
-        let mut repo = Self {
+        Self {
             name,
             status: RepoStatus::new(),
-            branches,
+            branches: Vec::new(),
             path,
             current_branch: String::new(),
-        };
-        repo.update();
-        repo
-    }
-
-    fn update(&mut self) {
-        self.update_branches();
-        self.update_status();
-        self.update_current_branch();
+        }
     }
 
     fn update_branches(&mut self) {
@@ -194,11 +185,9 @@ impl Repo {
             .current_dir(&self.path)
             .output()
             .expect("Could not checkout repos.");
-        self.update();
     }
 
-    // fn checkout_branch(&mut self, branch: &str) {
-    fn checkout_branch(&mut self, branch: String) {
+    fn checkout_branch(&self, branch: String) {
         std::process::Command::new("git")
             .arg("checkout")
             .arg(branch)
@@ -350,11 +339,14 @@ fn tui(mut repos: Vec<Repo>) {
         tui.reset();
         tui.row_count = repo_count;
 
-        for repo in repos.iter_mut() {
-            tui.row_column_counts.push(repo.branches.len() as u16 + 2);
+        for index in 0..repos.len() {
+            repos[index].update_status();
+            repos[index].update_branches();
+            repos[index].update_current_branch();
+            tui.row_column_counts.push(repos[index].branches.len() as u16 + 2);
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
-            match repo.get_repo_state() {
+            match repos[index].get_repo_state() {
                 RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
                 RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
                 RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
@@ -362,7 +354,7 @@ fn tui(mut repos: Vec<Repo>) {
             }
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                write!(stdout, "{:w$}", repo.name, w=28).unwrap();
+                write!(stdout, "{:w$}", repos[index].name, w=28).unwrap();
             }
 
             write!(stdout, "{}", bg_reset).unwrap();
@@ -370,18 +362,18 @@ fn tui(mut repos: Vec<Repo>) {
 
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                write!(stdout, "[{}]", repo.status.to_string()).unwrap();
+                write!(stdout, "[{}]", repos[index].status.to_string()).unwrap();
             }
 
             write!(stdout, "{}", fg_reset).unwrap();
             write!(stdout, "{}", bg_reset).unwrap();
 
-            for branch in &repo.branches {
+            for branch in &repos[index].branches {
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
 
                 {
                     if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                    if branch == repo.current_branch.as_str() {
+                    if branch == repos[index].current_branch.as_str() {
                         write!(stdout, "{}", fg_active_branch).unwrap();
                     } else {
                         write!(stdout, "{}", fg_inactive_branch).unwrap();
