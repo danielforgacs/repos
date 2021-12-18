@@ -132,6 +132,13 @@ impl Repo {
     }
 
     fn update_status(&mut self) {
+        self.status.untracked = false;
+        self.status.deleted = false;
+        self.status.deleted_staged = false;
+        self.status.staged = false;
+        self.status.modified = false;
+        self.status.new_file = false;
+        self.status.new_file_2 = false;
         let status_mark_width = 2;
         let output = std::process::Command::new("git")
             .arg("status")
