@@ -5,7 +5,6 @@ rm -rf $DEVDIR
 mkdir $DEVDIR
 
 # ///////////////////////
-echo "--> Creating dummy repos."
 cd $DEVDIR
 repodir="__DEL_WIP_REPO_0001"
 mkdir $repodir
@@ -15,9 +14,6 @@ git init && git commit --allow-empty -m "init."
 
 cd $startdir
 # ///////////////////////
-
-# ///////////////////////
-echo "--> Creating dummy repos."
 cd $DEVDIR
 repodir="__DEL_WIP_REPO_0002"
 mkdir $repodir
@@ -30,9 +26,6 @@ git branch hotfix master
 
 cd $startdir
 # ///////////////////////
-
-# ///////////////////////
-echo "--> Creating dummy repos."
 cd $DEVDIR
 repodir="__DEL_WIP_REPO_0003"
 mkdir $repodir
@@ -46,9 +39,6 @@ git gc --aggressive --prune=all
 
 cd $startdir
 # ///////////////////////
-
-# ///////////////////////
-echo "--> Creating dummy repos."
 cd $DEVDIR
 repodir="__DEL_WIP_REPO_0004"
 mkdir $repodir
@@ -64,9 +54,6 @@ touch file_4
 
 cd $startdir
 # ///////////////////////
-
-# ///////////////////////
-echo "--> Creating dummy repos."
 cd $DEVDIR
 repodir="__DEL_WIP_REPO_0005"
 mkdir $repodir
@@ -83,9 +70,6 @@ touch file_4
 
 cd $startdir
 # ///////////////////////
-
-# ///////////////////////
-echo "--> Creating dummy repos."
 cd $DEVDIR
 repodir="__DEL_WIP_REPO_0006"
 mkdir $repodir
