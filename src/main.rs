@@ -98,6 +98,12 @@ impl Repo {
         }
     }
 
+    fn update(&mut self) {
+        self.update_status();
+        self.update_branches();
+        self.update_current_branch();
+    }
+
     fn update_branches(&mut self) {
         let mut branches: Vec<String> = Vec::new();
         let output = std::process::Command::new("git")
@@ -347,9 +353,7 @@ fn tui(mut repos: Vec<Repo>) {
         tui.row_count = repo_count;
 
         for index in 0..repos.len() {
-            repos[index].update_status();
-            repos[index].update_branches();
-            repos[index].update_current_branch();
+            repos[index].update();
             tui.row_column_counts.push(repos[index].branches.len() as u16 + 2);
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
