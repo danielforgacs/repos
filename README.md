@@ -2,13 +2,13 @@
 
 ### Terminal ui app to manage multiple git repositories in a dev dir.
 
-App that comes in handy when you have **multiple repos to work in and they depend on each other**. In workflows like this, when working on smaller tasks checking all the required repos status and **swithing branches for different tasks** can be quite boring. Well, not anymore. Put this app on the sys path, set up the devdir env var and run this anytime anywhere.
+App that comes in handy when you have **multiple repos to work in and they depend on each other**. In workflows like this, when working on smaller tasks checking all the required repos` status and **switching branches for different tasks** can be quite boring. Well, not anymore. Put this app on the sys path, set up the devdir env var and run this anytime anywhere.
 
 ![](demo_render/repos_demo.gif)
 
 ## Usage
 
-Set the env var: `DEVDIR`. Put this on the system path. (Unfortunatelly, the current version crashes without the env var.)
+Set the `env var`: `DEVDIR`. Put this on the system path. (Unfortunatelly, the current version crashes without the env var.)
 
 The tool itself is very basic. The only git commands it calls are:
 
@@ -30,8 +30,8 @@ The tool itself is very basic. The only git commands it calls are:
 - `cyan`: the `status is clean`, a branch other then master is checked out.
 - `yellow`: `master` is checked out, but the status is not clean.
 - `red`: the status is not clean and a branch other than master is checked out.
-- `gray`: in branches - existing branch
-- `green`: in branches - current branch
+- `gray`: *in branches* - existing branch
+- `green`: *in branches* - current branch
 
 
 
