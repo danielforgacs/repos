@@ -5,7 +5,7 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-const REPO_NAME_WIDTH_MAX: usize = 16;
+const REPO_NAME_WIDTH_MAX: usize = 32;
 const REPO_STATUS_WIDTH: usize = 9;
 
 enum RepoState {
@@ -93,7 +93,8 @@ impl Repo {
             .unwrap()
             .to_string();
         if name.len() > REPO_NAME_WIDTH_MAX {
-            name = name[..REPO_NAME_WIDTH_MAX].to_string();
+            name = name[..REPO_NAME_WIDTH_MAX-1].to_string();
+            name.push('~');
         }
         let mut repo = Self {
             name,
