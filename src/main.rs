@@ -5,7 +5,7 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-const REPO_NAME_WIDTH_MAX: usize = 32;
+const REPO_NAME_WIDTH_MAX: usize = 20;
 const REPO_STATUS_WIDTH: usize = 9;
 
 enum RepoState {
