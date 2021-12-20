@@ -425,15 +425,15 @@ fn tui(mut repos: Vec<Repo>) {
                 }
                 Key::Char('\n') => {
                     match tui.current_column_id {
+                        0 => {}
                         1 => {
                             repos[tui.current_row as usize].clear_stat();
                             break
                         }
-                        2..=5 => {
+                        _ => {
                             let branch = repos[tui.current_row as usize].branches[tui.current_column_id as usize - 2].to_owned();
                             repos[tui.current_row as usize].checkout_branch(branch);
                         }
-                        _ => {}
                     }
                     break;
                 }
