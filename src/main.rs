@@ -1,25 +1,28 @@
+use std::io::Write;
 use std::path::PathBuf;
-use std::fs::{read_to_string};
-use std::process::Command;
-use structopt::StructOpt;
 use termion::color;
+use termion::event::Key;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
 
 const REPO_NAME_WIDTH: usize = 20;
-const BRANCH_NAME_WIDTH: usize = 35;
-const DEVDIR_ENV_VAR: &str = "DEVDIR";
-const GIT_SUBDIR: &str = "/.git";
-const GIT_HEAD_REL_PATH: &str = "/.git/HEAD";
+const REPO_STATUS_WIDTH: usize = 9;
+const BARNCH_NAME_WIDTH: usize = 12;
 
-struct DevDir {
-    _path: PathBuf,
-    repos: Vec<Repo>,
+enum RepoState {
+    MasterOk,
+    MasterNotOk,
+    NotMasterOK,
+    NotMasterNotOK,
 }
 
 struct Repo {
     name: String,
     path: PathBuf,
+    status: RepoStatus,
+    branches: Vec<String>,
+    current_branch: String,
 }
-
 #[derive(Debug)]
 struct RepoStatus {
     untracked: bool,
@@ -31,90 +34,14 @@ struct RepoStatus {
     new_file_2: bool,
 }
 
-#[derive(StructOpt)]
-struct Opt {
-    /// Set "DEVDIR" env var for easier use.
-    #[structopt(parse(from_os_str), env = DEVDIR_ENV_VAR, default_value = ".")]
-    path: PathBuf,
-    /// Include repos with "master" branch and "Ok" status.
-    #[structopt(short = "-a")]
-    show_all: bool,
-}
-
-impl DevDir {
-    fn new(devdir: PathBuf) -> Self {
-        let mut repos: Vec<Repo> = Vec::new();
-
-        for entry in devdir.read_dir().unwrap() {
-            let entry = match entry {
-                Ok(entry) => entry.path(),
-                Err(_) => PathBuf::new(),
-            };
-            let entry_git = entry.to_str().unwrap().to_string() + GIT_SUBDIR;
-            if !std::path::Path::new(&entry_git).is_dir() {
-                continue;
-            }
-            let repo = Repo::new(entry);
-            repos.push(repo);
-        }
-
-        repos.sort_by(|repo_a, repo_b| repo_a.name.to_lowercase().cmp(&repo_b.name.to_lowercase()));
-        DevDir {
-            _path: devdir,
-            repos,
-        }
-    }
-}
-
-impl Repo {
-    fn new(path: PathBuf) -> Self {
-        let mut name = path.file_name().unwrap().to_str().unwrap().to_string();
-        if name.len() > REPO_NAME_WIDTH {
-            name = String::from(&name[..REPO_NAME_WIDTH - 1]);
-            name += "~";
-        }
-        Self { name, path }
-    }
-
-    fn branch(&self) -> String {
-        let mut head_file = PathBuf::new();
-        head_file.push(self.path.to_str().unwrap().to_string() + GIT_HEAD_REL_PATH);
-        let githead: String = read_to_string(&head_file).unwrap();
-        let githead = githead.trim().to_string();
-        let mut branch = githead.split("/").last().unwrap().to_string();
-        if branch.len() > BRANCH_NAME_WIDTH {
-            branch = branch[..BRANCH_NAME_WIDTH - 1].to_string();
-            branch += "~";
-        }
-        branch
-    }
-
-    fn status(&self) -> RepoStatus {
-        let status_stdout = Command::new("git")
-            .arg("status")
-            .arg("--porcelain")
-            .current_dir(&self.path)
-            .output()
-            .unwrap()
-            .stdout;
-        let status_stdout = String::from_utf8(status_stdout).unwrap();
-        let mut status = RepoStatus::new();
-        let status_mark_width = 2;
-
-        for line in status_stdout.lines() {
-            match &line[..status_mark_width] {
-                "??" => status.untracked = true,
-                " D" => status.deleted = true,
-                "D " => status.deleted_staged = true,
-                "M " => status.staged = true,
-                " M" => status.modified = true,
-                "A " => status.new_file = true,
-                "AM" => status.new_file_2 = true,
-                _ => (),
-            };
-        }
-        status
-    }
+struct Tui {
+    column: u16,
+    column_id: u16,
+    current_column_id: u16,
+    row_column_counts: Vec<u16>,
+    row: u16,
+    current_row: u16,
+    row_count: usize,
 }
 
 impl RepoStatus {
@@ -131,13 +58,13 @@ impl RepoStatus {
     }
 
     fn is_ok(&self) -> bool {
-        let has_bad_stuff = self.untracked ||
-            self.deleted ||
-            self.deleted_staged ||
-            self.staged ||
-            self.modified ||
-            self.new_file ||
-            self.new_file_2;
+        let has_bad_stuff = self.untracked
+            || self.deleted
+            || self.deleted_staged
+            || self.staged
+            || self.modified
+            || self.new_file
+            || self.new_file_2;
         !has_bad_stuff
     }
 }
@@ -145,7 +72,8 @@ impl RepoStatus {
 impl ToString for RepoStatus {
     fn to_string(&self) -> String {
         let empty_status = " ";
-        let status_text = format!("{}{}{}{}{}{}{}",
+        let status_text = format!(
+            "{}{}{}{}{}{}{}",
             if self.untracked { "U" } else { empty_status },
             if self.deleted { "D" } else { empty_status },
             if self.deleted_staged { "d" } else { empty_status },
@@ -158,66 +86,418 @@ impl ToString for RepoStatus {
     }
 }
 
-fn main() {
-    let mut opt = Opt::from_args();
-    let abs_path = match std::fs::canonicalize(&opt.path) {
-        Ok(path) => path,
-        Err(_) => {
-            println!(
-                "Bad path: \"{}\"!\nWhat a bimbo...?!??! How are you even a programmer? ;)",
-                opt.path.as_path().display()
-            );
-            return
+impl Repo {
+    fn new(path: PathBuf) -> Self {
+        let mut name = path
+            .file_name()
+            .expect("can't get repo name from path")
+            .to_str()
+            .unwrap()
+            .to_string();
+        if name.len() >= REPO_NAME_WIDTH {
+            name.truncate(REPO_NAME_WIDTH - 1);
+            name.push('~');
+        } else {
+            name = format!("{: >w$}", name, w = REPO_NAME_WIDTH);
         }
-    };
-    opt.path = abs_path;
-    check_repos(opt);
+        let mut repo = Self {
+            name,
+            status: RepoStatus::new(),
+            branches: Vec::new(),
+            path,
+            current_branch: String::new(),
+        };
+        repo.update();
+        repo
+    }
+
+    fn update(&mut self) {
+        self.update_status();
+        self.update_branches();
+        self.update_current_branch();
+    }
+
+    fn update_branches(&mut self) {
+        let mut branches: Vec<String> = Vec::new();
+        let output = std::process::Command::new("git")
+            .arg("branch")
+            .current_dir(&self.path)
+            .output()
+            .expect("Could not get branches");
+        if !output.status.success() {
+            branches.push("(no branch)".to_string());
+        }
+        let mut git_output: Vec<String> = String::from_utf8(output.stdout)
+            .expect("can't extract git output.")
+            .lines()
+            .map(|x| x[2..].to_string())
+            .collect();
+        git_output.sort_by_key(|a| a.to_lowercase());
+        self.branches = git_output;
+    }
+
+    fn update_current_branch(&mut self) {
+        let branch = std::process::Command::new("git")
+            .arg("branch")
+            .arg("--show-current")
+            .current_dir(&self.path)
+            .output()
+            .expect("can't get current branch");
+        self.current_branch = String::from_utf8(branch.stdout)
+            .expect("can't convert branch name")
+            .as_str()
+            .trim()
+            .to_string();
+    }
+
+    fn update_status(&mut self) {
+        self.status.untracked = false;
+        self.status.deleted = false;
+        self.status.deleted_staged = false;
+        self.status.staged = false;
+        self.status.modified = false;
+        self.status.new_file = false;
+        self.status.new_file_2 = false;
+        let status_mark_width = 2;
+        let output = std::process::Command::new("git")
+            .arg("status")
+            .arg("--porcelain")
+            .current_dir(&self.path)
+            .output()
+            .expect("can't get status.");
+        for line in String::from_utf8(output.stdout)
+            .expect("can't get status output")
+            .lines() {
+                match &line[..status_mark_width] {
+                    "??" => self.status.untracked = true,
+                    " D" => self.status.deleted = true,
+                    "D " => self.status.deleted_staged = true,
+                    "M " => self.status.staged = true,
+                    " M" => self.status.modified = true,
+                    "A " => self.status.new_file = true,
+                    "AM" => self.status.new_file_2 = true,
+                    _ => (),
+                };
+            }
+    }
+
+    fn get_repo_state(&self) -> RepoState {
+        match self.current_branch.as_ref() {
+            "master" => match self.status.is_ok() {
+                true => RepoState::MasterOk,
+                false => RepoState::MasterNotOk,
+            },
+            _ => match self.status.is_ok() {
+                true => RepoState::NotMasterOK,
+                false => RepoState::NotMasterNotOK,
+            },
+        }
+    }
+
+    fn clear_stat(&mut self) {
+        std::process::Command::new("git")
+            .arg("reset")
+            .arg(".")
+            .current_dir(&self.path)
+            .output()
+            .expect("Could not checkout repos.");
+        std::process::Command::new("git")
+            .arg("checkout")
+            .arg(".")
+            .current_dir(&self.path)
+            .output()
+            .expect("Could not checkout repos.");
+        self.update_status();
+    }
+
+    fn checkout_branch(&mut self, branch: String) {
+        std::process::Command::new("git")
+            .arg("checkout")
+            .arg(branch)
+            .current_dir(&self.path)
+            .output()
+            .expect("Could not checkout repos.");
+        self.update_current_branch();
+    }
 }
 
-fn check_repos(opt: Opt) {
-    let color_info = format!("{}", color::Fg(color::Rgb(75, 75, 75)));
-    let color_ok = format!("{}", color::Fg(color::Rgb(0, 125, 0)));
-    let color_bad_status = format!("{}", color::Fg(color::Rgb(225, 25, 0)));
-    let color_reset = format!("{}", color::Fg(color::Reset));
-    print!("{}{}{}", color_info, opt.path.as_path().display(), color_reset);
-    let devdir = DevDir::new(opt.path);
-    let mut print_text = "".to_string();
-    let header = format!("\n{}{:>re$} |{:^st$}| {:br$}{}",
-        color_info,
-        "<------- Repo",
-        "Status",
-        "Branch ------->",
-        color_reset,
-        re=REPO_NAME_WIDTH,
-        st=7,
-        br=BRANCH_NAME_WIDTH);
-    print_text.push_str(&header);
-
-    for repo in devdir.repos {
-        let branch = repo.branch();
-        let is_branch_master = branch == "master";
-        let status = repo.status();
-        if is_branch_master && repo.status().is_ok() {
-            if !opt.show_all {
-                continue;
-            }
-            print_text += &color_ok;
+impl Tui {
+    fn new() -> Self {
+        Self {
+            column: 0,
+            column_id: 0,
+            current_column_id: 0,
+            row_column_counts: Vec::new(),
+            row: 0,
+            current_row: 0,
+            row_count: 0,
         }
-        if !repo.status().is_ok() {
-            print_text += &color_bad_status;
-        }
-        let branch_txt = if is_branch_master { "".to_string() } else { branch };
-        print_text += format!("\n{:>rw$} [{}] {:bw$}",
-            repo.name,
-            status.to_string(),
-            branch_txt,
-            rw=REPO_NAME_WIDTH,
-            bw=BRANCH_NAME_WIDTH).as_str();
-        print_text += &color_reset;
     }
-    print_text += &color_info;
-    print_text += "\nU: untracked, D: deleted, d: deleted staged, S: staged\
-    \nM: modified, N: new file, n: new file 2";
-    print_text += &color_reset;
-    print!("{}\n", print_text);
+
+    fn reset(&mut self) {
+        self.row = 0;
+        self.column = 0;
+    }
+
+    fn row(&self) -> u16 {
+        // Plus 1 to skip the header line.
+        self.row + 1
+    }
+
+    fn finished_row(&mut self) {
+        self.column = 0;
+        self.column_id = 0;
+        self.row += 1;
+    }
+
+    fn go_up(&mut self) {
+        if self.current_row > 0 {
+            self.current_row -= 1;
+        }
+        self.validate_current_column()
+    }
+
+    fn go_down(&mut self) {
+        if self.current_row < self.row_count as u16 - 1 {
+            self.current_row += 1;
+        }
+        self.validate_current_column()
+    }
+
+    fn go_right(&mut self) {
+        self.current_column_id += 1;
+        self.validate_current_column()
+    }
+
+    fn go_left(&mut self) {
+        if self.current_column_id > 0 {
+            self.current_column_id -= 1;
+        }
+    }
+
+    fn validate_current_column(&mut self) {
+        if self.current_column_id > self.row_column_counts[self.current_row as usize] - 1 {
+            self.current_column_id = self.row_column_counts[self.current_row as usize] - 1
+        }
+    }
+
+    fn column(&mut self) -> u16 {
+        match self.column_id {
+            0 => {}
+            1 => self.column += REPO_NAME_WIDTH as u16 + 1,
+            _ => self.column += REPO_STATUS_WIDTH as u16 + 1,
+        };
+        self.column_id += 1;
+        self.column
+    }
+
+    fn adjust_column_width(&mut self, width: u16) {
+        self.column -= 10;
+        self.column += width + 1;
+    }
+
+    fn is_current_cell(&self) -> bool {
+        self.column_id == self.current_column_id + 1 && self.row == self.current_row
+    }
+}
+
+/// Zero based termion goto.
+fn goto(x: u16, y: u16) -> termion::cursor::Goto {
+    termion::cursor::Goto(x + 1, y + 1)
+}
+
+fn main() {
+    let dev_dir = get_dev_dir();
+    let repo_paths = find_repo_dirs(dev_dir);
+    let repos: Vec<Repo> = repo_paths
+        .iter()
+        .map(|path| Repo::new(path.to_path_buf()))
+        .collect();
+    tui(repos);
+}
+
+fn get_dev_dir() -> PathBuf {
+    match std::env::var("DEVDIR") {
+        Ok(path) => PathBuf::from(path),
+        Err(_) => std::env::current_dir().unwrap(),
+    }
+}
+
+fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
+    let mut repos: Vec<PathBuf> = Vec::new();
+
+    if let Ok(read_dir) = root.read_dir() {
+        for dir in read_dir {
+            if dir.as_ref().expect("msg").path().join(".git").is_dir() {
+                repos.push(dir.unwrap().path().to_path_buf())
+            }
+        }
+    }
+
+    repos.sort_by_key(|x| x.to_str().unwrap().to_lowercase());
+    repos
+}
+
+fn tui(mut repos: Vec<Repo>) {
+    let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
+    let bg_reset = color::Bg(color::Reset);
+
+    let fg_master_ok = color::Fg(color::Rgb(0, 175, 0));
+    let fg_master_not_ok = color::Fg(color::Rgb(255, 180, 0));
+    let fg_not_master_ok = color::Fg(color::Rgb(0, 200, 255));
+    let fg_not_master_not_ok = color::Fg(color::Rgb(225, 0, 0));
+
+    let fg_active_branch = color::Fg(color::Rgb(35, 200, 35));
+    let fg_inactive_branch = color::Fg(color::Rgb(90, 90, 90));
+
+    let fg_info = color::Fg(color::Rgb(75, 75, 75));
+
+    let fg_reset = color::Fg(color::Reset);
+
+    let stdout = std::io::stdout().into_raw_mode().unwrap();
+    let mut stdout = termion::screen::AlternateScreen::from(stdout);
+    let mut keep_running = true;
+    let mut tui = Tui::new();
+    let repo_count = repos.len();
+
+    let header = format!(
+        "{}{}{:>re$} |{:^st$}| Branches ------->",
+        goto(0, 0),
+        fg_info,
+        "<------- Repo",
+        "stat",
+        re = REPO_NAME_WIDTH,
+        st = REPO_STATUS_WIDTH - 2,
+    );
+    let footer = format!(
+        "{}U: untracked, D: deleted, d: deleted staged, S: staged{}M: modified, N: new file, n: new file 2",
+        goto(1, repos.len() as u16+1),
+        goto(1, repos.len() as u16+2),
+    );
+
+    while keep_running {
+        write!(stdout, "{}", termion::clear::All).unwrap();
+        write!(stdout, "{}", header).unwrap();
+        write!(stdout, "{}", footer).unwrap();
+        tui.reset();
+        tui.row_count = repo_count;
+
+        for repo in &repos {
+            tui.row_column_counts.push(repo.branches.len() as u16 + 2);
+
+            write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
+            match repo.get_repo_state() {
+                RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
+                RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
+                RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
+                RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
+            }
+            {
+                if tui.is_current_cell() {
+                    write!(stdout, "{}", bg_current_cell).unwrap();
+                }
+                write!(stdout, "{}", repo.name).unwrap();
+            }
+
+            write!(stdout, "{}", bg_reset).unwrap();
+            write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
+
+            {
+                if tui.is_current_cell() {
+                    write!(stdout, "{}", bg_current_cell).unwrap();
+                }
+                write!(stdout, "[{}]", repo.status.to_string()).unwrap();
+            }
+
+            write!(stdout, "{}", fg_reset).unwrap();
+            write!(stdout, "{}", bg_reset).unwrap();
+
+            for branch in &repo.branches {
+                write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
+
+                {
+                    if tui.is_current_cell() {
+                        write!(stdout, "{}", bg_current_cell).unwrap();
+                    }
+                    if branch == repo.current_branch.as_str() {
+                        write!(stdout, "{}", fg_active_branch).unwrap();
+                    } else {
+                        write!(stdout, "{}", fg_inactive_branch).unwrap();
+                    }
+                    if tui.column > 100 {
+                        write!(stdout, "...").unwrap();
+                        write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
+                        break;
+                    } else {
+                        write!(stdout, "{}", branch).unwrap();
+                    }
+                    write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
+                }
+
+                tui.adjust_column_width(branch.len() as u16);
+            }
+
+            tui.finished_row();
+        }
+
+        let branch_index = match tui.current_column_id {
+            0 | 1 | 2 => 0_usize,
+            _ => tui.current_column_id as usize - 2,
+        };
+        write!(
+            stdout,
+            "{}{} [{:<w$}] < {}",
+            goto(0, repos.len() as u16 + 3),
+            repos[tui.current_row as usize].name,
+            repos[tui.current_row as usize].current_branch,
+            repos[tui.current_row as usize].branches[branch_index],
+            w = BARNCH_NAME_WIDTH,
+        )
+        .unwrap();
+
+        stdout.flush().unwrap();
+
+        for c in std::io::stdin().keys() {
+            match c.unwrap() {
+                Key::Char('q') => {
+                    keep_running = false;
+                    break;
+                }
+                Key::Right | Key::Char('l') => {
+                    tui.go_right();
+                    break;
+                }
+                Key::Left | Key::Char('h') => {
+                    tui.go_left();
+                    break;
+                }
+                Key::Up | Key::Char('k') => {
+                    tui.go_up();
+                    break;
+                }
+                Key::Down | Key::Char('j') => {
+                    tui.go_down();
+                    break;
+                }
+                Key::Char('\n') => {
+                    match tui.current_column_id {
+                        0 => {}
+                        1 => {
+                            repos[tui.current_row as usize].clear_stat();
+                            break;
+                        }
+                        _ => {
+                            let branch = repos[tui.current_row as usize].branches
+                                [tui.current_column_id as usize - 2]
+                                .to_owned();
+                            repos[tui.current_row as usize].checkout_branch(branch);
+                        }
+                    }
+                    break;
+                }
+                _ => {}
+            }
+        }
+    }
+    writeln!(stdout, "{}", goto(0, repos.len() as u16 + 3)).unwrap();
 }
