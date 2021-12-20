@@ -17,6 +17,7 @@ The tool itself is very basic. The only git commands it calls are:
 
 ### navigation:
 
+- quit: **`q`**
 - up: **`j`**
 - down: **`k`**
 - left: **`h`**
