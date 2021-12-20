@@ -355,6 +355,8 @@ fn tui(mut repos: Vec<Repo>) {
     let fg_active_branch = color::Fg(color::Rgb(35, 200, 35));
     let fg_inactive_branch = color::Fg(color::Rgb(90, 90, 90));
 
+    let fg_info = color::Fg(color::Rgb(75, 75, 75));
+
     let fg_reset = color::Fg(color::Reset);
 
     let mut stdout = std::io::stdout().into_raw_mode().unwrap();
@@ -363,7 +365,8 @@ fn tui(mut repos: Vec<Repo>) {
     let repo_count = repos.len();
 
 
-    let header = format!("{:>re$} |{:^st$}| Branches ------->",
+    let header = format!("{}{:>re$} |{:^st$}| Branches ------->",
+        fg_info,
         "<------- Repo",
         "stat",
         re=REPO_NAME_WIDTH_MAX,
