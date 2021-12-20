@@ -1,15 +1,9 @@
 todo:
     - readme
-        - description
+        - description, navigation
         - screenshots / video
         - install
         - tutorial
-    - match view to current live
-        - align right
-    - match branch colour to line
-    - fix branch limit
-    - check too long lines
-    - slow on live dev dir
     - info mode / tui mode
     - live updates
         - update repo list in dir on move
