@@ -356,11 +356,11 @@ fn tui(mut repos: Vec<Repo>) {
         tui.reset();
         tui.row_count = repo_count;
 
-        for index in 0..repos.len() {
-            tui.row_column_counts.push(repos[index].branches.len() as u16 + 2);
+        for repo in &repos {
+            tui.row_column_counts.push(repo.branches.len() as u16 + 2);
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
-            match repos[index].get_repo_state() {
+            match repo.get_repo_state() {
                 RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
                 RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
                 RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
@@ -368,7 +368,7 @@ fn tui(mut repos: Vec<Repo>) {
             }
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                write!(stdout, "{:w$}", repos[index].name, w=28).unwrap();
+                write!(stdout, "{:w$}", repo.name, w=28).unwrap();
             }
 
             write!(stdout, "{}", bg_reset).unwrap();
@@ -376,18 +376,18 @@ fn tui(mut repos: Vec<Repo>) {
 
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                write!(stdout, "[{}]", repos[index].status.to_string()).unwrap();
+                write!(stdout, "[{}]", repo.status.to_string()).unwrap();
             }
 
             write!(stdout, "{}", fg_reset).unwrap();
             write!(stdout, "{}", bg_reset).unwrap();
 
-            for branch in &repos[index].branches {
+            for branch in &repo.branches {
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
 
                 {
                     if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                    if branch == repos[index].current_branch.as_str() {
+                    if branch == repo.current_branch.as_str() {
                         write!(stdout, "{}", fg_active_branch).unwrap();
                     } else {
                         write!(stdout, "{}", fg_inactive_branch).unwrap();
