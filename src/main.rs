@@ -92,9 +92,11 @@ impl Repo {
             .to_str()
             .unwrap()
             .to_string();
-        if name.len() > REPO_NAME_WIDTH_MAX {
-            name = name[..REPO_NAME_WIDTH_MAX-1].to_string();
+        if name.len() >= REPO_NAME_WIDTH_MAX {
+            name.truncate(REPO_NAME_WIDTH_MAX-1);
             name.push('~');
+        } else {
+            name = format!("{: >w$}", name, w=REPO_NAME_WIDTH_MAX);
         }
         let mut repo = Self {
             name,
