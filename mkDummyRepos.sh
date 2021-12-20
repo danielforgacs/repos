@@ -38,3 +38,11 @@ cd $DEVDIR && repodir="__DEL_WIP_REPO_06" && mkdir $repodir && cd $repodir
 git init && git commit --allow-empty -m "init."
 git branch branch-1 && git branch branch-2 && git branch branch-3 && git branch branch-4 && git branch branch-5 && git branch branch-6 && git branch branch-7 && git branch branch-8 && git branch branch-9 && git branch branch-10 && git branch branch-11 && git branch branch-12 && git branch branch-13 && git branch branch-14
 cd $startdir
+# ///////////////////////
+cd $DEVDIR && repodir="__DEL_short" && mkdir $repodir && cd $repodir
+git init && git commit --allow-empty -m "init."
+cd $startdir
+# ///////////////////////
+cd $DEVDIR && repodir="__DEL_long_this_repos_name_is_very_long" && mkdir $repodir && cd $repodir
+git init && git commit --allow-empty -m "init."
+cd $startdir
