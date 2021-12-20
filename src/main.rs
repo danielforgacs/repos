@@ -5,6 +5,9 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
+const REPO_NAME_WIDTH_MAX: usize = 16;
+const REPO_STATUS_WIDTH: usize = 9;
+
 enum RepoState {
     MasterOk,
     MasterNotOk,
@@ -83,12 +86,15 @@ impl ToString for RepoStatus {
 
 impl Repo {
     fn new(path: PathBuf) -> Self {
-        let name = path
+        let mut name = path
             .file_name()
             .expect("can't get repo name from path")
             .to_str()
             .unwrap()
             .to_string();
+        if name.len() > REPO_NAME_WIDTH_MAX {
+            name = name[..REPO_NAME_WIDTH_MAX].to_string();
+        }
         let mut repo = Self {
             name,
             status: RepoStatus::new(),
@@ -276,8 +282,8 @@ impl Tui {
     fn column(&mut self) -> u16 {
         match self.column_id {
             0 => {},
-            1 => self.column += 28,
-            _ => self.column += 10,
+            1 => self.column += REPO_NAME_WIDTH_MAX as u16 + 1,
+            _ => self.column += REPO_STATUS_WIDTH as u16 + 1,
         };
         self.column_id += 1;
         self.column
@@ -368,7 +374,7 @@ fn tui(mut repos: Vec<Repo>) {
             }
             {
                 if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
-                write!(stdout, "{:w$}", repo.name, w=28).unwrap();
+                write!(stdout, "{}", repo.name).unwrap();
             }
 
             write!(stdout, "{}", bg_reset).unwrap();
