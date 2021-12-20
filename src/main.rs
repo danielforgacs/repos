@@ -89,13 +89,15 @@ impl Repo {
             .to_str()
             .unwrap()
             .to_string();
-        Self {
+        let mut repo = Self {
             name,
             status: RepoStatus::new(),
             branches: Vec::new(),
             path,
             current_branch: String::new(),
-        }
+        };
+        repo.update();
+        repo
     }
 
     fn update(&mut self) {
@@ -198,15 +200,17 @@ impl Repo {
             .current_dir(&self.path)
             .output()
             .expect("Could not checkout repos.");
+        self.update_status();
     }
 
-    fn checkout_branch(&self, branch: String) {
+    fn checkout_branch(&mut self, branch: String) {
         std::process::Command::new("git")
             .arg("checkout")
             .arg(branch)
             .current_dir(&self.path)
             .output()
             .expect("Could not checkout repos.");
+        self.update_current_branch();
     }
 }
 
@@ -353,7 +357,6 @@ fn tui(mut repos: Vec<Repo>) {
         tui.row_count = repo_count;
 
         for index in 0..repos.len() {
-            repos[index].update();
             tui.row_column_counts.push(repos[index].branches.len() as u16 + 2);
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
