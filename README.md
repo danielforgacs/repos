@@ -18,8 +18,8 @@ The tool itself is very basic. The only git commands it calls are:
 ### navigation:
 
 - quit: **`q`**
-- up: **`j`**
-- down: **`k`**
+- down: **`j`**
+- up: **`k`**
 - left: **`h`**
 - right: **`l`**
 - checkout branch: **`enter`** on highlighted branch
@@ -43,3 +43,4 @@ The tool itself is very basic. The only git commands it calls are:
     - fix crash without env var
     - command line options
     - tui / simple mode
+    - add dev dir path to info
