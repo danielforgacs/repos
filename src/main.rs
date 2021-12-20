@@ -58,13 +58,13 @@ impl RepoStatus {
     }
 
     fn is_ok(&self) -> bool {
-        let has_bad_stuff = self.untracked ||
-            self.deleted ||
-            self.deleted_staged ||
-            self.staged ||
-            self.modified ||
-            self.new_file ||
-            self.new_file_2;
+        let has_bad_stuff = self.untracked
+            || self.deleted
+            || self.deleted_staged
+            || self.staged
+            || self.modified
+            || self.new_file
+            || self.new_file_2;
         !has_bad_stuff
     }
 }
@@ -72,7 +72,8 @@ impl RepoStatus {
 impl ToString for RepoStatus {
     fn to_string(&self) -> String {
         let empty_status = " ";
-        let status_text = format!("{}{}{}{}{}{}{}",
+        let status_text = format!(
+            "{}{}{}{}{}{}{}",
             if self.untracked { "U" } else { empty_status },
             if self.deleted { "D" } else { empty_status },
             if self.deleted_staged { "d" } else { empty_status },
@@ -94,10 +95,10 @@ impl Repo {
             .unwrap()
             .to_string();
         if name.len() >= REPO_NAME_WIDTH {
-            name.truncate(REPO_NAME_WIDTH-1);
+            name.truncate(REPO_NAME_WIDTH - 1);
             name.push('~');
         } else {
-            name = format!("{: >w$}", name, w=REPO_NAME_WIDTH);
+            name = format!("{: >w$}", name, w = REPO_NAME_WIDTH);
         }
         let mut repo = Self {
             name,
@@ -182,17 +183,13 @@ impl Repo {
 
     fn get_repo_state(&self) -> RepoState {
         match self.current_branch.as_ref() {
-            "master" => {
-                match self.status.is_ok() {
-                    true => RepoState::MasterOk,
-                    false => RepoState::MasterNotOk,
-                }
+            "master" => match self.status.is_ok() {
+                true => RepoState::MasterOk,
+                false => RepoState::MasterNotOk,
             },
-            _ => {
-                match self.status.is_ok() {
-                    true => RepoState::NotMasterOK,
-                    false => RepoState::NotMasterNotOK,
-                }
+            _ => match self.status.is_ok() {
+                true => RepoState::NotMasterOK,
+                false => RepoState::NotMasterNotOK,
             },
         }
     }
@@ -286,7 +283,7 @@ impl Tui {
 
     fn column(&mut self) -> u16 {
         match self.column_id {
-            0 => {},
+            0 => {}
             1 => self.column += REPO_NAME_WIDTH as u16 + 1,
             _ => self.column += REPO_STATUS_WIDTH as u16 + 1,
         };
@@ -337,10 +334,7 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
         }
     }
 
-    repos.sort_by_key(|x| x
-        .to_str()
-        .unwrap()
-        .to_lowercase());
+    repos.sort_by_key(|x| x.to_str().unwrap().to_lowercase());
     repos
 }
 
@@ -365,21 +359,20 @@ fn tui(mut repos: Vec<Repo>) {
     let mut tui = Tui::new();
     let repo_count = repos.len();
 
-
-    let header = format!("{}{}{:>re$} |{:^st$}| Branches ------->",
+    let header = format!(
+        "{}{}{:>re$} |{:^st$}| Branches ------->",
         goto(0, 0),
         fg_info,
         "<------- Repo",
         "stat",
-        re=REPO_NAME_WIDTH,
-        st=REPO_STATUS_WIDTH-2,
+        re = REPO_NAME_WIDTH,
+        st = REPO_STATUS_WIDTH - 2,
     );
     let footer = format!(
         "{}U: untracked, D: deleted, d: deleted staged, S: staged{}M: modified, N: new file, n: new file 2",
         goto(1, repos.len() as u16+1),
         goto(1, repos.len() as u16+2),
     );
-
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
@@ -399,7 +392,9 @@ fn tui(mut repos: Vec<Repo>) {
                 RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
             }
             {
-                if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
+                if tui.is_current_cell() {
+                    write!(stdout, "{}", bg_current_cell).unwrap();
+                }
                 write!(stdout, "{}", repo.name).unwrap();
             }
 
@@ -407,7 +402,9 @@ fn tui(mut repos: Vec<Repo>) {
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
 
             {
-                if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
+                if tui.is_current_cell() {
+                    write!(stdout, "{}", bg_current_cell).unwrap();
+                }
                 write!(stdout, "[{}]", repo.status.to_string()).unwrap();
             }
 
@@ -418,7 +415,9 @@ fn tui(mut repos: Vec<Repo>) {
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
 
                 {
-                    if tui.is_current_cell() { write!(stdout, "{}", bg_current_cell).unwrap(); }
+                    if tui.is_current_cell() {
+                        write!(stdout, "{}", bg_current_cell).unwrap();
+                    }
                     if branch == repo.current_branch.as_str() {
                         write!(stdout, "{}", fg_active_branch).unwrap();
                     } else {
@@ -444,13 +443,16 @@ fn tui(mut repos: Vec<Repo>) {
             0 | 1 | 2 => 0_usize,
             _ => tui.current_column_id as usize - 2,
         };
-        write!(stdout, "{}{} [{:<w$}] < {}",
+        write!(
+            stdout,
+            "{}{} [{:<w$}] < {}",
             goto(0, repos.len() as u16 + 3),
             repos[tui.current_row as usize].name,
             repos[tui.current_row as usize].current_branch,
             repos[tui.current_row as usize].branches[branch_index],
-            w=BARNCH_NAME_WIDTH,
-        ).unwrap();
+            w = BARNCH_NAME_WIDTH,
+        )
+        .unwrap();
 
         stdout.flush().unwrap();
 
@@ -481,10 +483,12 @@ fn tui(mut repos: Vec<Repo>) {
                         0 => {}
                         1 => {
                             repos[tui.current_row as usize].clear_stat();
-                            break
+                            break;
                         }
                         _ => {
-                            let branch = repos[tui.current_row as usize].branches[tui.current_column_id as usize - 2].to_owned();
+                            let branch = repos[tui.current_row as usize].branches
+                                [tui.current_column_id as usize - 2]
+                                .to_owned();
                             repos[tui.current_row as usize].checkout_branch(branch);
                         }
                     }
