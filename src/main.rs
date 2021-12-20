@@ -242,7 +242,8 @@ impl Tui {
     }
 
     fn row(&self) -> u16 {
-        self.row
+        // Plus 1 to skip the header line.
+        self.row + 1
     }
 
     fn finished_row(&mut self) {
@@ -302,6 +303,7 @@ impl Tui {
     }
 }
 
+/// Zero based termion goto.
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
     termion::cursor::Goto(x + 1, y + 1)
 }
@@ -360,8 +362,18 @@ fn tui(mut repos: Vec<Repo>) {
     let mut tui = Tui::new();
     let repo_count = repos.len();
 
+
+    let header = format!("{:>re$} |{:^st$}| Branches ------->",
+        "<------- Repo",
+        "stat",
+        re=REPO_NAME_WIDTH_MAX,
+        st=REPO_STATUS_WIDTH-2,
+    );
+
+
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
+        write!(stdout, "{}{}", goto(0, 0), header).unwrap();
         tui.reset();
         tui.row_count = repo_count;
 
@@ -453,4 +465,5 @@ fn tui(mut repos: Vec<Repo>) {
             }
         }
     }
+    writeln!(stdout).unwrap();
 }
