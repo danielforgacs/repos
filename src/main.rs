@@ -5,8 +5,9 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-const REPO_NAME_WIDTH_MAX: usize = 20;
+const REPO_NAME_WIDTH: usize = 20;
 const REPO_STATUS_WIDTH: usize = 9;
+const BARNCH_NAME_WIDTH: usize = 12;
 
 enum RepoState {
     MasterOk,
@@ -92,11 +93,11 @@ impl Repo {
             .to_str()
             .unwrap()
             .to_string();
-        if name.len() >= REPO_NAME_WIDTH_MAX {
-            name.truncate(REPO_NAME_WIDTH_MAX-1);
+        if name.len() >= REPO_NAME_WIDTH {
+            name.truncate(REPO_NAME_WIDTH-1);
             name.push('~');
         } else {
-            name = format!("{: >w$}", name, w=REPO_NAME_WIDTH_MAX);
+            name = format!("{: >w$}", name, w=REPO_NAME_WIDTH);
         }
         let mut repo = Self {
             name,
@@ -286,7 +287,7 @@ impl Tui {
     fn column(&mut self) -> u16 {
         match self.column_id {
             0 => {},
-            1 => self.column += REPO_NAME_WIDTH_MAX as u16 + 1,
+            1 => self.column += REPO_NAME_WIDTH as u16 + 1,
             _ => self.column += REPO_STATUS_WIDTH as u16 + 1,
         };
         self.column_id += 1;
@@ -370,7 +371,7 @@ fn tui(mut repos: Vec<Repo>) {
         fg_info,
         "<------- Repo",
         "stat",
-        re=REPO_NAME_WIDTH_MAX,
+        re=REPO_NAME_WIDTH,
         st=REPO_STATUS_WIDTH-2,
     );
     let footer = format!(
@@ -414,9 +415,6 @@ fn tui(mut repos: Vec<Repo>) {
             write!(stdout, "{}", bg_reset).unwrap();
 
             for branch in &repo.branches {
-                if tui.column > 100 {
-                    break;
-                }
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
 
                 {
@@ -426,7 +424,13 @@ fn tui(mut repos: Vec<Repo>) {
                     } else {
                         write!(stdout, "{}", fg_inactive_branch).unwrap();
                     }
-                    write!(stdout, "{}", branch).unwrap();
+                    if tui.column > 100 {
+                        write!(stdout, "...").unwrap();
+                        write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
+                        break;
+                    } else {
+                        write!(stdout, "{}", branch).unwrap();
+                    }
                     write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
                 }
 
@@ -440,9 +444,13 @@ fn tui(mut repos: Vec<Repo>) {
             0 | 1 | 2 => 0_usize,
             _ => tui.current_column_id as usize - 2,
         };
-        write!(stdout, "{}repo:           {}", goto(4, 12), repos[tui.current_row as usize].name).unwrap();
-        write!(stdout, "{}current branch: {}", goto(4, 13), repos[tui.current_row as usize].current_branch).unwrap();
-        write!(stdout, "{}branch:         {}", goto(4, 14), repos[tui.current_row as usize].branches[branch_index]).unwrap();
+        write!(stdout, "{}{} [{:<w$}] < {}",
+            goto(0, repos.len() as u16 + 3),
+            repos[tui.current_row as usize].name,
+            repos[tui.current_row as usize].current_branch,
+            repos[tui.current_row as usize].branches[branch_index],
+            w=BARNCH_NAME_WIDTH,
+        ).unwrap();
 
         stdout.flush().unwrap();
 
@@ -486,5 +494,5 @@ fn tui(mut repos: Vec<Repo>) {
             }
         }
     }
-    writeln!(stdout).unwrap();
+    writeln!(stdout, "{}", goto(0, repos.len() as u16 + 3)).unwrap();
 }
