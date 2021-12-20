@@ -414,6 +414,9 @@ fn tui(mut repos: Vec<Repo>) {
             write!(stdout, "{}", bg_reset).unwrap();
 
             for branch in &repo.branches {
+                if tui.column > 100 {
+                    break;
+                }
                 write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
 
                 {
@@ -432,6 +435,14 @@ fn tui(mut repos: Vec<Repo>) {
 
             tui.finished_row();
         }
+
+        let branch_index = match tui.current_column_id {
+            0 | 1 | 2 => 0_usize,
+            _ => tui.current_column_id as usize - 2,
+        };
+        write!(stdout, "{}repo:           {}", goto(4, 12), repos[tui.current_row as usize].name).unwrap();
+        write!(stdout, "{}current branch: {}", goto(4, 13), repos[tui.current_row as usize].current_branch).unwrap();
+        write!(stdout, "{}branch:         {}", goto(4, 14), repos[tui.current_row as usize].branches[branch_index]).unwrap();
 
         stdout.flush().unwrap();
 
