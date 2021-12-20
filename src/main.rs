@@ -365,18 +365,25 @@ fn tui(mut repos: Vec<Repo>) {
     let repo_count = repos.len();
 
 
-    let header = format!("{}{:>re$} |{:^st$}| Branches ------->",
+    let header = format!("{}{}{:>re$} |{:^st$}| Branches ------->",
+        goto(0, 0),
         fg_info,
         "<------- Repo",
         "stat",
         re=REPO_NAME_WIDTH_MAX,
         st=REPO_STATUS_WIDTH-2,
     );
+    let footer = format!(
+        "{}U: untracked, D: deleted, d: deleted staged, S: staged{}M: modified, N: new file, n: new file 2",
+        goto(1, repos.len() as u16+1),
+        goto(1, repos.len() as u16+2),
+    );
 
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        write!(stdout, "{}{}", goto(0, 0), header).unwrap();
+        write!(stdout, "{}", header).unwrap();
+        write!(stdout, "{}", footer).unwrap();
         tui.reset();
         tui.row_count = repo_count;
 
