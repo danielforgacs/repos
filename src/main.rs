@@ -184,17 +184,17 @@ impl Repo {
         match self.current_branch.as_ref() {
             "master" => {
                 match self.status.is_ok() {
-                    true => return RepoState::MasterOk,
-                    false => return RepoState::MasterNotOk,
+                    true => RepoState::MasterOk,
+                    false => RepoState::MasterNotOk,
                 }
             },
             _ => {
                 match self.status.is_ok() {
-                    true => return RepoState::NotMasterOK,
-                    false => return RepoState::NotMasterNotOK,
+                    true => RepoState::NotMasterOK,
+                    false => RepoState::NotMasterNotOK,
                 }
             },
-        };
+        }
     }
 
     fn clear_stat(&mut self) {
