@@ -354,7 +354,8 @@ fn tui(mut repos: Vec<Repo>) {
 
     let fg_reset = color::Fg(color::Reset);
 
-    let mut stdout = std::io::stdout().into_raw_mode().unwrap();
+    let stdout = std::io::stdout().into_raw_mode().unwrap();
+    let mut stdout = termion::screen::AlternateScreen::from(stdout);
     let mut keep_running = true;
     let mut tui = Tui::new();
     let repo_count = repos.len();
