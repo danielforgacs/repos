@@ -178,19 +178,19 @@ fn tui(mut repos: Vec<repo::Repo>) {
                     break;
                 }
                 Key::Right | Key::Char('l') => {
-                    tui.go_right();
+                    tui.go(tui::MoveDirection::Right);
                     break;
                 }
                 Key::Left | Key::Char('h') => {
-                    tui.go_left();
+                    tui.go(tui::MoveDirection::Left);
                     break;
                 }
                 Key::Up | Key::Char('k') => {
-                    tui.go_up();
+                    tui.go(tui::MoveDirection::Up);
                     break;
                 }
                 Key::Down | Key::Char('j') => {
-                    tui.go_down();
+                    tui.go(tui::MoveDirection::Down);
                     break;
                 }
                 Key::Char('\n') => {

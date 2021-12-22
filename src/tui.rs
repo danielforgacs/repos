@@ -2,6 +2,13 @@ pub const REPO_NAME_WIDTH: usize = 20;
 pub const REPO_STATUS_WIDTH: usize = 9;
 pub const BARNCH_NAME_WIDTH: usize = 12;
 
+pub enum MoveDirection {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
 pub struct Tui {
     pub column: u16,
     column_id: u16,
@@ -41,26 +48,35 @@ impl Tui {
         self.row += 1;
     }
 
-    pub fn go_up(&mut self) {
+    pub fn go(&mut self, dir: MoveDirection) {
+        match dir {
+            MoveDirection::Up => self.go_up(),
+            MoveDirection::Down => self.go_down(),
+            MoveDirection::Left => self.go_left(),
+            MoveDirection::Right => self.go_right(),
+        }
+    }
+
+    fn go_up(&mut self) {
         if self.current_row > 0 {
             self.current_row -= 1;
         }
         self.validate_current_column()
     }
 
-    pub fn go_down(&mut self) {
+    fn go_down(&mut self) {
         if self.current_row < self.row_count as u16 - 1 {
             self.current_row += 1;
         }
         self.validate_current_column()
     }
 
-    pub fn go_right(&mut self) {
+    fn go_right(&mut self) {
         self.current_column_id += 1;
         self.validate_current_column()
     }
 
-    pub fn go_left(&mut self) {
+    fn go_left(&mut self) {
         if self.current_column_id > 0 {
             self.current_column_id -= 1;
         }
