@@ -7,100 +7,7 @@ use termion::raw::IntoRawMode;
 
 mod repostatus;
 mod repo;
-
-const REPO_NAME_WIDTH: usize = 20;
-const REPO_STATUS_WIDTH: usize = 9;
-const BARNCH_NAME_WIDTH: usize = 12;
-
-struct Tui {
-    column: u16,
-    column_id: u16,
-    current_column_id: u16,
-    row_column_counts: Vec<u16>,
-    row: u16,
-    current_row: u16,
-    row_count: usize,
-}
-
-impl Tui {
-    fn new() -> Self {
-        Self {
-            column: 0,
-            column_id: 0,
-            current_column_id: 0,
-            row_column_counts: Vec::new(),
-            row: 0,
-            current_row: 0,
-            row_count: 0,
-        }
-    }
-
-    fn reset(&mut self) {
-        self.row = 0;
-        self.column = 0;
-    }
-
-    fn row(&self) -> u16 {
-        // Plus 1 to skip the header line.
-        self.row + 1
-    }
-
-    fn finished_row(&mut self) {
-        self.column = 0;
-        self.column_id = 0;
-        self.row += 1;
-    }
-
-    fn go_up(&mut self) {
-        if self.current_row > 0 {
-            self.current_row -= 1;
-        }
-        self.validate_current_column()
-    }
-
-    fn go_down(&mut self) {
-        if self.current_row < self.row_count as u16 - 1 {
-            self.current_row += 1;
-        }
-        self.validate_current_column()
-    }
-
-    fn go_right(&mut self) {
-        self.current_column_id += 1;
-        self.validate_current_column()
-    }
-
-    fn go_left(&mut self) {
-        if self.current_column_id > 0 {
-            self.current_column_id -= 1;
-        }
-    }
-
-    fn validate_current_column(&mut self) {
-        if self.current_column_id > self.row_column_counts[self.current_row as usize] - 1 {
-            self.current_column_id = self.row_column_counts[self.current_row as usize] - 1
-        }
-    }
-
-    fn column(&mut self) -> u16 {
-        match self.column_id {
-            0 => {}
-            1 => self.column += REPO_NAME_WIDTH as u16 + 1,
-            _ => self.column += REPO_STATUS_WIDTH as u16 + 1,
-        };
-        self.column_id += 1;
-        self.column
-    }
-
-    fn adjust_column_width(&mut self, width: u16) {
-        self.column -= 10;
-        self.column += width + 1;
-    }
-
-    fn is_current_cell(&self) -> bool {
-        self.column_id == self.current_column_id + 1 && self.row == self.current_row
-    }
-}
+mod tui;
 
 /// Zero based termion goto.
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
@@ -158,7 +65,7 @@ fn tui(mut repos: Vec<repo::Repo>) {
     let stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut stdout = termion::screen::AlternateScreen::from(stdout);
     let mut keep_running = true;
-    let mut tui = Tui::new();
+    let mut tui = tui::Tui::new();
     let repo_count = repos.len();
 
     let header = format!(
@@ -167,8 +74,8 @@ fn tui(mut repos: Vec<repo::Repo>) {
         fg_info,
         "<------- Repo",
         "stat",
-        re = REPO_NAME_WIDTH,
-        st = REPO_STATUS_WIDTH - 2,
+        re = tui::REPO_NAME_WIDTH,
+        st = tui::REPO_STATUS_WIDTH - 2,
     );
     let footer = format!(
         "{}U: untracked, D: deleted, d: deleted staged, S: staged{}M: modified, N: new file, n: new file 2",
@@ -252,7 +159,7 @@ fn tui(mut repos: Vec<repo::Repo>) {
             repos[tui.current_row as usize].name,
             repos[tui.current_row as usize].current_branch,
             repos[tui.current_row as usize].branches[branch_index],
-            w = BARNCH_NAME_WIDTH,
+            w = tui::BARNCH_NAME_WIDTH,
         )
         .unwrap();
 
