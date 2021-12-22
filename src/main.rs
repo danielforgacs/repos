@@ -17,7 +17,13 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 }
 
 fn main() {
-    let dev_dir = get_dev_dir();
+    let dev_dir = match get_dev_dir() {
+        Ok(path) => path,
+        Err(_) => {
+            println!("Can't find dev dir.");
+            return;
+        }
+    };
     let repo_paths = find_repo_dirs(&dev_dir);
     let repos: Vec<repo::Repo> = repo_paths
         .iter()
@@ -30,10 +36,14 @@ fn main() {
     tui(repos, &dev_dir);
 }
 
-fn get_dev_dir() -> PathBuf {
-    match std::env::var(DEV_DIR_ENV_VAR) {
-        Ok(path) => PathBuf::from(path).canonicalize().unwrap(),
-        Err(_) => std::env::current_dir().unwrap().canonicalize().unwrap(),
+fn get_dev_dir() -> Result<PathBuf, std::io::Error> {
+    let path = match std::env::var(DEV_DIR_ENV_VAR) {
+        Ok(path) => Ok(PathBuf::from(path)),
+        Err(_) => std::env::current_dir(),
+    };
+    match path {
+        Ok(path) => Ok(path),
+        Err(error) => Err(error),
     }
 }
 
