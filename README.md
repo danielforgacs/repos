@@ -1,19 +1,22 @@
 ## Repos
 
+
 ### Terminal ui app to manage multiple git repositories in a dev dir.
 
 App that comes in handy when you have **multiple repos to work in and they depend on each other**. In workflows like this, when working on smaller tasks checking all the required repos` status and **switching branches for different tasks** can be quite boring. Well, not anymore. Put this app on the sys path, set up the devdir env var and run this anytime anywhere.
 
 ![](demo_render/repos_demo.gif)
 
+
 ## Usage
 
-Set the `env var`: `DEVDIR`. Put this on the system path. (Unfortunatelly, the current version crashes without the env var.)
+Set the `env var`: `DEVDIR`. Put this on the system path. Without the env var the current dir is used.
 
 The tool itself is very basic. The only git commands it calls are:
 
     git checkout <branch>  
     git reset . && git checkout .    
+
 
 ### navigation:
 
@@ -23,7 +26,8 @@ The tool itself is very basic. The only git commands it calls are:
 - left: **`h`**
 - right: **`l`**
 - checkout branch: **`enter`** on highlighted branch
-- clear status: **`enter`**  on highlighted status
+- clear status: **`enter`** on highlighted status
+
 
 ### colour codes:
 
@@ -35,12 +39,10 @@ The tool itself is very basic. The only git commands it calls are:
 - `green`: *in branches* - current branch
 
 
-
 ### todo:  
     - info mode / tui mode  
     - live updates  
         - update repo list in dir on move  
-    - fix crash without env var
     - command line options
-    - tui / simple mode
-    - add dev dir path to info
+        - add option for current dir
+    - `d` for delete branch
