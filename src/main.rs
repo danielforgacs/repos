@@ -9,6 +9,8 @@ mod repostatus;
 mod repo;
 mod tui;
 
+const DEV_DIR_ENV_VAR: &str = "DEVDIR";
+
 /// Zero based termion goto.
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
     termion::cursor::Goto(x + 1, y + 1)
@@ -21,11 +23,15 @@ fn main() {
         .iter()
         .map(|path| repo::Repo::new(path.to_path_buf()))
         .collect();
+    if repos.len() == 0 {
+        println!("No repos found.");
+        return;
+    }
     tui(repos);
 }
 
 fn get_dev_dir() -> PathBuf {
-    match std::env::var("DEVDIR") {
+    match std::env::var(DEV_DIR_ENV_VAR) {
         Ok(path) => PathBuf::from(path),
         Err(_) => std::env::current_dir().unwrap(),
     }
