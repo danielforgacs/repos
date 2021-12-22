@@ -18,7 +18,7 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 
 fn main() {
     let dev_dir = get_dev_dir();
-    let repo_paths = find_repo_dirs(dev_dir);
+    let repo_paths = find_repo_dirs(&dev_dir);
     let repos: Vec<repo::Repo> = repo_paths
         .iter()
         .map(|path| repo::Repo::new(path.to_path_buf()))
@@ -27,17 +27,17 @@ fn main() {
         println!("No repos found.");
         return;
     }
-    tui(repos);
+    tui(repos, &dev_dir);
 }
 
 fn get_dev_dir() -> PathBuf {
     match std::env::var(DEV_DIR_ENV_VAR) {
-        Ok(path) => PathBuf::from(path),
-        Err(_) => std::env::current_dir().unwrap(),
+        Ok(path) => PathBuf::from(path).canonicalize().unwrap(),
+        Err(_) => std::env::current_dir().unwrap().canonicalize().unwrap(),
     }
 }
 
-fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
+fn find_repo_dirs(root: &PathBuf) -> Vec<PathBuf> {
     let mut repos: Vec<PathBuf> = Vec::new();
 
     if let Ok(read_dir) = root.read_dir() {
@@ -52,7 +52,7 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
     repos
 }
 
-fn tui(mut repos: Vec<repo::Repo>) {
+fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
@@ -64,6 +64,7 @@ fn tui(mut repos: Vec<repo::Repo>) {
     let fg_active_branch = color::Fg(color::Rgb(35, 200, 35));
     let fg_inactive_branch = color::Fg(color::Rgb(90, 90, 90));
 
+    let bg_info = color::Bg(color::Rgb(20, 20, 20));
     let fg_info = color::Fg(color::Rgb(75, 75, 75));
 
     let fg_reset = color::Fg(color::Reset);
@@ -74,9 +75,17 @@ fn tui(mut repos: Vec<repo::Repo>) {
     let mut tui = tui::Tui::new();
     let repo_count = repos.len();
 
+    let devdir_path = format!(
+        "{}{}{}{}{}",
+        goto(0, 0),
+        bg_info,
+        fg_info,
+        devdir.to_string_lossy(),
+        bg_reset,
+    );
     let header = format!(
         "{}{}{:>re$} |{:^st$}| Branches ------->",
-        goto(0, 0),
+        goto(0, 1),
         fg_info,
         "<------- Repo",
         "stat",
@@ -85,12 +94,13 @@ fn tui(mut repos: Vec<repo::Repo>) {
     );
     let footer = format!(
         "{}U: untracked, D: deleted, d: deleted staged, S: staged{}M: modified, N: new file, n: new file 2",
-        goto(1, repos.len() as u16+1),
-        goto(1, repos.len() as u16+2),
+        goto(1, repos.len() as u16+4),
+        goto(1, repos.len() as u16+5),
     );
 
     while keep_running {
         write!(stdout, "{}", termion::clear::All).unwrap();
+        write!(stdout, "{}", devdir_path).unwrap();
         write!(stdout, "{}", header).unwrap();
         write!(stdout, "{}", footer).unwrap();
         tui.reset();
@@ -160,11 +170,13 @@ fn tui(mut repos: Vec<repo::Repo>) {
         };
         write!(
             stdout,
-            "{}{} [{:<w$}] < {}",
+            "{}{}{} [{:<w$}] < {}{}",
             goto(0, repos.len() as u16 + 3),
+            bg_info,
             repos[tui.current_row as usize].name,
             repos[tui.current_row as usize].current_branch,
             repos[tui.current_row as usize].branches[branch_index],
+            bg_reset,
             w = tui::BARNCH_NAME_WIDTH,
         )
         .unwrap();

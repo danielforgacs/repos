@@ -38,8 +38,9 @@ impl Tui {
     }
 
     pub fn row(&self) -> u16 {
+        // Plus 1 to skip the dev dir path..
         // Plus 1 to skip the header line.
-        self.row + 1
+        self.row + 2
     }
 
     pub fn finished_row(&mut self) {
