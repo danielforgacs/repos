@@ -1,10 +1,7 @@
 use std::path::PathBuf;
 
-// mod ::repostatus;
-// use super::repostatus;
 use crate::repostatus;
-
-const REPO_NAME_WIDTH: usize = 20;
+use crate::tui;
 
 pub enum RepoState {
     MasterOk,
@@ -29,11 +26,11 @@ impl Repo {
             .to_str()
             .unwrap()
             .to_string();
-        if name.len() >= REPO_NAME_WIDTH {
-            name.truncate(REPO_NAME_WIDTH - 1);
+        if name.len() >= tui::REPO_NAME_WIDTH {
+            name.truncate(tui::REPO_NAME_WIDTH - 1);
             name.push('~');
         } else {
-            name = format!("{: >w$}", name, w = REPO_NAME_WIDTH);
+            name = format!("{: >w$}", name, w = tui::REPO_NAME_WIDTH);
         }
         let mut repo = Self {
             name,
