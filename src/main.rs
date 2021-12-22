@@ -6,26 +6,11 @@ use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
 mod repostatus;
-// use repostatus::RepoStatus;
+mod repo;
 
 const REPO_NAME_WIDTH: usize = 20;
 const REPO_STATUS_WIDTH: usize = 9;
 const BARNCH_NAME_WIDTH: usize = 12;
-
-enum RepoState {
-    MasterOk,
-    MasterNotOk,
-    NotMasterOK,
-    NotMasterNotOK,
-}
-
-struct Repo {
-    name: String,
-    path: PathBuf,
-    status: repostatus::RepoStatus,
-    branches: Vec<String>,
-    current_branch: String,
-}
 
 struct Tui {
     column: u16,
@@ -35,141 +20,6 @@ struct Tui {
     row: u16,
     current_row: u16,
     row_count: usize,
-}
-
-impl Repo {
-    fn new(path: PathBuf) -> Self {
-        let mut name = path
-            .file_name()
-            .expect("can't get repo name from path")
-            .to_str()
-            .unwrap()
-            .to_string();
-        if name.len() >= REPO_NAME_WIDTH {
-            name.truncate(REPO_NAME_WIDTH - 1);
-            name.push('~');
-        } else {
-            name = format!("{: >w$}", name, w = REPO_NAME_WIDTH);
-        }
-        let mut repo = Self {
-            name,
-            status: repostatus::RepoStatus::new(),
-            branches: Vec::new(),
-            path,
-            current_branch: String::new(),
-        };
-        repo.update();
-        repo
-    }
-
-    fn update(&mut self) {
-        self.update_status();
-        self.update_branches();
-        self.update_current_branch();
-    }
-
-    fn update_branches(&mut self) {
-        let mut branches: Vec<String> = Vec::new();
-        let output = std::process::Command::new("git")
-            .arg("branch")
-            .current_dir(&self.path)
-            .output()
-            .expect("Could not get branches");
-        if !output.status.success() {
-            branches.push("(no branch)".to_string());
-        }
-        let mut git_output: Vec<String> = String::from_utf8(output.stdout)
-            .expect("can't extract git output.")
-            .lines()
-            .map(|x| x[2..].to_string())
-            .collect();
-        git_output.sort_by_key(|a| a.to_lowercase());
-        self.branches = git_output;
-    }
-
-    fn update_current_branch(&mut self) {
-        let branch = std::process::Command::new("git")
-            .arg("branch")
-            .arg("--show-current")
-            .current_dir(&self.path)
-            .output()
-            .expect("can't get current branch");
-        self.current_branch = String::from_utf8(branch.stdout)
-            .expect("can't convert branch name")
-            .as_str()
-            .trim()
-            .to_string();
-    }
-
-    fn update_status(&mut self) {
-        self.status.untracked = false;
-        self.status.deleted = false;
-        self.status.deleted_staged = false;
-        self.status.staged = false;
-        self.status.modified = false;
-        self.status.new_file = false;
-        self.status.new_file_2 = false;
-        let status_mark_width = 2;
-        let output = std::process::Command::new("git")
-            .arg("status")
-            .arg("--porcelain")
-            .current_dir(&self.path)
-            .output()
-            .expect("can't get status.");
-        for line in String::from_utf8(output.stdout)
-            .expect("can't get status output")
-            .lines() {
-                match &line[..status_mark_width] {
-                    "??" => self.status.untracked = true,
-                    " D" => self.status.deleted = true,
-                    "D " => self.status.deleted_staged = true,
-                    "M " => self.status.staged = true,
-                    " M" => self.status.modified = true,
-                    "A " => self.status.new_file = true,
-                    "AM" => self.status.new_file_2 = true,
-                    _ => (),
-                };
-            }
-    }
-
-    fn get_repo_state(&self) -> RepoState {
-        match self.current_branch.as_ref() {
-            "master" => match self.status.is_ok() {
-                true => RepoState::MasterOk,
-                false => RepoState::MasterNotOk,
-            },
-            _ => match self.status.is_ok() {
-                true => RepoState::NotMasterOK,
-                false => RepoState::NotMasterNotOK,
-            },
-        }
-    }
-
-    fn clear_stat(&mut self) {
-        std::process::Command::new("git")
-            .arg("reset")
-            .arg(".")
-            .current_dir(&self.path)
-            .output()
-            .expect("Could not checkout repos.");
-        std::process::Command::new("git")
-            .arg("checkout")
-            .arg(".")
-            .current_dir(&self.path)
-            .output()
-            .expect("Could not checkout repos.");
-        self.update_status();
-    }
-
-    fn checkout_branch(&mut self, branch: String) {
-        std::process::Command::new("git")
-            .arg("checkout")
-            .arg(branch)
-            .current_dir(&self.path)
-            .output()
-            .expect("Could not checkout repos.");
-        self.update_current_branch();
-    }
 }
 
 impl Tui {
@@ -260,9 +110,9 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 fn main() {
     let dev_dir = get_dev_dir();
     let repo_paths = find_repo_dirs(dev_dir);
-    let repos: Vec<Repo> = repo_paths
+    let repos: Vec<repo::Repo> = repo_paths
         .iter()
-        .map(|path| Repo::new(path.to_path_buf()))
+        .map(|path| repo::Repo::new(path.to_path_buf()))
         .collect();
     tui(repos);
 }
@@ -289,7 +139,7 @@ fn find_repo_dirs(root: PathBuf) -> Vec<PathBuf> {
     repos
 }
 
-fn tui(mut repos: Vec<Repo>) {
+fn tui(mut repos: Vec<repo::Repo>) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
@@ -338,10 +188,10 @@ fn tui(mut repos: Vec<Repo>) {
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             match repo.get_repo_state() {
-                RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
-                RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
-                RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
-                RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
+                repo::RepoState::MasterOk => write!(stdout, "{}", fg_master_ok).unwrap(),
+                repo::RepoState::MasterNotOk => write!(stdout, "{}", fg_master_not_ok).unwrap(),
+                repo::RepoState::NotMasterOK => write!(stdout, "{}", fg_not_master_ok).unwrap(),
+                repo::RepoState::NotMasterNotOK => write!(stdout, "{}", fg_not_master_not_ok).unwrap(),
             }
             {
                 if tui.is_current_cell() {
