@@ -45,3 +45,4 @@ The tool itself is very basic. The only git commands it calls are:
         - update repo list in dir on move  
     - command line options
         - add option for current dir
+    - `d` for delete branch
