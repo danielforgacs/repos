@@ -5,6 +5,9 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
+mod repostatus;
+// use repostatus::RepoStatus;
+
 const REPO_NAME_WIDTH: usize = 20;
 const REPO_STATUS_WIDTH: usize = 9;
 const BARNCH_NAME_WIDTH: usize = 12;
@@ -19,19 +22,9 @@ enum RepoState {
 struct Repo {
     name: String,
     path: PathBuf,
-    status: RepoStatus,
+    status: repostatus::RepoStatus,
     branches: Vec<String>,
     current_branch: String,
-}
-#[derive(Debug)]
-struct RepoStatus {
-    untracked: bool,
-    deleted: bool,
-    deleted_staged: bool,
-    staged: bool,
-    modified: bool,
-    new_file: bool,
-    new_file_2: bool,
 }
 
 struct Tui {
@@ -42,48 +35,6 @@ struct Tui {
     row: u16,
     current_row: u16,
     row_count: usize,
-}
-
-impl RepoStatus {
-    fn new() -> Self {
-        Self {
-            untracked: false,
-            deleted: false,
-            deleted_staged: false,
-            staged: false,
-            modified: false,
-            new_file: false,
-            new_file_2: false,
-        }
-    }
-
-    fn is_ok(&self) -> bool {
-        let has_bad_stuff = self.untracked
-            || self.deleted
-            || self.deleted_staged
-            || self.staged
-            || self.modified
-            || self.new_file
-            || self.new_file_2;
-        !has_bad_stuff
-    }
-}
-
-impl ToString for RepoStatus {
-    fn to_string(&self) -> String {
-        let empty_status = " ";
-        let status_text = format!(
-            "{}{}{}{}{}{}{}",
-            if self.untracked { "U" } else { empty_status },
-            if self.deleted { "D" } else { empty_status },
-            if self.deleted_staged { "d" } else { empty_status },
-            if self.staged { "S" } else { empty_status },
-            if self.modified { "M" } else { empty_status },
-            if self.new_file { "N" } else { empty_status },
-            if self.new_file_2 { "n" } else { empty_status },
-        );
-        status_text
-    }
 }
 
 impl Repo {
@@ -102,7 +53,7 @@ impl Repo {
         }
         let mut repo = Self {
             name,
-            status: RepoStatus::new(),
+            status: repostatus::RepoStatus::new(),
             branches: Vec::new(),
             path,
             current_branch: String::new(),
