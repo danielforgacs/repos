@@ -44,4 +44,5 @@ The tool itself is very basic. The only git commands it calls are:
     - live updates  
         - update repo list in dir on move  
     - command line options
+        - add option for current dir
     - add dev dir path to info
