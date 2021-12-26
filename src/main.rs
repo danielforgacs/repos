@@ -1,5 +1,5 @@
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use termion::color;
 use termion::event::Key;
 use termion::input::TermRead;
@@ -47,7 +47,7 @@ fn get_dev_dir() -> Result<PathBuf, std::io::Error> {
     }
 }
 
-fn find_repo_dirs(root: &PathBuf) -> Vec<PathBuf> {
+fn find_repo_dirs(root: &Path) -> Vec<PathBuf> {
     let mut repos: Vec<PathBuf> = Vec::new();
 
     if let Ok(read_dir) = root.read_dir() {
@@ -62,7 +62,7 @@ fn find_repo_dirs(root: &PathBuf) -> Vec<PathBuf> {
     repos
 }
 
-fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
+fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
