@@ -223,7 +223,6 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
                     match tui.current_column_id {
                         0 => {
                             std::process::Command::new("gnome-terminal")
-                            .arg("--working-directory=/")
                             .arg(format!("--working-directory={}", repos[tui.current_row as usize].path.as_path().to_str().unwrap()))
                             .output().unwrap();
                         }
