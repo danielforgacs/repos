@@ -29,7 +29,7 @@ fn main() {
         .iter()
         .map(|path| repo::Repo::new(path.to_path_buf()))
         .collect();
-    if repos.len() == 0 {
+    if repos.is_empty() {
         println!("No repos found.");
         return;
     }
