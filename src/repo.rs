@@ -43,7 +43,7 @@ impl Repo {
         repo
     }
 
-    fn update(&mut self) {
+    pub fn update(&mut self) {
         self.update_status();
         self.update_branches();
         self.update_current_branch();

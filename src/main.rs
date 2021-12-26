@@ -116,8 +116,12 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
         tui.reset();
         tui.row_count = repo_count;
 
-        for repo in &repos {
+        for (i, repo) in repos.iter_mut().enumerate() {
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
+
+            if i == tui.current_row as usize {
+                repo.update();
+            }
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             match repo.get_repo_state() {
