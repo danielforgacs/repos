@@ -1,6 +1,6 @@
-pub const REPO_NAME_WIDTH: usize = 20;
+pub const REPO_NAME_WIDTH: usize = 27;
 pub const REPO_STATUS_WIDTH: usize = 9;
-pub const BARNCH_NAME_WIDTH: usize = 12;
+pub const BARNCH_NAME_WIDTH: usize = 35;
 
 pub enum MoveDirection {
     Up,

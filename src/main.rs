@@ -10,6 +10,7 @@ mod repo;
 mod tui;
 
 const DEV_DIR_ENV_VAR: &str = "DEVDIR";
+const TUI_MAX_WIDTH: u16 = 120;
 
 /// Zero based termion goto.
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
@@ -162,7 +163,7 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
                     } else {
                         write!(stdout, "{}", fg_inactive_branch).unwrap();
                     }
-                    if tui.column > 100 {
+                    if tui.column > TUI_MAX_WIDTH {
                         write!(stdout, "...").unwrap();
                         write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
                         break;
