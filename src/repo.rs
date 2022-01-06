@@ -30,7 +30,8 @@ impl Repo {
             name.truncate(tui::REPO_NAME_WIDTH - 1);
             name.push('~');
         } else {
-            name = format!("{: >w$}", name, w = tui::REPO_NAME_WIDTH);
+            // name = format!("{: >w$}", name, w = tui::REPO_NAME_WIDTH);
+            name = format!("{: <w$}", name, w = tui::REPO_NAME_WIDTH);
         }
         let mut repo = Self {
             name,
