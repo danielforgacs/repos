@@ -185,14 +185,13 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
         };
         write!(
             stdout,
-            "{}{}{} [{:<w$}] < {}{}",
+            "{}{}{} {{{}}} <-- {}{}",
             goto(0, repos.len() as u16 + 3),
             bg_info,
             repos[tui.current_row as usize].name,
             repos[tui.current_row as usize].current_branch,
             repos[tui.current_row as usize].branches[branch_index],
             bg_reset,
-            w = tui::BARNCH_NAME_WIDTH,
         )
         .unwrap();
 
