@@ -1,5 +1,5 @@
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use termion::color;
 use termion::event::Key;
 use termion::input::TermRead;
@@ -10,6 +10,7 @@ mod repo;
 mod tui;
 
 const DEV_DIR_ENV_VAR: &str = "DEVDIR";
+const TUI_MAX_WIDTH: u16 = 120;
 
 /// Zero based termion goto.
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
@@ -29,7 +30,7 @@ fn main() {
         .iter()
         .map(|path| repo::Repo::new(path.to_path_buf()))
         .collect();
-    if repos.len() == 0 {
+    if repos.is_empty() {
         println!("No repos found.");
         return;
     }
@@ -47,7 +48,7 @@ fn get_dev_dir() -> Result<PathBuf, std::io::Error> {
     }
 }
 
-fn find_repo_dirs(root: &PathBuf) -> Vec<PathBuf> {
+fn find_repo_dirs(root: &Path) -> Vec<PathBuf> {
     let mut repos: Vec<PathBuf> = Vec::new();
 
     if let Ok(read_dir) = root.read_dir() {
@@ -62,7 +63,7 @@ fn find_repo_dirs(root: &PathBuf) -> Vec<PathBuf> {
     repos
 }
 
-fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
+fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
@@ -116,8 +117,12 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
         tui.reset();
         tui.row_count = repo_count;
 
-        for repo in &repos {
+        for (i, repo) in repos.iter_mut().enumerate() {
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
+
+            if i == tui.current_row as usize {
+                repo.update();
+            }
 
             write!(stdout, "{}", goto(tui.column(), tui.row())).unwrap();
             match repo.get_repo_state() {
@@ -158,7 +163,7 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
                     } else {
                         write!(stdout, "{}", fg_inactive_branch).unwrap();
                     }
-                    if tui.column > 100 {
+                    if tui.column > TUI_MAX_WIDTH {
                         write!(stdout, "...").unwrap();
                         write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
                         break;
@@ -180,14 +185,13 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
         };
         write!(
             stdout,
-            "{}{}{} [{:<w$}] < {}{}",
+            "{}{}{} {{{}}} <-- {}{}",
             goto(0, repos.len() as u16 + 3),
             bg_info,
             repos[tui.current_row as usize].name,
             repos[tui.current_row as usize].current_branch,
             repos[tui.current_row as usize].branches[branch_index],
             bg_reset,
-            w = tui::BARNCH_NAME_WIDTH,
         )
         .unwrap();
 
@@ -217,7 +221,11 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &PathBuf) {
                 }
                 Key::Char('\n') => {
                     match tui.current_column_id {
-                        0 => {}
+                        0 => {
+                            std::process::Command::new("gnome-terminal")
+                            .arg(format!("--working-directory={}", repos[tui.current_row as usize].path.as_path().to_str().unwrap()))
+                            .output().ok();
+                        }
                         1 => {
                             repos[tui.current_row as usize].clear_stat();
                             break;
