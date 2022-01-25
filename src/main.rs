@@ -159,12 +159,15 @@ fn tui(conf: config::Opts) {
             bg_reset,
         )
         .unwrap();
-        write!(
-            stdout,
-            "{}{}",
-            goto(0, repos.len() as u16 + 6),
-            repos[tui.current_row as usize].status_text,
-        ).unwrap();
+
+        if !repos[tui.current_row as usize].status.is_ok() {
+            write!(
+                stdout,
+                "{}{}",
+                goto(0, repos.len() as u16 + 7),
+                repos[tui.current_row as usize].status_text,
+            ).unwrap();
+        }
 
         stdout.flush().unwrap();
 
