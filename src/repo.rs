@@ -16,6 +16,7 @@ pub struct Repo {
     pub status: repostatus::RepoStatus,
     pub branches: Vec<String>,
     pub current_branch: String,
+    pub status_text: String,
 }
 
 impl Repo {
@@ -39,6 +40,7 @@ impl Repo {
             branches: Vec::new(),
             path,
             current_branch: String::new(),
+            status_text: String::new(),
         };
         repo.update();
         repo
@@ -112,6 +114,26 @@ impl Repo {
                     _ => (),
                 };
             }
+        if !self.status.is_ok() {
+            self.update_status_text();
+        }
+    }
+
+    fn update_status_text(&mut self) {
+        let output = std::process::Command::new("git")
+            .arg("status")
+            .current_dir(&self.path)
+            .output()
+            .expect("can't get status.");
+        let mut output_fixed: Vec<u8> = Vec::new();
+        for ch in output.stdout {
+            if ch == '\n' as u8 {
+                output_fixed.push('\r' as u8)
+            }
+            output_fixed.push(ch)
+        }
+        self.status_text = String::from_utf8(output_fixed)
+            .expect("can't get status output");
     }
 
     pub fn get_repo_state(&self) -> RepoState {
