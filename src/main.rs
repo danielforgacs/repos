@@ -1,5 +1,5 @@
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use termion::color;
 use termion::event::Key;
 use termion::input::TermRead;
@@ -10,7 +10,6 @@ mod repo;
 mod tui;
 mod config;
 
-const DEV_DIR_ENV_VAR: &str = "DEVDIR";
 const TUI_MAX_WIDTH: u16 = 120;
 
 /// Zero based termion goto.
@@ -19,16 +18,8 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 }
 
 fn main() {
-    let opst = config::Opts::new();
-    let dev_dir = match get_dev_dir() {
-        Ok(path) => path,
-        Err(_) => {
-            println!("Can't find dev dir.");
-            return;
-        }
-    };
-    let repo_paths = find_repo_dirs(&dev_dir);
-    let repos: Vec<repo::Repo> = repo_paths
+    let conf = config::Opts::new();
+    let repos: Vec<repo::Repo> = conf.get_repo_paths()
         .iter()
         .map(|path| repo::Repo::new(path.to_path_buf()))
         .collect();
@@ -36,36 +27,10 @@ fn main() {
         println!("No repos found.");
         return;
     }
-    tui(repos, &dev_dir);
+    tui(repos, conf);
 }
 
-fn get_dev_dir() -> Result<PathBuf, std::io::Error> {
-    let path = match std::env::var(DEV_DIR_ENV_VAR) {
-        Ok(path) => Ok(PathBuf::from(path)),
-        Err(_) => std::env::current_dir(),
-    };
-    match path {
-        Ok(path) => Ok(path),
-        Err(error) => Err(error),
-    }
-}
-
-fn find_repo_dirs(root: &Path) -> Vec<PathBuf> {
-    let mut repos: Vec<PathBuf> = Vec::new();
-
-    if let Ok(read_dir) = root.read_dir() {
-        for dir in read_dir {
-            if dir.as_ref().expect("msg").path().join(".git").is_dir() {
-                repos.push(dir.unwrap().path().to_path_buf())
-            }
-        }
-    }
-
-    repos.sort_by_key(|x| x.to_str().unwrap().to_lowercase());
-    repos
-}
-
-fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
+fn tui(mut repos: Vec<repo::Repo>, conf: config::Opts) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
@@ -93,7 +58,7 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
         goto(0, 0),
         bg_info,
         fg_info,
-        devdir.to_string_lossy(),
+        conf.get_dev_dir().to_string_lossy(),
         bg_reset,
     );
     let header = format!(
