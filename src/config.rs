@@ -1,12 +1,17 @@
 use std::path::{PathBuf, Path};
 
+const TUI_MAX_WIDTH: u16 = 150;
 const DEV_DIR_ENV_VAR: &str = "DEVDIR";
+const REPO_NAME_WIDTH: usize = 35;
+const REPO_STATUS_WIDTH: usize = 9;
 
 #[derive(Clone)]
 pub struct Opts {
     dev_dir: PathBuf,
     repo_paths: Vec<PathBuf>,
     max_width: u16,
+    pub repo_name_width: usize,
+    pub repo_status_width: usize,
 }
 
 impl Opts {
@@ -19,8 +24,9 @@ impl Opts {
         Opts {
             dev_dir,
             repo_paths,
-            max_width: 150,
-
+            max_width: TUI_MAX_WIDTH,
+            repo_name_width: REPO_NAME_WIDTH,
+            repo_status_width: REPO_STATUS_WIDTH,
         }
     }
 

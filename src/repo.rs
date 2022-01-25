@@ -20,19 +20,19 @@ pub struct Repo {
 }
 
 impl Repo {
-    pub fn new(path: PathBuf) -> Self {
+    pub fn new(path: PathBuf, name_width: &usize) -> Self {
         let mut name = path
             .file_name()
             .expect("can't get repo name from path")
             .to_str()
             .unwrap()
             .to_string();
-        if name.len() >= tui::REPO_NAME_WIDTH {
-            name.truncate(tui::REPO_NAME_WIDTH - 1);
+        if name.len() >= *name_width {
+            name.truncate(*name_width - 1);
             name.push('~');
         } else {
-            // name = format!("{: >w$}", name, w = tui::REPO_NAME_WIDTH);
-            name = format!("{: <w$}", name, w = tui::REPO_NAME_WIDTH);
+            // name = format!("{: >w$}", name, w = name_width);
+            name = format!("{: <w$}", name, w = name_width);
         }
         let mut repo = Self {
             name,

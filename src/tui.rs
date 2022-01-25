@@ -1,6 +1,3 @@
-pub const REPO_NAME_WIDTH: usize = 27;
-pub const REPO_STATUS_WIDTH: usize = 9;
-
 pub enum MoveDirection {
     Up,
     Down,
@@ -16,6 +13,8 @@ pub struct Tui {
     row: u16,
     pub current_row: u16,
     pub row_count: usize,
+    name_width: usize,
+    status_width: usize,
 }
 
 impl Tui {
@@ -28,6 +27,8 @@ impl Tui {
             row: 0,
             current_row: 0,
             row_count: 0,
+            name_width: 35,
+            status_width: 9
         }
     }
 
@@ -91,8 +92,8 @@ impl Tui {
     pub fn column(&mut self) -> u16 {
         match self.column_id {
             0 => {}
-            1 => self.column += REPO_NAME_WIDTH as u16 + 1,
-            _ => self.column += REPO_STATUS_WIDTH as u16 + 1,
+            1 => self.column += self.name_width as u16 + 1,
+            _ => self.column += self.status_width as u16 + 1,
         };
         self.column_id += 1;
         self.column
