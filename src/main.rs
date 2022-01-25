@@ -8,6 +8,7 @@ use termion::raw::IntoRawMode;
 mod repostatus;
 mod repo;
 mod tui;
+mod config;
 
 const DEV_DIR_ENV_VAR: &str = "DEVDIR";
 const TUI_MAX_WIDTH: u16 = 120;
@@ -18,6 +19,7 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 }
 
 fn main() {
+    let opst = config::Opts::new();
     let dev_dir = match get_dev_dir() {
         Ok(path) => path,
         Err(_) => {
