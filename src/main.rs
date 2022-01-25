@@ -19,7 +19,11 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 
 fn main() {
     let conf = config::Opts::new();
-    let repos: Vec<repo::Repo> = conf.get_repo_paths()
+    tui(conf);
+}
+
+fn tui(conf: config::Opts) {
+    let mut repos: Vec<repo::Repo> = conf.get_repo_paths()
         .iter()
         .map(|path| repo::Repo::new(path.to_path_buf()))
         .collect();
@@ -27,10 +31,7 @@ fn main() {
         println!("No repos found.");
         return;
     }
-    tui(repos, conf);
-}
 
-fn tui(mut repos: Vec<repo::Repo>, conf: config::Opts) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
