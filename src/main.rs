@@ -1,5 +1,4 @@
 use std::io::Write;
-use std::path::{Path};
 use termion::color;
 use termion::event::Key;
 use termion::input::TermRead;
@@ -9,8 +8,6 @@ mod repostatus;
 mod repo;
 mod tui;
 mod config;
-
-const TUI_MAX_WIDTH: u16 = 120;
 
 /// Zero based termion goto.
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
@@ -131,7 +128,7 @@ fn tui(conf: config::Opts) {
                     } else {
                         write!(stdout, "{}", fg_inactive_branch).unwrap();
                     }
-                    if tui.column > TUI_MAX_WIDTH {
+                    if tui.column > conf.get_max_width() {
                         write!(stdout, "...").unwrap();
                         write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
                         break;

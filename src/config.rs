@@ -24,6 +24,10 @@ impl Opts {
         }
     }
 
+    pub fn get_max_width(&self) -> u16 {
+        self.max_width
+    }
+
     pub fn set_dev_dir(&mut self, path: String) -> Self {
         let mut new_opts = self.clone();
         let mut dev_dir = PathBuf::new();
