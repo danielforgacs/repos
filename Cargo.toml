@@ -11,12 +11,12 @@ edition = "2021"
 structopt = "0.3.25"
 termion = "1.5.6"
 
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-overflow-checks = true
-
-# Run strip on the binary!
-# $ string ./target/release/...
+# [profile.release]
+# opt-level = "z"
+# lto = true
+# codegen-units = 1
+# panic = "abort"
+# overflow-checks = true
+#
+# # Run strip on the binary!
+# # $ string ./target/release/...
