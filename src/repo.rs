@@ -16,22 +16,23 @@ pub struct Repo {
     pub status: repostatus::RepoStatus,
     pub branches: Vec<String>,
     pub current_branch: String,
+    pub status_text: String,
 }
 
 impl Repo {
-    pub fn new(path: PathBuf) -> Self {
+    pub fn new(path: PathBuf, name_width: &usize) -> Self {
         let mut name = path
             .file_name()
             .expect("can't get repo name from path")
             .to_str()
             .unwrap()
             .to_string();
-        if name.len() >= tui::REPO_NAME_WIDTH {
-            name.truncate(tui::REPO_NAME_WIDTH - 1);
+        if name.len() >= *name_width {
+            name.truncate(*name_width - 1);
             name.push('~');
         } else {
-            // name = format!("{: >w$}", name, w = tui::REPO_NAME_WIDTH);
-            name = format!("{: <w$}", name, w = tui::REPO_NAME_WIDTH);
+            // name = format!("{: >w$}", name, w = name_width);
+            name = format!("{: <w$}", name, w = name_width);
         }
         let mut repo = Self {
             name,
@@ -39,6 +40,7 @@ impl Repo {
             branches: Vec::new(),
             path,
             current_branch: String::new(),
+            status_text: String::new(),
         };
         repo.update();
         repo
@@ -112,6 +114,26 @@ impl Repo {
                     _ => (),
                 };
             }
+        if !self.status.is_ok() {
+            self.update_status_text();
+        }
+    }
+
+    fn update_status_text(&mut self) {
+        let output = std::process::Command::new("git")
+            .arg("status")
+            .current_dir(&self.path)
+            .output()
+            .expect("can't get status.");
+        let mut output_fixed: Vec<u8> = Vec::new();
+        for ch in output.stdout {
+            if ch == '\n' as u8 {
+                output_fixed.push('\r' as u8)
+            }
+            output_fixed.push(ch)
+        }
+        self.status_text = String::from_utf8(output_fixed)
+            .expect("can't get status output");
     }
 
     pub fn get_repo_state(&self) -> RepoState {

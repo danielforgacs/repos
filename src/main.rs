@@ -1,5 +1,4 @@
 use std::io::Write;
-use std::path::{Path, PathBuf};
 use termion::color;
 use termion::event::Key;
 use termion::input::TermRead;
@@ -8,9 +7,7 @@ use termion::raw::IntoRawMode;
 mod repostatus;
 mod repo;
 mod tui;
-
-const DEV_DIR_ENV_VAR: &str = "DEVDIR";
-const TUI_MAX_WIDTH: u16 = 120;
+mod config;
 
 /// Zero based termion goto.
 fn goto(x: u16, y: u16) -> termion::cursor::Goto {
@@ -18,52 +15,20 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 }
 
 fn main() {
-    let dev_dir = match get_dev_dir() {
-        Ok(path) => path,
-        Err(_) => {
-            println!("Can't find dev dir.");
-            return;
-        }
-    };
-    let repo_paths = find_repo_dirs(&dev_dir);
-    let repos: Vec<repo::Repo> = repo_paths
+    let conf = config::Opts::new();
+    tui(conf);
+}
+
+fn tui(conf: config::Opts) {
+    let mut repos: Vec<repo::Repo> = conf.get_repo_paths()
         .iter()
-        .map(|path| repo::Repo::new(path.to_path_buf()))
+        .map(|path| repo::Repo::new(path.to_path_buf(), &conf.repo_name_width))
         .collect();
     if repos.is_empty() {
         println!("No repos found.");
         return;
     }
-    tui(repos, &dev_dir);
-}
 
-fn get_dev_dir() -> Result<PathBuf, std::io::Error> {
-    let path = match std::env::var(DEV_DIR_ENV_VAR) {
-        Ok(path) => Ok(PathBuf::from(path)),
-        Err(_) => std::env::current_dir(),
-    };
-    match path {
-        Ok(path) => Ok(path),
-        Err(error) => Err(error),
-    }
-}
-
-fn find_repo_dirs(root: &Path) -> Vec<PathBuf> {
-    let mut repos: Vec<PathBuf> = Vec::new();
-
-    if let Ok(read_dir) = root.read_dir() {
-        for dir in read_dir {
-            if dir.as_ref().expect("msg").path().join(".git").is_dir() {
-                repos.push(dir.unwrap().path().to_path_buf())
-            }
-        }
-    }
-
-    repos.sort_by_key(|x| x.to_str().unwrap().to_lowercase());
-    repos
-}
-
-fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
@@ -91,7 +56,7 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
         goto(0, 0),
         bg_info,
         fg_info,
-        devdir.to_string_lossy(),
+        conf.get_dev_dir().to_string_lossy(),
         bg_reset,
     );
     let header = format!(
@@ -100,8 +65,8 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
         fg_info,
         "<------- Repo",
         "stat",
-        re = tui::REPO_NAME_WIDTH,
-        st = tui::REPO_STATUS_WIDTH - 2,
+        re = conf.repo_name_width,
+        st = conf.repo_status_width - 2,
     );
     let footer = format!(
         "{}U: untracked, D: deleted, d: deleted staged, S: staged{}M: modified, N: new file, n: new file 2",
@@ -163,7 +128,7 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
                     } else {
                         write!(stdout, "{}", fg_inactive_branch).unwrap();
                     }
-                    if tui.column > TUI_MAX_WIDTH {
+                    if tui.column > conf.get_max_width() {
                         write!(stdout, "...").unwrap();
                         write!(stdout, "{}{}", bg_reset, fg_reset).unwrap();
                         break;
@@ -194,6 +159,15 @@ fn tui(mut repos: Vec<repo::Repo>, devdir: &Path) {
             bg_reset,
         )
         .unwrap();
+
+        if !repos[tui.current_row as usize].status.is_ok() {
+            write!(
+                stdout,
+                "{}{}",
+                goto(0, repos.len() as u16 + 7),
+                repos[tui.current_row as usize].status_text,
+            ).unwrap();
+        }
 
         stdout.flush().unwrap();
 
