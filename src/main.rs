@@ -215,5 +215,4 @@ fn tui(conf: config::Opts) {
             }
         }
     }
-    writeln!(stdout, "{}", goto(0, repos.len() as u16 + 3)).unwrap();
 }
