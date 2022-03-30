@@ -37,7 +37,8 @@ fn tui(conf: config::Opts) {
     let fg_reset = color::Fg(color::Reset);
 
     let stdout = std::io::stdout().into_raw_mode().unwrap();
-    let mut stdout = termion::screen::AlternateScreen::from(stdout);
+    // let mut stdout = termion::screen::AlternateScreen::from(stdout);
+    let mut stdout = std::io::stdout();
     let mut keep_running = true;
 
     let devdir_path = format!(
@@ -155,26 +156,33 @@ fn tui(conf: config::Opts) {
             0 | 1 | 2 => 0_usize,
             _ => tui.current_column_id as usize - 2,
         };
-        write!(
-            stdout,
-            "{}{}{} {{{}}} <-- {}{}",
-            goto(0, repos.len() as u16 + 3),
-            bg_info,
-            repos[tui.current_row as usize].name,
-            repos[tui.current_row as usize].current_branch,
-            repos[tui.current_row as usize].branches[branch_index],
-            bg_reset,
-        )
-        .unwrap();
+//         write!(
+//             stdout,
+//             "{}{}{} {{{}}} <-- {}{}",
+//             goto(0, repos.len() as u16 + 3),
+//             bg_info,
+//             repos[tui.current_row as usize].name,
+//             repos[tui.current_row as usize].current_branch,
+//             repos[tui.current_row as usize].branches[branch_index],
+//             bg_reset,
+//         )
+//         .unwrap();
+//
+//         if !repos[tui.current_row as usize].status.is_ok() {
+//             write!(
+//                 stdout,
+//                 "{}{}",
+//                 goto(0, repos.len() as u16 + 7),
+//                 repos[tui.current_row as usize].status_text,
+//             ).unwrap();
+//         };
 
-        if !repos[tui.current_row as usize].status.is_ok() {
-            write!(
-                stdout,
-                "{}{}",
-                goto(0, repos.len() as u16 + 7),
-                repos[tui.current_row as usize].status_text,
-            ).unwrap();
-        }
+        write!(stdout, "{}INFO: repo: {}, branches: {}, current column: {}",
+            goto(10, repos.len() as u16 + 10),
+            repos[tui.current_row as usize].name,
+            repos[tui.current_row as usize].branches.len(),
+            tui.current_column_id,
+        ).unwrap();
 
         stdout.flush().unwrap();
 
@@ -205,7 +213,7 @@ fn tui(conf: config::Opts) {
                         0 | 1 => sortkey = tui.current_column_id,
                         _ => sortkey = 2,
                     }
-                    tui.reset();
+                    // tui.reset();
                     break;
                 }
                 Key::Char('\n') => {
