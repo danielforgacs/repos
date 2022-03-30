@@ -39,7 +39,6 @@ fn tui(conf: config::Opts) {
     let stdout = std::io::stdout().into_raw_mode().unwrap();
     let mut stdout = termion::screen::AlternateScreen::from(stdout);
     let mut keep_running = true;
-    let mut tui = tui::Tui::new();
 
     let devdir_path = format!(
         "{}{}{}{}{}",
@@ -59,6 +58,7 @@ fn tui(conf: config::Opts) {
         st = conf.repo_status_width - 2,
     );
     let mut sortkey = 0;
+    let mut tui = tui::Tui::new();
 
     while keep_running {
         let mut repos: Vec<repo::Repo> = conf.get_repo_paths()
