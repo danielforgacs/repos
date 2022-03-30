@@ -58,6 +58,7 @@ fn tui(conf: config::Opts) {
         re = conf.repo_name_width,
         st = conf.repo_status_width - 2,
     );
+    let mut sortkey = 0;
 
     while keep_running {
         let mut repos: Vec<repo::Repo> = conf.get_repo_paths()
@@ -68,6 +69,13 @@ fn tui(conf: config::Opts) {
             println!("No repos found.");
             return;
         }
+
+        match sortkey {
+            0 => repos.sort_by_key(|k| k.name.to_owned()),
+            1 => repos.sort_by_key(|k| k.status_text.to_owned()),
+            _ => repos.sort_by_key(|k| k.current_branch.to_owned()),
+        }
+
         let footer = format!(
             "{}U: untracked, D: deleted, d: deleted staged, S: staged{}M: modified, N: new file, n: new file 2",
             goto(1, repos.len() as u16+4),
@@ -190,6 +198,14 @@ fn tui(conf: config::Opts) {
                 }
                 Key::Down | Key::Char('j') => {
                     tui.go(tui::MoveDirection::Down);
+                    break;
+                }
+                Key::Char('s') => {
+                    match tui.current_column_id {
+                        0 => sortkey = 0,
+                        1 => sortkey = 1,
+                        _ => sortkey = 2,
+                    }
                     break;
                 }
                 Key::Char('\n') => {
