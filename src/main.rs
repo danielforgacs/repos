@@ -41,16 +41,6 @@ fn tui(conf: config::Opts) {
     let mut keep_running = true;
     let mut tui = tui::Tui::new();
 
-
-    let mut repos: Vec<repo::Repo> = conf.get_repo_paths()
-        .iter()
-        .map(|path| repo::Repo::new(path.to_path_buf(), &conf.repo_name_width))
-        .collect();
-    if repos.is_empty() {
-        println!("No repos found.");
-        return;
-    }
-
     let devdir_path = format!(
         "{}{}{}{}{}",
         goto(0, 0),
@@ -68,6 +58,14 @@ fn tui(conf: config::Opts) {
         re = conf.repo_name_width,
         st = conf.repo_status_width - 2,
     );
+    let mut repos: Vec<repo::Repo> = conf.get_repo_paths()
+        .iter()
+        .map(|path| repo::Repo::new(path.to_path_buf(), &conf.repo_name_width))
+        .collect();
+    if repos.is_empty() {
+        println!("No repos found.");
+        return;
+    }
     let footer = format!(
         "{}U: untracked, D: deleted, d: deleted staged, S: staged{}M: modified, N: new file, n: new file 2",
         goto(1, repos.len() as u16+4),
