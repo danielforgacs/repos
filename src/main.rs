@@ -202,8 +202,7 @@ fn tui(conf: config::Opts) {
                 }
                 Key::Char('s') => {
                     match tui.current_column_id {
-                        0 => sortkey = 0,
-                        1 => sortkey = 1,
+                        0 | 1 => sortkey = tui.current_column_id,
                         _ => sortkey = 2,
                     }
                     tui.reset();
