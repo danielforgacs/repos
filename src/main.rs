@@ -20,15 +20,6 @@ fn main() {
 }
 
 fn tui(conf: config::Opts) {
-    let mut repos: Vec<repo::Repo> = conf.get_repo_paths()
-        .iter()
-        .map(|path| repo::Repo::new(path.to_path_buf(), &conf.repo_name_width))
-        .collect();
-    if repos.is_empty() {
-        println!("No repos found.");
-        return;
-    }
-
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
@@ -49,7 +40,16 @@ fn tui(conf: config::Opts) {
     let mut stdout = termion::screen::AlternateScreen::from(stdout);
     let mut keep_running = true;
     let mut tui = tui::Tui::new();
-    let repo_count = repos.len();
+
+
+    let mut repos: Vec<repo::Repo> = conf.get_repo_paths()
+        .iter()
+        .map(|path| repo::Repo::new(path.to_path_buf(), &conf.repo_name_width))
+        .collect();
+    if repos.is_empty() {
+        println!("No repos found.");
+        return;
+    }
 
     let devdir_path = format!(
         "{}{}{}{}{}",
@@ -80,7 +80,7 @@ fn tui(conf: config::Opts) {
         write!(stdout, "{}", header).unwrap();
         write!(stdout, "{}", footer).unwrap();
         tui.reset();
-        tui.row_count = repo_count;
+        tui.row_count = repos.len();
 
         for (i, repo) in repos.iter_mut().enumerate() {
             tui.row_column_counts.push(repo.branches.len() as u16 + 2);
