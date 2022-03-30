@@ -206,6 +206,7 @@ fn tui(conf: config::Opts) {
                         1 => sortkey = 1,
                         _ => sortkey = 2,
                     }
+                    tui.reset();
                     break;
                 }
                 Key::Char('\n') => {
