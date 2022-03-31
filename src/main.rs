@@ -153,10 +153,11 @@ fn tui(conf: config::Opts) {
             tui.finished_row();
         }
 
-        let branch_index = match tui.current_column_id {
-            0 | 1 | 2 => 0_usize,
-            _ => tui.current_column_id as usize - 2,
+        let status_branch = match tui.current_column_id {
+            0 | 1  => "",
+            _ => &repos[tui.current_row as usize].branches[tui.current_column_id as usize - 2],
         };
+
         write!(
             stdout,
             "{}{}{} {{{}}} <-- {}{}",
@@ -164,7 +165,7 @@ fn tui(conf: config::Opts) {
             bg_info,
             repos[tui.current_row as usize].name,
             repos[tui.current_row as usize].current_branch,
-            repos[tui.current_row as usize].branches[branch_index],
+            status_branch,
             bg_reset,
         )
         .unwrap();
