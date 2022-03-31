@@ -18,10 +18,10 @@ fn goto(x: u16, y: u16) -> termion::cursor::Goto {
 
 fn main() {
     let conf = config::Opts::new();
-    tui(conf);
+    tui(&conf);
 }
 
-fn tui(conf: config::Opts) {
+fn tui(conf: &config::Opts) {
     let bg_current_cell = color::Bg(color::Rgb(75, 30, 15));
     let bg_reset = color::Bg(color::Reset);
 
