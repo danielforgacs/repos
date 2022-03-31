@@ -216,7 +216,7 @@ fn tui(conf: config::Opts) {
                         0 | 1 => sortkey = tui.current_column_id,
                         _ => sortkey = 2,
                     }
-                    tui.post_sort();
+                    tui.reset_after_sort();
                     break;
                 }
                 Key::Char('\n') => {

@@ -32,7 +32,7 @@ impl Tui {
         }
     }
 
-    pub fn post_sort(&mut self) {
+    pub fn reset_after_sort(&mut self) {
         self.column = 0;
         self.column_id = 0;
         self.current_column_id = 0;
