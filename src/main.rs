@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::io::Write;
 use termion::color;
 use termion::event::Key;
