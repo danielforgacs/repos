@@ -224,7 +224,7 @@ fn tui(conf: config::Opts) {
                         _ => {
                             let branch = repos[tui.current_row as usize].branches
                                 [tui.current_column_id as usize - 2]
-                                .to_owned();
+                                .clone();
                             repos[tui.current_row as usize].checkout_branch(branch);
                         }
                     }
