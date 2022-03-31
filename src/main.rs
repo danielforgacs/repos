@@ -73,9 +73,9 @@ fn tui(conf: config::Opts) {
         }
 
         match sortkey {
-            0 => repos.sort_by_key(|k| k.name.to_owned()),
-            1 => repos.sort_by_key(|k| k.status_text.to_owned()),
-            _ => repos.sort_by_key(|k| k.current_branch.to_owned()),
+            0 => repos.sort_by_key(|k| k.name.clone()),
+            1 => repos.sort_by_key(|k| k.status_text.clone()),
+            _ => repos.sort_by_key(|k| k.current_branch.clone()),
         }
 
         let footer = format!(
