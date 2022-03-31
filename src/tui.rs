@@ -39,15 +39,11 @@ impl Tui {
         self.row_column_counts = Vec::new();
         self.row = 0;
         self.current_row = 0;
-        // self.row_count = 0;
-        // self.name_width = 0;
-        // self.status_width = 0;
     }
 
     pub fn reset(&mut self) {
         self.row = 0;
         self.column = 0;
-        // self.current_column_id = 0;
     }
 
     pub fn row(&self) -> u16 {
