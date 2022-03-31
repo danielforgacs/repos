@@ -39,8 +39,7 @@ fn tui(conf: config::Opts) {
     let fg_reset = color::Fg(color::Reset);
 
     let stdout = std::io::stdout().into_raw_mode().unwrap();
-    // let mut stdout = termion::screen::AlternateScreen::from(stdout);
-    let mut stdout = std::io::stdout();
+    let mut stdout = termion::screen::AlternateScreen::from(stdout);
     let mut keep_running = true;
 
     let devdir_path = format!(
