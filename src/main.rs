@@ -157,34 +157,26 @@ fn tui(conf: config::Opts) {
             0 | 1 | 2 => 0_usize,
             _ => tui.current_column_id as usize - 2,
         };
-//         write!(
-//             stdout,
-//             "{}{}{} {{{}}} <-- {}{}",
-//             goto(0, repos.len() as u16 + 3),
-//             bg_info,
-//             repos[tui.current_row as usize].name,
-//             repos[tui.current_row as usize].current_branch,
-//             repos[tui.current_row as usize].branches[branch_index],
-//             bg_reset,
-//         )
-//         .unwrap();
-//
-//         if !repos[tui.current_row as usize].status.is_ok() {
-//             write!(
-//                 stdout,
-//                 "{}{}",
-//                 goto(0, repos.len() as u16 + 7),
-//                 repos[tui.current_row as usize].status_text,
-//             ).unwrap();
-//         };
-
-        write!(stdout, "{}INFO: repo: {}, row: {}, branches: {}, current column: {}",
-            goto(10, repos.len() as u16 + 10),
+        write!(
+            stdout,
+            "{}{}{} {{{}}} <-- {}{}",
+            goto(0, repos.len() as u16 + 3),
+            bg_info,
             repos[tui.current_row as usize].name,
-            tui.current_row,
-            repos[tui.current_row as usize].branches.len(),
-            tui.current_column_id,
-        ).unwrap();
+            repos[tui.current_row as usize].current_branch,
+            repos[tui.current_row as usize].branches[branch_index],
+            bg_reset,
+        )
+        .unwrap();
+
+        if !repos[tui.current_row as usize].status.is_ok() {
+            write!(
+                stdout,
+                "{}{}",
+                goto(0, repos.len() as u16 + 7),
+                repos[tui.current_row as usize].status_text,
+            ).unwrap();
+        }
 
         stdout.flush().unwrap();
 
