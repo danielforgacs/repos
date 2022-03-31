@@ -179,9 +179,10 @@ fn tui(conf: config::Opts) {
 //             ).unwrap();
 //         };
 
-        write!(stdout, "{}INFO: repo: {}, branches: {}, current column: {}",
+        write!(stdout, "{}INFO: repo: {}, row: {}, branches: {}, current column: {}",
             goto(10, repos.len() as u16 + 10),
             repos[tui.current_row as usize].name,
+            tui.current_row,
             repos[tui.current_row as usize].branches.len(),
             tui.current_column_id,
         ).unwrap();
@@ -215,7 +216,7 @@ fn tui(conf: config::Opts) {
                         0 | 1 => sortkey = tui.current_column_id,
                         _ => sortkey = 2,
                     }
-                    // tui.reset();
+                    tui.post_sort();
                     break;
                 }
                 Key::Char('\n') => {
