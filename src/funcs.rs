@@ -11,8 +11,8 @@ pub fn get_root_path() -> ReposError<PathBuf> {
         buff.push(rootdir);
         path_arg = Path::new(rootdir);
         if !path_arg.is_dir() {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
+            return Err(Box::new(Error::new(
+                ErrorKind::Other,
                 "Path argument is not a directory.",
             )));
         }
@@ -20,11 +20,12 @@ pub fn get_root_path() -> ReposError<PathBuf> {
         devdir = var(DEV_DIR_ENV_VAR)?;
         path_arg = Path::new(&devdir);
         if !path_arg.is_dir() {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
+            return Err(Box::new(Error::new(
+                ErrorKind::Other,
                 format!(
                     r#"Dir in dev env var: "{}" is not a directory."#,
-                    DEV_DIR_ENV_VAR),
+                    DEV_DIR_ENV_VAR
+                ),
             )));
         }
     }
