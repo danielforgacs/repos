@@ -29,5 +29,5 @@ pub fn get_root_path() -> ReposError<PathBuf> {
             )));
         }
     }
-    Ok(path_arg.canonicalize()?.to_path_buf())
+    Ok(path_arg.canonicalize()?)
 }
