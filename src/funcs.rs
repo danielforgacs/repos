@@ -2,9 +2,7 @@ use crate::prelude::*;
 
 pub fn get_root_path() -> ReposError<PathBuf> {
     let matches = Command::new("repos")
-        .arg(
-            Arg::new("rootpath")
-        )
+        .arg(Arg::new("rootpath"))
         .get_matches();
     let mut buff = PathBuf::new();
     let mut path_arg = Path::new("");
@@ -17,7 +15,10 @@ pub fn get_root_path() -> ReposError<PathBuf> {
         path_arg = Path::new(&devdir);
     }
     if !path_arg.is_dir() {
-        return Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "oh no!")));
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "oh no!",
+        )));
     }
     Ok(path_arg.to_path_buf())
 }
