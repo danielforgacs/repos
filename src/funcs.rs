@@ -1,8 +1,13 @@
 use crate::prelude::*;
 
+const HELP_TEXT: &str = r#"CLI util to manage all git repositories in a specific directory.
+The root of the repos is coming from the "DEVDIR" env var
+or the first argument."#;
+
 pub fn get_root_path() -> ReposError<PathBuf> {
     let matches = Command::new("repos")
         .arg(Arg::new("rootpath"))
+        .about(HELP_TEXT)
         .get_matches();
     if let Some(rootdir) = matches.value_of("rootpath") {
         let mut buff = PathBuf::new();
