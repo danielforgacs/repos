@@ -4,21 +4,20 @@ pub fn get_root_path() -> ReposError<PathBuf> {
     let matches = Command::new("repos")
         .arg(Arg::new("rootpath"))
         .get_matches();
-    let mut buff = PathBuf::new();
-    let path_arg: &Path;
-    let devdir: String;
     if let Some(rootdir) = matches.value_of("rootpath") {
+        let mut buff = PathBuf::new();
         buff.push(rootdir);
-        path_arg = Path::new(rootdir);
+        let path_arg = Path::new(rootdir);
         if !path_arg.is_dir() {
             return Err(Box::new(Error::new(
                 ErrorKind::Other,
                 "Path argument is not a directory.",
             )));
         }
+        Ok(path_arg.canonicalize()?)
     } else {
-        devdir = var(DEV_DIR_ENV_VAR)?;
-        path_arg = Path::new(&devdir);
+        let devdir = var(DEV_DIR_ENV_VAR)?;
+        let path_arg = Path::new(&devdir);
         if !path_arg.is_dir() {
             return Err(Box::new(Error::new(
                 ErrorKind::Other,
@@ -28,6 +27,6 @@ pub fn get_root_path() -> ReposError<PathBuf> {
                 ),
             )));
         }
+        Ok(path_arg.canonicalize()?)
     }
-    Ok(path_arg.canonicalize()?)
 }
