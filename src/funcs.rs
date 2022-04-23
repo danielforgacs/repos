@@ -5,8 +5,8 @@ pub fn get_root_path() -> ReposError<PathBuf> {
         .arg(Arg::new("rootpath"))
         .get_matches();
     let mut buff = PathBuf::new();
-    let mut path_arg = Path::new("");
-    let mut devdir = String::new();
+    let path_arg: &Path;
+    let devdir: String;
     if let Some(rootdir) = matches.value_of("rootpath") {
         buff.push(rootdir);
         path_arg = Path::new(rootdir);
