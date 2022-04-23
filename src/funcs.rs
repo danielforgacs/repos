@@ -35,3 +35,22 @@ pub fn get_root_path() -> ReposError<PathBuf> {
         Ok(path_arg.canonicalize()?)
     }
 }
+
+pub fn find_git_repos_in_dir(root: &PathBuf) -> ReposError<Vec<PathBuf>> {
+    let entries = root
+        .read_dir()?
+        .map(
+            |res|
+            res.map(
+                |e|
+                e.path()
+            )
+        )
+        .collect::<Result<Vec<_>, io::Error>>()?;
+    let entries = entries.into_iter().filter(
+        |p|
+        Path::new(&p).join(".git").is_dir()
+    )
+        .collect::<Vec<PathBuf>>();
+    Ok(entries)
+}

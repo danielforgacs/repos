@@ -1,10 +1,11 @@
 mod funcs;
 
 mod prelude {
-    pub use crate::funcs::get_root_path;
+    pub use crate::funcs::*;
     pub use clap::{Arg, Command};
     pub use std::{
         env::var,
+        fs, io,
         io::{Error, ErrorKind},
         path::{Path, PathBuf},
     };
@@ -23,5 +24,7 @@ fn main() {
         }
         Ok(path) => path,
     };
-    dbg!(root_path);
+    dbg!(&root_path);
+    let repo_paths = find_git_repos_in_dir(&root_path);
+    dbg!(&repo_paths);
 }
