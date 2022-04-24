@@ -34,11 +34,19 @@ fn main() -> ReposError<()> {
             return Ok(());
         }
     };
-    for path in repo_paths {
+    // let repos: Vec<_> = repo_paths
+    let repos = repo_paths
+        .into_iter()
+        .map(|f| Repo::new(&f))
+        .map(|f| f.unwrap())
+        .collect::<Vec<Repo>>();
+
+    for repo in repos {
         println!("_________________________________________");
-        let repo = Repo::new(&path)?;
         println!("name:\t\t{}", repo.get_name());
         println!("current branch:\t{}", repo.get_current_branch());
+        println!("branches:\t{}", repo.get_branches().join(" "));
     }
+
     Ok(())
 }

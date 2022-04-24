@@ -36,4 +36,15 @@ impl Repo {
         let head = head.as_ref().and_then(|h| h.shorthand());
         head.unwrap_or("HEAD (no branch)").to_string()
     }
+
+    /// Get all local branches
+    pub fn get_branches(&self) -> Vec<String> {
+        self.repo
+            .branches(None)
+            .unwrap()
+            .map(|f| f.unwrap())
+            .map(|f| f.0)
+            .map(|f| f.name().unwrap().unwrap().to_string())
+            .collect()
+    }
 }
