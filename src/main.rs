@@ -19,7 +19,7 @@ mod prelude {
 
 use prelude::*;
 
-fn main() -> ReposError<()>{
+fn main() -> ReposError<()> {
     let root_path = match get_root_path() {
         Err(err) => {
             println!("{}", err);
