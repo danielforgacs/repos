@@ -1,13 +1,16 @@
 use crate::prelude::*;
 
 pub struct Repo {
-    repo: Repository,
+    pub repo: Repository,
+    current_branch: String,
 }
 
 impl Repo {
     pub fn new(path: &PathBuf) -> ReposError<Self> {
+        let repo  = Repository::open(path)?;
         Ok(Self {
-            repo: Repository::open(path)?,
+            repo,
+            current_branch: String::new(),
         })
     }
 }
