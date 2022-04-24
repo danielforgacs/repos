@@ -1,8 +1,11 @@
 mod funcs;
+mod repo;
 
 mod prelude {
     pub use crate::funcs::*;
+    pub use crate::repo::*;
     pub use clap::{Arg, Command};
+    pub use git2::Repository;
     pub use std::{
         env::var,
         fs, io,
@@ -16,15 +19,23 @@ mod prelude {
 
 use prelude::*;
 
-fn main() {
+fn main() -> ReposError<()>{
     let root_path = match get_root_path() {
         Err(err) => {
             println!("{}", err);
-            return;
+            return Ok(());
         }
         Ok(path) => path,
     };
-    dbg!(&root_path);
-    let repo_paths = find_git_repos_in_dir(&root_path);
-    dbg!(&repo_paths);
+    let repo_paths = match find_git_repos_in_dir(&root_path) {
+        Ok(paths) => paths,
+        Err(error) => {
+            println!("Could not get repository paths: {}", error);
+            return Ok(());
+        }
+    };
+    for path in repo_paths {
+        let repo = Repo::new(&path)?;
+    }
+    Ok(())
 }
