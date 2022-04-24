@@ -5,7 +5,7 @@ mod prelude {
     pub use crate::funcs::*;
     pub use crate::repo::*;
     pub use clap::{Arg, Command};
-    pub use git2::Repository;
+    pub use git2::{ErrorCode, Repository};
     pub use std::{
         env::var,
         fs, io,
@@ -35,7 +35,7 @@ fn main() -> ReposError<()> {
         }
     };
     for path in repo_paths {
-        println!("-----");
+        println!("_________________________________________");
         let repo = Repo::new(&path)?;
         println!("name:\t\t{}", repo.get_name());
         println!("current branch:\t{}", repo.get_current_branch());
