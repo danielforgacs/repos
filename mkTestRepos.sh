@@ -29,4 +29,14 @@ mkdir $td/modified_files && cd $td/modified_files && \
     git commit -m '1st change' && \
     echo "1st update." >> some_file
 
+mkdir $td/repo_w_extra_branch && cd $td/repo_w_extra_branch && \
+    git init && \
+    git commit --allow-empty -m 'Init.' && \
+    git branch dev
+
+mkdir $td/branch_checked_out && cd $td/branch_checked_out && \
+    git init && \
+    git commit --allow-empty -m 'Init.' && \
+    git checkout -b dev
+
 cd $here
