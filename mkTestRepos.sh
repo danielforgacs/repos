@@ -29,14 +29,33 @@ mkdir $td/modified_files && cd $td/modified_files && \
     git commit -m '1st change' && \
     echo "1st update." >> some_file
 
-mkdir $td/repo_w_extra_branch && cd $td/repo_w_extra_branch && \
+mkdir $td/many_branches && cd $td/many_branches && \
     git init && \
     git commit --allow-empty -m 'Init.' && \
-    git branch dev
+    git branch dev && \
+    git branch release && \
+    git branch hotfix && \
+    git branch feature && \
 
-mkdir $td/branch_checked_out && cd $td/branch_checked_out && \
+mkdir $td/many_branches_w_branch_checked_out && cd $td/many_branches_w_branch_checked_out && \
     git init && \
     git commit --allow-empty -m 'Init.' && \
-    git checkout -b dev
+    git checkout -b dev && \
+    git checkout -b release && \
+    git checkout -b hotfix && \
+    git checkout -b feature && \
+
+mkdir $td/grouped_branches && cd $td/grouped_branches && \
+    git init && \
+    git commit --allow-empty -m 'Init.' && \
+    git checkout -b dev/hotfix/bug1
+    git checkout -b dev/feature/new1
+    git checkout -b dev/feature/new2
+    git checkout -b dev/dev/feature1
+    git checkout -b dev/dev/feature2
+    git checkout -b dev/release/release1
+    git checkout -b dev/release/release2
+    git checkout -b dev/release/release3
+
 
 cd $here
