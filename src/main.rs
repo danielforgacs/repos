@@ -46,6 +46,7 @@ fn main() -> ReposError<()> {
         println!("name:\t\t{}", repo.get_name());
         println!("current branch:\t{}", repo.get_current_branch());
         println!("branches:\t{}", repo.get_branches().join(" "));
+        println!("status:\t{}", repo.get_status());
     }
 
     Ok(())

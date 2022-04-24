@@ -47,4 +47,17 @@ impl Repo {
             .map(|f| f.name().unwrap().unwrap().to_string())
             .collect()
     }
+
+    pub fn get_status(&self) -> String {
+        let stats = self.repo
+            .statuses(None)
+            .unwrap()
+            .iter()
+            .map(|f| f.status())
+            .collect::<Vec<_>>();
+        dbg!(&stats);
+
+
+        "".to_string()
+    }
 }
