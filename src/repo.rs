@@ -12,7 +12,15 @@ impl Repo {
     }
 
     pub fn get_name(&self) -> String {
-        String::from("n/a")
+        self.repo
+            .path()
+            .components()
+            .nth_back(1)
+            .map(|f| f.as_os_str())
+            .unwrap()
+            .to_owned()
+            .into_string()
+            .unwrap()
     }
 
     pub fn get_current_branch(&self) -> String {
