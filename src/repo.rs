@@ -48,7 +48,7 @@ impl Repo {
             .collect()
     }
 
-    pub fn get_status(&self) -> String {
+    pub fn get_status(&self) -> Status {
         let stats = self.repo
             .statuses(None)
             .unwrap()
@@ -58,6 +58,6 @@ impl Repo {
         dbg!(&stats);
 
 
-        "".to_string()
+        Status {}
     }
 }

@@ -1,9 +1,11 @@
 mod funcs;
 mod repo;
+mod repostatus;
 
 mod prelude {
     pub use crate::funcs::*;
     pub use crate::repo::*;
+    pub use crate::repostatus::*;
     pub use clap::{Arg, Command};
     pub use git2::{ErrorCode, Repository};
     pub use std::{
