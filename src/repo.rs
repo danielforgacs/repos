@@ -1,16 +1,21 @@
 use crate::prelude::*;
 
 pub struct Repo {
-    pub repo: Repository,
-    current_branch: String,
+    repo: Repository,
 }
 
 impl Repo {
     pub fn new(path: &PathBuf) -> ReposError<Self> {
-        let repo  = Repository::open(path)?;
         Ok(Self {
-            repo,
-            current_branch: String::new(),
+            repo: Repository::open(path)?,
         })
+    }
+
+    pub fn get_name(&self) -> String {
+        String::from("n/a")
+    }
+
+    pub fn get_current_branch(&self) -> String {
+        String::from("n/a")
     }
 }

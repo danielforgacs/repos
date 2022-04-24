@@ -37,15 +37,8 @@ fn main() -> ReposError<()>{
     for path in repo_paths {
         println!("-----");
         let repo = Repo::new(&path)?;
-        println!("repo: {}", repo.repo.path().display());
-        println!("workdir: {}", repo.repo.workdir().unwrap().display());
-        for wd in repo.repo.statuses(None) {
-            for st in wd.iter() {
-                println!("s: {}", st.status().bits());
-            }
-            // let stats: Vec<_> = wd.iter().collect();
-            // println!("status: {:?}", stats);
-        }
+        println!("name:\t{}", repo.get_name());
+        println!("current branch:\t{}", repo.get_current_branch());
     }
     Ok(())
 }
