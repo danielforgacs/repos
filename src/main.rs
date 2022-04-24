@@ -37,7 +37,7 @@ fn main() -> ReposError<()> {
     for path in repo_paths {
         println!("-----");
         let repo = Repo::new(&path)?;
-        println!("name:\t{}", repo.get_name());
+        println!("name:\t\t{}", repo.get_name());
         println!("current branch:\t{}", repo.get_current_branch());
     }
     Ok(())
