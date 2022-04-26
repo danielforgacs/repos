@@ -70,3 +70,23 @@ pub fn get_repos(paths: &Vec<PathBuf>) -> Vec<Repo> {
         .map(|f| f.unwrap())
         .collect::<Vec<Repo>>()
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    /// Expected test result need to be generated for the tests.
+    /// They can't be committed into this repo, becouse the're
+    /// repos themselves.
+    ///
+    /// THIS PART SHOULD BE BE AUTOMATED
+    const REPO_NAME: &str = "grouped_branches";
+    const REPO_PATH: &str = "/tmp/tmp.x91X9GHwu0__repos_test/grouped_branches/";
+
+    #[test]
+    fn init_repo() {
+        let repo = Repo::new(&PathBuf::from(REPO_PATH))
+            .unwrap();
+        assert_eq!(repo.get_name(), REPO_NAME);
+    }
+}
