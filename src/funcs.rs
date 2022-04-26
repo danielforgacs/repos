@@ -47,3 +47,13 @@ pub fn find_git_repos_in_dir(root: &PathBuf) -> ReposError<Vec<PathBuf>> {
         .collect::<Vec<PathBuf>>();
     Ok(entries)
 }
+
+pub fn limit_string(string: &str, limit: &usize) -> String {
+    let name: String;
+    if string.len() >= *limit {
+        name = format!("{}~", &string[0..limit-1]);
+    } else {
+        name = format!("{:<w$}", string, w=limit);
+    };
+    name
+}

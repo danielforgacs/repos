@@ -12,7 +12,7 @@ impl Repo {
     }
 
     pub fn get_name(&self) -> String {
-        let mut name = self.repo
+        let raw_name = self.repo
             .path()
             .components()
             .nth_back(1)
@@ -21,11 +21,7 @@ impl Repo {
             .to_owned()
             .into_string()
             .unwrap();
-        if name.len() > REPO_NAME_LENGTH {
-            name = name[0..REPO_NAME_LENGTH-1].to_string();
-            name += "~";
-        };
-        let name = format!("{:<w$}", name, w=REPO_NAME_LENGTH);
+        let name = limit_string(&raw_name, &REPO_NAME_LENGTH);
         name
     }
 
