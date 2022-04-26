@@ -57,3 +57,13 @@ pub fn limit_string(string: &str, limit: &usize) -> String {
     };
     name
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn limiting_string_length() {
+        assert_eq!(limit_string(&String::new(), &10).len(), 10);
+    }
+}
