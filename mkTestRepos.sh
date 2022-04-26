@@ -48,14 +48,12 @@ mkdir $td/many_branches_w_branch_checked_out && cd $td/many_branches_w_branch_ch
 mkdir $td/grouped_branches && cd $td/grouped_branches && \
     git init && \
     git commit --allow-empty -m 'Init.' && \
-    git checkout -b dev/hotfix/bug1
-    git checkout -b dev/feature/new1
-    git checkout -b dev/feature/new2
-    git checkout -b dev/dev/feature1
-    git checkout -b dev/dev/feature2
-    git checkout -b dev/release/release1
+    git checkout -b dev/hotfix/bug1 && \
+    git checkout -b dev/feature/new1 && \
+    git checkout -b dev/dev/feature1 && \
+    git checkout -b dev/dev/feature2 && \
+    git checkout -b dev/release/release1 && \
     git checkout -b dev/release/release2
-    git checkout -b dev/release/release3
 
 
 cd $here
