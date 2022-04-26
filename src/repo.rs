@@ -49,12 +49,14 @@ impl Repo {
     }
 
     pub fn get_status(&self) -> Status {
-        let stats = self.repo
+        let mut stats = self.repo
             .statuses(None)
             .unwrap()
             .iter()
             .map(|f| f.status())
             .collect::<Vec<_>>();
+        stats.sort_unstable();
+        stats.dedup();
         dbg!(&stats);
 
 
