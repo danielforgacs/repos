@@ -83,12 +83,12 @@ mod test {
     ///
     /// THIS PART SHOULD BE BE AUTOMATED
     const REPO_NAME: &str = "grouped_branches";
-    const REPO_PATH: &str = "/tmp/tmp.x91X9GHwu0__repos_test/grouped_branches/";
+    const REPO_PATH: &str = "/tmp/tmp.T0NwnY1V0o__repos_test/grouped_branches/";
 
     #[test]
     fn init_repo() {
         let repo = Repo::new(&PathBuf::from(REPO_PATH))
             .unwrap();
-        assert_eq!(repo.get_name(), REPO_NAME);
+        assert_eq!(repo.get_name(), limit_string(&REPO_NAME, &REPO_NAME_LENGTH));
     }
 }
