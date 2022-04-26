@@ -36,10 +36,7 @@ impl Repo {
             Err(_error) => return String::from("n/a"),
         };
         let head = head.as_ref().and_then(|h| h.shorthand());
-        limit_string(
-            &head.unwrap_or("HEAD (no branch)"),
-            &BRANCH__NAME_LENGTH
-        )
+        head.unwrap_or("HEAD (no branch)").to_string()
     }
 
     /// Get all local branches
