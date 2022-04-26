@@ -12,7 +12,7 @@ impl Repo {
     }
 
     pub fn get_name(&self) -> String {
-        let raw_name = self.repo
+        self.repo
             .path()
             .components()
             .nth_back(1)
@@ -20,9 +20,7 @@ impl Repo {
             .unwrap()
             .to_owned()
             .into_string()
-            .unwrap();
-        let name = limit_string(&raw_name, &REPO_NAME_LENGTH);
-        name
+            .unwrap()
     }
 
     pub fn get_current_branch(&self) -> String {
@@ -80,12 +78,12 @@ mod test {
     ///
     /// THIS PART SHOULD BE BE AUTOMATED
     const REPO_NAME: &str = "grouped_branches";
-    const REPO_PATH: &str = "/tmp/tmp.T0NwnY1V0o__repos_test/grouped_branches/";
+    const REPO_PATH: &str = "/tmp/tmp.qrD3xn3pMc__repos_test/grouped_branches/";
 
     #[test]
     fn init_repo() {
         let repo = Repo::new(&PathBuf::from(REPO_PATH))
             .unwrap();
-        assert_eq!(repo.get_name(), limit_string(&REPO_NAME, &REPO_NAME_LENGTH));
+        assert_eq!(repo.get_name(), REPO_NAME);
     }
 }
