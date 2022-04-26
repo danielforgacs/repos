@@ -25,7 +25,7 @@ impl Repo {
             name = name[0..REPO_NAME_LENGTH-1].to_string();
             name += "~";
         };
-        let name = format!("{:0w$>}", name, w=10);
+        let name = format!("{:<w$}", name, w=REPO_NAME_LENGTH);
         name
     }
 
