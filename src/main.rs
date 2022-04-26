@@ -36,25 +36,13 @@ fn main() -> ReposError<()> {
             return Ok(());
         }
     };
-    // let repos: Vec<_> = repo_paths
-    // let repos = repo_paths
-    //     .into_iter()
-    //     .map(|f| Repo::new(&f))
-    //     .map(|f| f.unwrap())
-    //     .collect::<Vec<Repo>>();
     for repo in get_repos(&repo_paths) {
-        println!(r#"{}::{}"#,
+        println!(r#"{}::{}::{}::{}"#,
             repo.get_name(),
-            repo.get_current_branch()
+            repo.get_current_branch(),
+            repo.get_status(),
+            repo.get_branches().join(" ")
         )
-        // print!("--> {}", repo.get_name());
-        // print!("current branch:\t{}", repo.get_current_branch());
-        // print!("status:\t{}", repo.get_status());
-        // print!("branches:\t{}", repo.get_branches().join(" "));
     }
-
-    // for repo in repos {
-    // }
-
     Ok(())
 }

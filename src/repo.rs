@@ -57,9 +57,6 @@ impl Repo {
             .collect::<Vec<_>>();
         stats.sort_unstable();
         stats.dedup();
-        dbg!(&stats);
-
-
         Status {}
     }
 }
