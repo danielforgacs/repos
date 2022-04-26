@@ -12,7 +12,7 @@ impl Repo {
     }
 
     pub fn get_name(&self) -> String {
-        self.repo
+        let mut name = self.repo
             .path()
             .components()
             .nth_back(1)
@@ -20,7 +20,13 @@ impl Repo {
             .unwrap()
             .to_owned()
             .into_string()
-            .unwrap()
+            .unwrap();
+        if name.len() > REPO_NAME_LENGTH {
+            name = name[0..REPO_NAME_LENGTH-1].to_string();
+            name += "~";
+        };
+        let name = format!("{:0w$>}", name, w=10);
+        name
     }
 
     pub fn get_current_branch(&self) -> String {

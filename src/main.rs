@@ -17,6 +17,7 @@ mod prelude {
 
     pub type ReposError<T> = Result<T, Box<dyn std::error::Error>>;
     pub const DEV_DIR_ENV_VAR: &str = "DEVDIR";
+    pub const REPO_NAME_LENGTH: usize = 20;
 }
 
 use prelude::*;
