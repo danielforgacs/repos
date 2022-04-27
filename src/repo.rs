@@ -61,13 +61,6 @@ impl Repo {
     }
 }
 
-pub fn get_repos(paths: &Vec<PathBuf>) -> Vec<Repo> {
-    paths.into_iter()
-        .map(|f| Repo::new(&f))
-        .map(|f| f.unwrap())
-        .collect::<Vec<Repo>>()
-}
-
 #[cfg(test)]
 mod test {
     use super::*;

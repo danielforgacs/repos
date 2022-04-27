@@ -29,20 +29,14 @@ fn main() -> ReposError<()> {
         }
         Ok(path) => path,
     };
-    let repo_paths = match find_git_repos_in_dir(&root_path) {
-        Ok(paths) => paths,
-        Err(error) => {
-            println!("Could not get repository paths: {}", error);
-            return Ok(());
-        }
-    };
-    for repo in get_repos(&repo_paths) {
+    for repo_path in find_git_repos_in_dir(&root_path)? {
+        let repo = Repo::new(&repo_path)?;
         println!(r#"{}::{}::{}::{}"#,
             repo.get_name(),
             repo.get_current_branch(),
             repo.get_status(),
             repo.get_branches().join(" ")
         )
-    }
+    };
     Ok(())
 }
