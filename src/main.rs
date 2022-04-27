@@ -19,7 +19,6 @@ mod prelude {
 
     pub type ReposError<T> = Result<T, Box<dyn std::error::Error>>;
     pub const DEV_DIR_ENV_VAR: &str = "DEVDIR";
-    pub const UPDATE_INTERVAL: f32 = 2.0;
 }
 
 use prelude::*;
@@ -32,20 +31,15 @@ fn main() -> ReposError<()> {
         }
         Ok(path) => path,
     };
-    let delay = Duration::from_secs_f32(UPDATE_INTERVAL);
-    for count in 0..100 {
-        println!("--> {}", root_path.to_string_lossy());
-        println!("--> {}", count);
-        for repo_path in find_git_repos_in_dir(&root_path)? {
-            let repo = Repo::new(&repo_path)?;
-            println!(r#"{}::{}::{}::{}"#,
-                repo.get_name(),
-                repo.get_current_branch(),
-                repo.get_status(),
-                repo.get_branches().join(" ")
-            )
-        };
-        sleep(delay);
-    }
+    println!("--> {}", root_path.to_string_lossy());
+    for repo_path in find_git_repos_in_dir(&root_path)? {
+        let repo = Repo::new(&repo_path)?;
+        println!(r#"{}::{}::{}::{}"#,
+            repo.get_name(),
+            repo.get_current_branch(),
+            repo.get_status(),
+            repo.get_branches().join(" ")
+        )
+    };
     Ok(())
 }
