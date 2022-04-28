@@ -11,15 +11,16 @@ mod prelude {
     pub use std::{
         env::var,
         fs, io,
-        io::{Error, ErrorKind},
+        io::{Error, ErrorKind, stdout},
         path::{Path, PathBuf},
         time::{Duration, Instant},
         thread::sleep,
     };
     pub use crossterm::{
+        execute,
         cursor::position,
         event::{poll, read, Event, KeyCode},
-        terminal::{disable_raw_mode, enable_raw_mode},
+        terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
     };
     pub type ReposError<T> = Result<T, Box<dyn std::error::Error>>;
     pub const DEV_DIR_ENV_VAR: &str = "DEVDIR";
@@ -40,6 +41,7 @@ fn print_events(root_path: &PathBuf) -> ReposError<()> {
                 break;
             }
         } else {
+            execute!(stdout(), Clear(ClearType::All))?;
             for repo_path in find_git_repos_in_dir(&root_path)? {
                 let repo = Repo::new(&repo_path)?;
                 println!("{}::{}::{}::{}\r",
