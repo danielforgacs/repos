@@ -55,6 +55,7 @@ impl Repo {
             .iter()
             .map(|f| f.status())
             .collect::<Vec<_>>();
+        println!("status count: {}\r", stats.len());
         stats.sort_unstable();
         stats.dedup();
         Status {}

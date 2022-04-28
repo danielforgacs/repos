@@ -16,23 +16,17 @@ mod prelude {
         time::{Duration, Instant},
         thread::sleep,
     };
-
+    pub use crossterm::{
+        cursor::position,
+        event::{poll, read, Event, KeyCode},
+        terminal::{disable_raw_mode, enable_raw_mode},
+    };
     pub type ReposError<T> = Result<T, Box<dyn std::error::Error>>;
     pub const DEV_DIR_ENV_VAR: &str = "DEVDIR";
+    pub const UPDATE_DELAY_SECS: f32 = 1.5;
 }
 
 use prelude::*;
-
-use std::{time::Duration};
-use crossterm::{
-    cursor::position,
-    event::{poll, read, Event, KeyCode},
-    terminal::{disable_raw_mode, enable_raw_mode},
-    Result,
-};
-
-const UPDATE_DELAY_SECS: f32 = 1.5;
-
 
 fn print_events(root_path: &PathBuf) -> ReposError<()> {
     loop {
@@ -68,9 +62,9 @@ fn main() -> ReposError<()> {
         }
         Ok(path) => path,
     };
-    println!("--> {}\r", root_path.to_string_lossy());
+    println!("--> [DEVDIR:{}]\r", root_path.to_string_lossy());
     enable_raw_mode()?;
     print_events(&root_path)?;
-    disable_raw_mode();
+    disable_raw_mode()?;
     Ok(())
 }
