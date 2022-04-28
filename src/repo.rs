@@ -49,6 +49,12 @@ impl Repo {
     }
 
     pub fn get_status(&self) -> Status {
+        /*
+        A status option will be needed here.
+        statuses work by files. If a repo
+        has many ignored file it will slow
+        down geting the statuses.
+        */
         let mut stats = self.repo
             .statuses(None)
             .unwrap()
