@@ -1,9 +1,9 @@
-mod funcs;
+mod utils;
 mod repo;
 mod repostatus;
 
 mod prelude {
-    pub use crate::funcs::*;
+    pub use crate::utils::*;
     pub use crate::repo::*;
     pub use crate::repostatus::*;
     pub use clap::{Arg, Command};

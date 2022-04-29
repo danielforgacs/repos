@@ -77,7 +77,7 @@ mod test {
     ///
     /// THIS PART SHOULD BE BE AUTOMATED
     const REPO_NAME: &str = "grouped_branches";
-    const REPO_PATH: &str = "/tmp/tmp.qrD3xn3pMc__repos_test/grouped_branches/";
+    const REPO_PATH: &str = "/tmp/tmp.PHBl9PWOQL__repos_test/grouped_branches/";
 
     #[test]
     fn init_repo() {
