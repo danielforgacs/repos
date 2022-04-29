@@ -41,18 +41,18 @@ fn run(root_path: PathBuf) -> ReposError<()> {
             if event == Event::Key(KeyCode::Esc.into()) {
                 break;
             }
-        } else {
-            execute!(stdout(), Clear(ClearType::All))?;
-            for repo_path in find_git_repos_in_dir(&root_path)? {
-                let repo = Repo::new(&repo_path)?;
-                println!("{}::{}::{}::{}\r",
-                    repo.get_name(),
-                    repo.get_current_branch(),
-                    repo.get_status(),
-                    repo.get_branches().join(" ")
-                )
-            };
+            continue;
         }
+        execute!(stdout(), Clear(ClearType::All))?;
+        for repo_path in find_git_repos_in_dir(&root_path)? {
+            let repo = Repo::new(&repo_path)?;
+            println!("{}::{}::{}::{}\r",
+                repo.get_name(),
+                repo.get_current_branch(),
+                repo.get_status(),
+                repo.get_branches().join(" ")
+            )
+        };
     }
     disable_raw_mode()?;
     Ok(())
