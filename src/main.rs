@@ -29,7 +29,8 @@ mod prelude {
 
 use prelude::*;
 
-fn print_events(root_path: &PathBuf) -> ReposError<()> {
+fn run(root_path: PathBuf) -> ReposError<()> {
+    enable_raw_mode()?;
     loop {
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
@@ -53,20 +54,13 @@ fn print_events(root_path: &PathBuf) -> ReposError<()> {
             };
         }
     }
+    disable_raw_mode()?;
     Ok(())
 }
 
-fn main() -> ReposError<()> {
-    let root_path = match get_root_path() {
-        Err(err) => {
-            println!("{}\r", err);
-            return Ok(());
-        }
-        Ok(path) => path,
+fn main() {
+    if let Err(error) = get_root_path().and_then(run) {
+        eprintln!("Error: {}", error);
+        return;
     };
-    println!("--> [DEVDIR:{}]\r", root_path.to_string_lossy());
-    enable_raw_mode()?;
-    print_events(&root_path)?;
-    disable_raw_mode()?;
-    Ok(())
 }
