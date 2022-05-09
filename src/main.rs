@@ -46,10 +46,16 @@ fn run(root_path: PathBuf) -> ReposError<()> {
                 break;
             }
         } else {
+            let mut repos: Vec<Repo> = Vec::new();
+            for dir in find_git_repos_in_dir(&root_path)? {
+                repos.push(
+                    Repo::new(&dir)?
+                )
+            }
             execute!(stdout(), Clear(ClearType::All))?;
-            for repo_path in find_git_repos_in_dir(&root_path)? {
-                let repo = Repo::new(&repo_path)?;
-                println!("{}::{}::{}::{}\r",
+            for repo in repos {
+                // let repo = Repo::new(&repo_path)?;
+                println!("{:<30}::{:<30}::{:<30}::{:<50}\r",
                     repo.get_name(),
                     repo.get_current_branch(),
                     repo.get_status(),
