@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 pub fn run(root_path: PathBuf) -> ReposError<()> {
     enable_raw_mode()?;
+    let mut tui = Tui::new();
     loop {
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
@@ -14,12 +15,8 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
                 break;
             }
         } else {
-            let mut repos: Vec<Repo> = Vec::new();
-            for dir in find_git_repos_in_dir(&root_path)? {
-                repos.push(
-                    Repo::new(&dir)?
-                )
-            }
+            tui.clear();
+            let mut repos = collect_repos(&root_path)?;
             for repo in repos {
                 println!("{:<20}::{:<25}::{:<15}::{:<50}\r",
                     repo.get_name(),
@@ -32,4 +29,14 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
     }
     disable_raw_mode()?;
     Ok(())
+}
+
+fn collect_repos(path: &Path) -> ReposError<Vec<Repo>> {
+    let mut repos: Vec<Repo> = Vec::new();
+    for dir in find_git_repos_in_dir(&path)? {
+        repos.push(
+            Repo::new(&dir)?
+        )
+    }
+    Ok(repos)
 }

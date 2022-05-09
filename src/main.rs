@@ -6,7 +6,7 @@ mod repostatus;
 
 mod prelude {
     pub use crate::utils::*;
-    pub use crate::tui::*;
+    pub use crate::tui::Tui;
     pub use crate::repo::*;
     pub use crate::repos::run;
     pub use crate::repostatus::*;
@@ -28,6 +28,10 @@ mod prelude {
         thread::sleep,
     };
     pub use crossterm::{
+        QueueableCommand,
+        style::{
+            Print,
+        },
         event::{
             poll,
             read,
@@ -37,6 +41,8 @@ mod prelude {
         terminal::{
             disable_raw_mode,
             enable_raw_mode,
+            Clear,
+            ClearType,
         },
     };
     pub type ReposError<T> = Result<T, Box<dyn std::error::Error>>;
