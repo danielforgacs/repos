@@ -11,19 +11,22 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             }
             if event == Event::Key(KeyCode::Down.into()) {
             }
-            if event == Event::Key(KeyCode::Esc.into()) {
+            if event == Event::Key(KeyCode::Char('q') .into()) {
                 break;
             }
         } else {
             tui.clear();
             let mut repos = collect_repos(&root_path)?;
             for repo in repos {
-                println!("{:<20}::{:<25}::{:<15}::{:<50}\r",
-                    repo.get_name(),
-                    repo.get_current_branch(),
-                    repo.get_status(),
-                    repo.get_branches().join(" ")
-                )
+                tui.new_line();
+                tui.print(&repo.get_name());
+                // println!("{:<20}::{:<25}::{:<15}::{:<50}\r",
+                //     repo.get_name(),
+                //     repo.get_current_branch(),
+                //     repo.get_status(),
+                //     repo.get_branches().join(" ")
+                // )
+                tui.flush();
             };
         }
     }

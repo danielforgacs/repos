@@ -5,7 +5,7 @@ The root of the repos is coming from the "DEVDIR" env var
 or the first argument."#;
 
 pub fn get_root_path() -> ReposError<PathBuf> {
-    let matches = Command::new("repos")
+    let matches = ClapCommand::new("repos")
         .arg(Arg::new("rootpath"))
         .about(HELP_TEXT)
         .get_matches();

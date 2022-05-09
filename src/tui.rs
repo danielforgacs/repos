@@ -9,7 +9,24 @@ impl Tui {
     }
 
     pub fn clear(&self) -> ReposError<()> {
-        stdout().queue(Clear(ClearType::All))?;
+        stdout()
+            .queue(Clear(ClearType::All))?
+            .queue(MoveTo(0, 0))?;
+        Ok(())
+    }
+
+    pub fn print(&self, text: &String) -> ReposError<()> {
+        stdout().queue(Print(text))?;
+        Ok(())
+    }
+
+    pub fn flush(&self) -> ReposError<()> {
+        stdout().flush()?;
+        Ok(())
+    }
+
+    pub fn new_line(&self) -> ReposError<()> {
+        stdout().queue(MoveToNextLine(1))?;
         Ok(())
     }
 }

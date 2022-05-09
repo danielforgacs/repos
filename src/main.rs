@@ -12,7 +12,7 @@ mod prelude {
     pub use crate::repostatus::*;
     pub use clap::{
         Arg,
-        Command,
+        Command as ClapCommand,
     };
     pub use git2::{
         ErrorCode,
@@ -20,7 +20,10 @@ mod prelude {
     };
     pub use std::{
         fs,
-        io,
+        io::{
+            self,
+            Write,
+        },
         env::var,
         io::{Error, ErrorKind, stdout},
         path::{Path, PathBuf},
@@ -29,6 +32,12 @@ mod prelude {
     };
     pub use crossterm::{
         QueueableCommand,
+        ExecutableCommand,
+        Command,
+        cursor::{
+            MoveTo,
+            MoveToNextLine,
+        },
         style::{
             Print,
         },
