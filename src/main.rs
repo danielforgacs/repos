@@ -1,10 +1,12 @@
 mod utils;
 mod repo;
 mod repos;
+mod tui;
 mod repostatus;
 
 mod prelude {
     pub use crate::utils::*;
+    pub use crate::tui::*;
     pub use crate::repo::*;
     pub use crate::repos::run;
     pub use crate::repostatus::*;
