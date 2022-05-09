@@ -36,7 +36,7 @@ pub fn get_root_path() -> ReposError<PathBuf> {
     }
 }
 
-pub fn find_git_repos_in_dir(root: &PathBuf) -> ReposError<Vec<PathBuf>> {
+pub fn find_git_repos_in_dir(root: &Path) -> ReposError<Vec<PathBuf>> {
     let entries = root
         .read_dir()?
         .map(|res| res.map(|e| e.path()))
@@ -49,13 +49,11 @@ pub fn find_git_repos_in_dir(root: &PathBuf) -> ReposError<Vec<PathBuf>> {
 }
 
 pub fn limit_string(string: &str, limit: &usize) -> String {
-    let name: String;
     if string.len() >= *limit {
-        name = format!("{}~", &string[0..limit-1]);
+        format!("{}~", &string[0..limit-1])
     } else {
-        name = format!("{:<w$}", string, w=limit);
-    };
-    name
+        format!("{:<w$}", string, w=limit)
+    }
 }
 
 #[cfg(test)]

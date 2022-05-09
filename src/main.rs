@@ -6,8 +6,14 @@ mod prelude {
     pub use crate::utils::*;
     pub use crate::repo::*;
     pub use crate::repostatus::*;
-    pub use clap::{Arg, Command};
-    pub use git2::{ErrorCode, Repository};
+    pub use clap::{
+        Arg,
+        Command,
+    };
+    pub use git2::{
+        ErrorCode,
+        Repository,
+    };
     pub use std::{
         env::var,
         fs, io,
@@ -17,10 +23,16 @@ mod prelude {
         thread::sleep,
     };
     pub use crossterm::{
-        execute,
-        cursor::position,
-        event::{poll, read, Event, KeyCode},
-        terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
+        event::{
+            poll,
+            read,
+            Event,
+            KeyCode,
+        },
+        terminal::{
+            disable_raw_mode,
+            enable_raw_mode,
+        },
     };
     pub type ReposError<T> = Result<T, Box<dyn std::error::Error>>;
     pub const DEV_DIR_ENV_VAR: &str = "DEVDIR";
@@ -39,9 +51,6 @@ fn run(root_path: PathBuf) -> ReposError<()> {
             }
             if event == Event::Key(KeyCode::Down.into()) {
             }
-            if event == Event::Key(KeyCode::Char('c').into()) {
-                println!("Cursor position: {:?}\r", position());
-            }
             if event == Event::Key(KeyCode::Esc.into()) {
                 break;
             }
@@ -52,10 +61,8 @@ fn run(root_path: PathBuf) -> ReposError<()> {
                     Repo::new(&dir)?
                 )
             }
-            execute!(stdout(), Clear(ClearType::All))?;
             for repo in repos {
-                // let repo = Repo::new(&repo_path)?;
-                println!("{:<30}::{:<30}::{:<30}::{:<50}\r",
+                println!("{:<20}::{:<25}::{:<15}::{:<50}\r",
                     repo.get_name(),
                     repo.get_current_branch(),
                     repo.get_status(),
@@ -71,6 +78,5 @@ fn run(root_path: PathBuf) -> ReposError<()> {
 fn main() {
     if let Err(error) = get_root_path().and_then(run) {
         eprintln!("Error: {}", error);
-        return;
     };
 }
