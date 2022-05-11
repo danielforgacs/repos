@@ -1,14 +1,25 @@
 use crate::prelude::*;
 
+pub enum Direction {
+    Up,
+    Down,
+}
 
-pub struct Tui;
+#[derive(Debug)]
+pub struct Tui {
+    current_row: u16,
+    row_count: u16,
+}
 
 impl Tui {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            current_row: 0,
+            row_count: 0,
+        }
     }
 
-    pub fn clear(&self) -> ReposError<()> {
+    pub fn clear(&mut self) -> ReposError<()> {
         stdout()
             .queue(Clear(ClearType::All))?
             .queue(MoveTo(0, 0))?;
@@ -25,8 +36,30 @@ impl Tui {
         Ok(())
     }
 
-    pub fn new_line(&self) -> ReposError<()> {
+    pub fn new_line(&mut self) -> ReposError<()> {
         stdout().queue(MoveToNextLine(1))?;
         Ok(())
+    }
+
+    pub fn set_row_count(&mut self, count: u16) {
+        if self.current_row > count {
+            self.current_row = count;
+        }
+        self.row_count = count;
+    }
+
+    pub fn go(&mut self, direction: Direction) {
+        match direction {
+            Direction::Up => {
+                if self.current_row > 0 {
+                    self.current_row -= 1;
+                }
+            }
+            Direction::Down => {
+                if self.current_row < self.row_count {
+                    self.current_row += 1
+                }
+            },
+        };
     }
 }
