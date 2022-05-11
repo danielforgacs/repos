@@ -25,8 +25,8 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             }
         } else {
             for repo in repos {
-                tui.new_line();
                 tui.print(&repo.get_name());
+                tui.new_line();
             };
         }
 
