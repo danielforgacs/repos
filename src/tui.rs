@@ -31,6 +31,8 @@ impl Tui {
         stdout()
             .queue(Clear(ClearType::All))?
             .queue(MoveTo(0, 0))?;
+        self.current_row = 0;
+        self.current_column = 0;
         Ok(())
     }
 
@@ -54,6 +56,8 @@ impl Tui {
             stdout().queue(crossterm::style::ResetColor)?;
         }
 
+        self.current_column += 1;
+
         Ok(())
     }
 
@@ -66,6 +70,8 @@ impl Tui {
         stdout()
             .queue(MoveToNextLine(1))?
             .queue(MoveToColumn(0))?;
+        self.current_row += 1;
+        self.current_column = 0;
         Ok(())
     }
 
