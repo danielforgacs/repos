@@ -27,9 +27,11 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             tui.set_row_count(repos.len() as u16);
             tui.clear()?;
 
-            for (index, repo) in repos.iter().enumerate() {
-                tui.print(&repo.get_name(), index as u16, 0)?;
-                tui.print(&format!("{}", repo.get_status()), index as u16, 1)?;
+            eprintln!("{:?}", tui);
+
+            for repo in repos {
+                tui.print(&repo.get_name())?;
+                tui.print(&format!("{}", repo.get_status()))?;
                 tui.new_line()?;
             };
         }

@@ -10,7 +10,9 @@ pub enum Direction {
 #[derive(Debug)]
 pub struct Tui {
     current_row: u16,
+    selected_row: u16,
     current_column: u16,
+    selected_column: u16,
     row_count: u16,
 }
 
@@ -18,7 +20,9 @@ impl Tui {
     pub fn new() -> Self {
         Self {
             current_row: 0,
+            selected_row: 0,
             current_column: 0,
+            selected_column: 0,
             row_count: 0,
         }
     }
@@ -30,20 +34,26 @@ impl Tui {
         Ok(())
     }
 
-    pub fn print(&mut self, text: &String, index: u16, column: u16) -> ReposError<()> {
-        if index == self.current_row {
-            stdout()
-                .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
+    fn is_current_cell_selected(&self) -> bool {
+        self.current_row == self.selected_row
+            && self.current_column == self.selected_column
+    }
+
+    pub fn print(&mut self, text: &String) -> ReposError<()> {
+        if self.is_current_cell_selected() {
+            stdout().queue(SetBackgroundColor(crossterm::style::Color::Red))?;
         }
+
+        let colum_width = 30;
 
         stdout()
-            .queue(MoveToColumn(column * 40))?
+            .queue(MoveToColumn(self.current_column * colum_width))?
             .queue(Print(text))?;
 
-        if index == self.current_row {
-            stdout()
-                .queue(crossterm::style::ResetColor)?;
+        if self.is_current_cell_selected() {
+            stdout().queue(crossterm::style::ResetColor)?;
         }
+
         Ok(())
     }
 
@@ -60,8 +70,8 @@ impl Tui {
     }
 
     pub fn set_row_count(&mut self, count: u16) {
-        if self.current_row > count {
-            self.current_row = count;
+        if self.selected_row > count {
+            self.selected_row = count;
         }
         self.row_count = count;
     }
@@ -69,23 +79,23 @@ impl Tui {
     pub fn go(&mut self, direction: Direction) {
         match direction {
             Direction::Up => {
-                if self.current_row > 0 {
-                    self.current_row -= 1;
+                if self.selected_row > 0 {
+                    self.selected_row -= 1;
                 }
             }
             Direction::Down => {
-                if self.current_row < self.row_count - 1{
-                    self.current_row += 1
+                if self.selected_row < self.row_count - 1{
+                    self.selected_row += 1
                 }
             },
             Direction::Left => {
-                if self.current_column > 0 {
-                    self.current_column -= 1;
+                if self.selected_column > 0 {
+                    self.selected_column -= 1;
                 }
             }
             Direction::Right => {
-                if self.current_column < 10 {
-                    self.current_column += 1;
+                if self.selected_column < 10 {
+                    self.selected_column += 1;
                 }
             }
         };
