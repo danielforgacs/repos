@@ -37,6 +37,7 @@ mod prelude {
         cursor::{
             MoveTo,
             MoveToNextLine,
+            MoveToColumn,
         },
         style::{
             Print,

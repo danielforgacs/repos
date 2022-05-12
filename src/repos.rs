@@ -5,9 +5,6 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
     let mut tui = Tui::new();
 
     loop {
-        eprintln!("::{:?}", std::time::Instant::now());
-        eprintln!("{:#?}", tui);
-
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
             if event == Event::Key(KeyCode::Up.into()) {
@@ -16,6 +13,12 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             if event == Event::Key(KeyCode::Down.into()) {
                 tui.go(Direction::Down);
             }
+            if event == Event::Key(KeyCode::Left.into()) {
+                tui.go(Direction::Left);
+            }
+            if event == Event::Key(KeyCode::Right.into()) {
+                tui.go(Direction::Right);
+            }
             if event == Event::Key(KeyCode::Char('q') .into()) {
                 break;
             }
@@ -23,8 +26,10 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             let mut repos = collect_repos(&root_path)?;
             tui.set_row_count(repos.len() as u16);
             tui.clear()?;
+
             for (index, repo) in repos.iter().enumerate() {
-                tui.print(&repo.get_name(), index as u16)?;
+                tui.print(&repo.get_name(), index as u16, 0)?;
+                tui.print(&format!("{}", repo.get_status()), index as u16, 1)?;
                 tui.new_line()?;
             };
         }
