@@ -13,7 +13,6 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
-            println!("Event::{:?}\r", event);
             if event == Event::Key(KeyCode::Up.into()) {
                 tui.go(Direction::Up);
             }
