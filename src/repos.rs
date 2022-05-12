@@ -7,9 +7,6 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
     loop {
         eprintln!("::{:?}", std::time::Instant::now());
         eprintln!("{:#?}", tui);
-        let mut repos = collect_repos(&root_path)?;
-        tui.set_row_count(repos.len() as u16);
-        tui.clear();
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
@@ -23,13 +20,16 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
                 break;
             }
         } else {
-            for repo in repos {
-                tui.print(&repo.get_name());
-                tui.new_line();
+            let mut repos = collect_repos(&root_path)?;
+            tui.set_row_count(repos.len() as u16);
+            tui.clear()?;
+            for (index, repo) in repos.iter().enumerate() {
+                tui.print(&repo.get_name(), index as u16)?;
+                tui.new_line()?;
             };
         }
 
-        tui.flush();
+        tui.flush()?;
     }
 
     disable_raw_mode()?;

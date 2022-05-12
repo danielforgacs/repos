@@ -40,6 +40,7 @@ mod prelude {
         },
         style::{
             Print,
+            SetBackgroundColor,
         },
         event::{
             poll,

@@ -26,8 +26,17 @@ impl Tui {
         Ok(())
     }
 
-    pub fn print(&self, text: &String) -> ReposError<()> {
-        stdout().queue(Print(text))?;
+    pub fn print(&self, text: &String, index: u16) -> ReposError<()> {
+        if index == self.current_row {
+            stdout()
+                .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
+        }
+        stdout()
+            .queue(Print(text))?;
+        if index == self.current_row {
+            stdout()
+                .queue(crossterm::style::ResetColor)?;
+        }
         Ok(())
     }
 
@@ -56,7 +65,7 @@ impl Tui {
                 }
             }
             Direction::Down => {
-                if self.current_row < self.row_count {
+                if self.current_row < self.row_count - 1{
                     self.current_row += 1
                 }
             },
