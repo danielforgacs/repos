@@ -22,19 +22,19 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             if event == Event::Key(KeyCode::Char('q') .into()) {
                 break;
             }
-        } else {
-            let mut repos = collect_repos(&root_path)?;
-            tui.set_row_count(repos.len() as u16);
-            tui.clear()?;
-
-            eprintln!("{:?}", tui);
-
-            for repo in repos {
-                tui.print(&repo.get_name())?;
-                tui.print(&format!("{}", repo.get_status()))?;
-                tui.new_line()?;
-            };
         }
+
+        let mut repos = collect_repos(&root_path)?;
+        tui.set_row_count(repos.len() as u16);
+        tui.clear()?;
+
+        eprintln!("{:?}", tui);
+
+        for repo in repos {
+            tui.print(&repo.get_name())?;
+            tui.print(&format!("{}", repo.get_status()))?;
+            tui.new_line()?;
+        };
 
         tui.flush()?;
     }
