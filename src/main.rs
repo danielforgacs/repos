@@ -17,6 +17,7 @@ mod prelude {
     pub use git2::{
         ErrorCode,
         Repository,
+        StatusOptions,
     };
     pub use std::{
         fs,

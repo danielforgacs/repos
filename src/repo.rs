@@ -55,8 +55,15 @@ impl Repo {
         has many ignored file it will slow
         down geting the statuses.
         */
+
+        // Getting the status is ignoring untracked files
+        // with the status option. Getting the status
+        // and including untracked files slows this
+        // down a lot for giant repos.
+        let mut status_options = StatusOptions::new();
+        let status_options = status_options.include_untracked(false);
         let mut stats = self.repo
-            .statuses(None)
+            .statuses(Some(status_options))
             .unwrap()
             .iter()
             .map(|f| f.status())
