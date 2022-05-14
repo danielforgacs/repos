@@ -3,7 +3,6 @@ use crate::prelude::*;
 pub struct Repo {
     repo: Repository,
     name: String,
-    is_slow: bool,
 }
 
 impl Repo {
@@ -21,7 +20,6 @@ impl Repo {
         Ok(Self {
             repo,
             name,
-            is_slow: false,
         })
     }
 
@@ -66,26 +64,15 @@ impl Repo {
         // with the status option. Getting the status
         // and including untracked files slows this
         // down a lot for giant repos.
-        let mut status_options = if true {
-            eprintln!("IS SLOW");
-            let mut status_options = StatusOptions::new();
-            status_options.include_untracked(false);
-            status_options
-        } else {
-            eprintln!("FAST");
-            let mut status_options = StatusOptions::new();
-            status_options
-        };
-        let time0 = std::time::Instant::now();
+        let mut status_options = StatusOptions::new();
+        let status_options = status_options.include_untracked(false);
         let mut stats = self
             .repo
-            // .statuses(Some(&mut status_options))
-            .statuses(None)
+            .statuses(Some(status_options))
             .unwrap()
             .iter()
             .map(|f| f.status())
             .collect::<Vec<_>>();
-        eprintln!("> {:?}", std::time::Instant::now() - time0);
         stats.sort_unstable();
         stats.dedup();
         Status {}
