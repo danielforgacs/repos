@@ -53,24 +53,9 @@ impl Repo {
     }
 
     pub fn get_status(&self) -> Status {
-        /*
-        A status option will be needed here.
-        statuses work by files. If a repo
-        has many ignored file it will slow
-        down geting the statuses.
-        */
-
         let mut status_options = StatusOptions::new();
-        // Looks like the next part is only slow if the "statuses()"
-        // argument is none. If it get slow again in the future
-        // there's a reverted commit how to conditionally
-        // don't check untracked files for slow repos.
-        // --------------
-        // Getting the status is ignoring untracked files
-        // with the status option. Getting the status
-        // and including untracked files slows this
-        // down a lot for giant repos:
-        // let status_options = status_options.include_untracked(false);
+        status_options.include_untracked(true);
+        status_options.include_ignored(true);
         let mut stats = self
             .repo
             .statuses(Some(&mut status_options))
