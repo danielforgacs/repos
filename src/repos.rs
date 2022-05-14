@@ -24,7 +24,7 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             }
         }
 
-        let mut repos = collect_repos(&root_path)?;
+        let repos = collect_repos(&root_path)?;
         tui.set_row_count(repos.len() as u16);
         tui.clear()?;
 
@@ -45,7 +45,7 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
 
 fn collect_repos(path: &Path) -> ReposError<Vec<Repo>> {
     let mut repos: Vec<Repo> = Vec::new();
-    for dir in find_git_repos_in_dir(&path)? {
+    for dir in find_git_repos_in_dir(path)? {
         repos.push(
             Repo::new(&dir)?
         )
