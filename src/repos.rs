@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub fn run(root_path: PathBuf) -> ReposError<()> {
+pub fn run(root_path: PathBuf) -> ReposResult<()> {
     enable_raw_mode()?;
     let mut tui = Tui::new();
 
@@ -29,7 +29,7 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
         tui.clear()?;
 
         for repo in repos {
-            tui.print(&repo.get_name())?;
+            tui.print(&repo.name())?;
             tui.print(&format!("{}", repo.get_status()))?;
             tui.new_line()?;
         }
@@ -41,7 +41,7 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
     Ok(())
 }
 
-fn collect_repos(path: &Path) -> ReposError<Vec<Repo>> {
+fn collect_repos(path: &Path) -> ReposResult<Vec<Repo>> {
     let mut repos: Vec<Repo> = Vec::new();
     for dir in find_git_repos_in_dir(path)? {
         repos.push(Repo::new(&dir)?)

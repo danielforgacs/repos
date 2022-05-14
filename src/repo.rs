@@ -6,7 +6,7 @@ pub struct Repo {
 }
 
 impl Repo {
-    pub fn new(path: &PathBuf) -> ReposError<Self> {
+    pub fn new(path: &PathBuf) -> ReposResult<Self> {
         let repo = Repository::open(path)?;
         let name = repo.path()
             .components()
@@ -23,7 +23,7 @@ impl Repo {
         })
     }
 
-    pub fn get_name(&self) -> &str {
+    pub fn name(&self) -> &str {
         self.name.as_str()
     }
 
@@ -99,6 +99,6 @@ mod test {
     #[test]
     fn init_repo() {
         let repo = Repo::new(&PathBuf::from(REPO_PATH)).unwrap();
-        assert_eq!(repo.get_name(), REPO_NAME);
+        assert_eq!(repo.name(), REPO_NAME);
     }
 }

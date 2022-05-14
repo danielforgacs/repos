@@ -28,7 +28,7 @@ mod prelude {
         thread::sleep,
         time::{Duration, Instant},
     };
-    pub type ReposError<T> = Result<T, Box<dyn std::error::Error>>;
+    pub type ReposResult<T> = Result<T, Box<dyn std::error::Error>>;
     pub const DEV_DIR_ENV_VAR: &str = "DEVDIR";
     pub const UPDATE_DELAY_SECS: f32 = 0.5;
 }

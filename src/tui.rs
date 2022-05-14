@@ -29,7 +29,7 @@ impl Tui {
         }
     }
 
-    pub fn clear(&mut self) -> ReposError<()> {
+    pub fn clear(&mut self) -> ReposResult<()> {
         self.buff
             .queue(Clear(ClearType::All))?
             .queue(MoveTo(0, 0))?;
@@ -42,7 +42,7 @@ impl Tui {
         self.current_row == self.selected_row && self.current_column == self.selected_column
     }
 
-    pub fn print(&mut self, text: &str) -> ReposError<()> {
+    pub fn print(&mut self, text: &str) -> ReposResult<()> {
         if self.is_current_cell_selected() {
             self.buff
                 .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
@@ -63,12 +63,12 @@ impl Tui {
         Ok(())
     }
 
-    pub fn flush(&mut self) -> ReposError<()> {
+    pub fn flush(&mut self) -> ReposResult<()> {
         self.buff.flush()?;
         Ok(())
     }
 
-    pub fn new_line(&mut self) -> ReposError<()> {
+    pub fn new_line(&mut self) -> ReposResult<()> {
         self.buff.queue(MoveToNextLine(1))?.queue(MoveToColumn(0))?;
         self.current_row += 1;
         self.current_column = 0;

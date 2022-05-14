@@ -4,7 +4,7 @@ const HELP_TEXT: &str = r#"CLI util to manage all git repositories in a specific
 The root of the repos is coming from the "DEVDIR" env var
 or the first argument."#;
 
-pub fn get_root_path() -> ReposError<PathBuf> {
+pub fn get_root_path() -> ReposResult<PathBuf> {
     let matches = ClapCommand::new("repos")
         .arg(Arg::new("rootpath"))
         .about(HELP_TEXT)
@@ -36,7 +36,7 @@ pub fn get_root_path() -> ReposError<PathBuf> {
     }
 }
 
-pub fn find_git_repos_in_dir(root: &Path) -> ReposError<Vec<PathBuf>> {
+pub fn find_git_repos_in_dir(root: &Path) -> ReposResult<Vec<PathBuf>> {
     let entries = root
         .read_dir()?
         .map(|res| res.map(|e| e.path()))
