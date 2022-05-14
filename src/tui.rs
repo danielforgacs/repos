@@ -42,7 +42,7 @@ impl Tui {
         self.current_row == self.selected_row && self.current_column == self.selected_column
     }
 
-    pub fn print(&mut self, text: &String) -> ReposError<()> {
+    pub fn print(&mut self, text: &str) -> ReposError<()> {
         if self.is_current_cell_selected() {
             self.buff
                 .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
