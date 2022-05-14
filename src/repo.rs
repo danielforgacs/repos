@@ -60,15 +60,20 @@ impl Repo {
         down geting the statuses.
         */
 
+        let mut status_options = StatusOptions::new();
+        // Looks like the next part is only slow if the "statuses()"
+        // argument is none. If it get slow again in the future
+        // there's a reverted commit how to conditionally
+        // don't check untracked files for slow repos.
+        // --------------
         // Getting the status is ignoring untracked files
         // with the status option. Getting the status
         // and including untracked files slows this
-        // down a lot for giant repos.
-        let mut status_options = StatusOptions::new();
-        let status_options = status_options.include_untracked(false);
+        // down a lot for giant repos:
+        // let status_options = status_options.include_untracked(false);
         let mut stats = self
             .repo
-            .statuses(Some(status_options))
+            .statuses(Some(&mut status_options))
             .unwrap()
             .iter()
             .map(|f| f.status())
