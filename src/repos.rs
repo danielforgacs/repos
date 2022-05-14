@@ -19,7 +19,7 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             if event == Event::Key(KeyCode::Right.into()) {
                 tui.go(Direction::Right);
             }
-            if event == Event::Key(KeyCode::Char('q') .into()) {
+            if event == Event::Key(KeyCode::Char('q').into()) {
                 break;
             }
         }
@@ -34,7 +34,7 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
             tui.print(&repo.get_name())?;
             tui.print(&format!("{}", repo.get_status()))?;
             tui.new_line()?;
-        };
+        }
 
         tui.flush()?;
     }
@@ -46,9 +46,7 @@ pub fn run(root_path: PathBuf) -> ReposError<()> {
 fn collect_repos(path: &Path) -> ReposError<Vec<Repo>> {
     let mut repos: Vec<Repo> = Vec::new();
     for dir in find_git_repos_in_dir(path)? {
-        repos.push(
-            Repo::new(&dir)?
-        )
+        repos.push(Repo::new(&dir)?)
     }
     Ok(repos)
 }

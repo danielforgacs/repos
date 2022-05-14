@@ -39,13 +39,13 @@ impl Tui {
     }
 
     fn is_current_cell_selected(&self) -> bool {
-        self.current_row == self.selected_row
-            && self.current_column == self.selected_column
+        self.current_row == self.selected_row && self.current_column == self.selected_column
     }
 
     pub fn print(&mut self, text: &String) -> ReposError<()> {
         if self.is_current_cell_selected() {
-            self.buff.queue(SetBackgroundColor(crossterm::style::Color::Red))?;
+            self.buff
+                .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
         }
 
         let colum_width = 30;
@@ -69,9 +69,7 @@ impl Tui {
     }
 
     pub fn new_line(&mut self) -> ReposError<()> {
-        self.buff
-            .queue(MoveToNextLine(1))?
-            .queue(MoveToColumn(0))?;
+        self.buff.queue(MoveToNextLine(1))?.queue(MoveToColumn(0))?;
         self.current_row += 1;
         self.current_column = 0;
         Ok(())
@@ -92,10 +90,10 @@ impl Tui {
                 }
             }
             Direction::Down => {
-                if self.selected_row < self.row_count - 1{
+                if self.selected_row < self.row_count - 1 {
                     self.selected_row += 1
                 }
-            },
+            }
             Direction::Left => {
                 if self.selected_column > 0 {
                     self.selected_column -= 1;

@@ -62,7 +62,8 @@ impl Repo {
         // down a lot for giant repos.
         let mut status_options = StatusOptions::new();
         let status_options = status_options.include_untracked(false);
-        let mut stats = self.repo
+        let mut stats = self
+            .repo
             .statuses(Some(status_options))
             .unwrap()
             .iter()
@@ -88,8 +89,7 @@ mod test {
 
     #[test]
     fn init_repo() {
-        let repo = Repo::new(&PathBuf::from(REPO_PATH))
-            .unwrap();
+        let repo = Repo::new(&PathBuf::from(REPO_PATH)).unwrap();
         assert_eq!(repo.get_name(), REPO_NAME);
     }
 }

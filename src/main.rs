@@ -1,61 +1,32 @@
-mod utils;
 mod repo;
 mod repos;
-mod tui;
 mod repostatus;
+mod tui;
+mod utils;
 
 mod prelude {
-    pub use crate::utils::*;
-    pub use crate::tui::{Tui, Direction};
     pub use crate::repo::*;
     pub use crate::repos::run;
     pub use crate::repostatus::*;
-    pub use clap::{
-        Arg,
-        Command as ClapCommand,
-    };
-    pub use git2::{
-        ErrorCode,
-        Repository,
-        StatusOptions,
-    };
-    pub use std::{
-        fs,
-        io::{
-            self,
-            Write,
-        },
-        env::var,
-        io::{Error, ErrorKind, stdout},
-        path::{Path, PathBuf},
-        time::{Duration, Instant},
-        thread::sleep,
-    };
+    pub use crate::tui::{Direction, Tui};
+    pub use crate::utils::*;
+    pub use clap::{Arg, Command as ClapCommand};
     pub use crossterm::{
-        QueueableCommand,
-        ExecutableCommand,
-        Command,
-        cursor::{
-            MoveTo,
-            MoveToNextLine,
-            MoveToColumn,
-        },
-        style::{
-            Print,
-            SetBackgroundColor,
-        },
-        event::{
-            poll,
-            read,
-            Event,
-            KeyCode,
-        },
-        terminal::{
-            disable_raw_mode,
-            enable_raw_mode,
-            Clear,
-            ClearType,
-        },
+        cursor::{MoveTo, MoveToColumn, MoveToNextLine},
+        event::{poll, read, Event, KeyCode},
+        style::{Print, SetBackgroundColor},
+        terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
+        Command, ExecutableCommand, QueueableCommand,
+    };
+    pub use git2::{ErrorCode, Repository, StatusOptions};
+    pub use std::{
+        env::var,
+        fs,
+        io::{self, Write},
+        io::{stdout, Error, ErrorKind},
+        path::{Path, PathBuf},
+        thread::sleep,
+        time::{Duration, Instant},
     };
     pub type ReposError<T> = Result<T, Box<dyn std::error::Error>>;
     pub const DEV_DIR_ENV_VAR: &str = "DEVDIR";

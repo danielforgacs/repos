@@ -50,9 +50,9 @@ pub fn find_git_repos_in_dir(root: &Path) -> ReposError<Vec<PathBuf>> {
 
 pub fn limit_string(string: &str, limit: &usize) -> String {
     if string.len() >= *limit {
-        format!("{}~", &string[0..limit-1])
+        format!("{}~", &string[0..limit - 1])
     } else {
-        format!("{:<w$}", string, w=limit)
+        format!("{:<w$}", string, w = limit)
     }
 }
 
