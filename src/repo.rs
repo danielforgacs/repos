@@ -65,7 +65,7 @@ impl Repo {
             .collect::<Vec<_>>();
         stats.sort_unstable();
         stats.dedup();
-        Status {}
+        Status::new().to_status_vec(stats)
     }
 }
 
