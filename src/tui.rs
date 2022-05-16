@@ -12,6 +12,7 @@ pub struct Tui {
     current_row: u16,
     selected_row: u16,
     current_column: u16,
+    current_column_coord: u16,
     selected_column: u16,
     row_count: u16,
     buff: std::io::BufWriter<std::io::Stdout>,
@@ -23,6 +24,7 @@ impl Tui {
             current_row: 0,
             selected_row: 0,
             current_column: 0,
+            current_column_coord: 0,
             selected_column: 0,
             row_count: 0,
             buff: std::io::BufWriter::new(stdout()),
@@ -48,10 +50,15 @@ impl Tui {
                 .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
         }
 
-        let colum_width = 30;
+        match self.current_column {
+            0 => { self.current_column_coord = 0 },
+            1 => { self.current_column_coord += 37 },
+            2 => { self.current_column_coord += 15 },
+            _ => { self.current_column_coord += 22 },
+        };
 
         self.buff
-            .queue(MoveToColumn(self.current_column * colum_width))?
+            .queue(MoveToColumn(self.current_column_coord))?
             .queue(Print(text))?;
 
         if self.is_current_cell_selected() {

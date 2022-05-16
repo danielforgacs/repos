@@ -31,6 +31,9 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         for repo in repos {
             tui.print(&repo.name())?;
             tui.print(&format!("{}", repo.get_status()))?;
+            for branch in repo.get_branches() {
+                tui.print(&branch)?;
+            }
             tui.new_line()?;
         }
 
