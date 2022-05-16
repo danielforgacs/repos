@@ -32,7 +32,12 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             tui.print(&repo.name())?;
             tui.print(&format!("{}", repo.get_status()))?;
             for branch in repo.get_branches() {
-                tui.print(&branch)?;
+                if tui.current_column_coord < 125 {
+                    tui.print(&branch)?;
+                } else {
+                    tui.print("...")?;
+                    break;
+                }
             }
             tui.new_line()?;
         }

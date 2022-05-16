@@ -12,7 +12,7 @@ pub struct Tui {
     current_row: u16,
     selected_row: u16,
     current_column: u16,
-    current_column_coord: u16,
+    pub current_column_coord: u16,
     selected_column: u16,
     row_count: u16,
     buff: std::io::BufWriter<std::io::Stdout>,
