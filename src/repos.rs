@@ -9,6 +9,22 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         tui.set_row_count(repos.len() as u16);
         tui.clear()?;
 
+        for repo in repos {
+            tui.print(&repo.name())?;
+            tui.print(&format!("{}", repo.get_status()))?;
+            for branch in repo.get_branches() {
+                if tui.current_column_coord < 125 {
+                    tui.print(&branch)?;
+                } else {
+                    tui.print("...")?;
+                    break;
+                }
+            }
+            tui.new_line()?;
+        }
+
+        tui.flush()?;
+
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
             if event == Event::Key(KeyCode::Up.into()) {
@@ -27,22 +43,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 break;
             }
         }
-
-        for repo in repos {
-            tui.print(&repo.name())?;
-            tui.print(&format!("{}", repo.get_status()))?;
-            for branch in repo.get_branches() {
-                if tui.current_column_coord < 125 {
-                    tui.print(&branch)?;
-                } else {
-                    tui.print("...")?;
-                    break;
-                }
-            }
-            tui.new_line()?;
-        }
-
-        tui.flush()?;
     }
 
     disable_raw_mode()?;
