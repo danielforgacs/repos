@@ -21,6 +21,7 @@ pub struct Tui {
     row_count: u16,
     pub row_column_count: Vec<u16>,
     buff: std::io::BufWriter<std::io::Stdout>,
+    previous_branch_width: u16,
 }
 
 impl Tui {
@@ -34,6 +35,7 @@ impl Tui {
             row_count: 0,
             row_column_count: Vec::new(),
             buff: std::io::BufWriter::new(stdout()),
+            previous_branch_width: 0,
         }
     }
 
@@ -60,8 +62,10 @@ impl Tui {
             0 => { self.current_column_coord = 0 },
             1 => { self.current_column_coord += 37 },
             2 => { self.current_column_coord += 15 },
-            _ => { self.current_column_coord += 22 },
+            _ => { self.current_column_coord += self.previous_branch_width },
         };
+
+        self.previous_branch_width = text.len() as u16 + 1;
 
         self.buff
             .queue(MoveToColumn(self.current_column_coord))?
