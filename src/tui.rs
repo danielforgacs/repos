@@ -9,24 +9,30 @@ pub enum Direction {
 
 #[derive(Debug)]
 pub struct Tui {
-    current_row: u16,
+    // row that's being currently printed in the loop.
+    // this is checked against the selected row.
+    // If the wip row == the selected row,
+    // the wip row is the selected one.
+    wip_row: u16,
     selected_row: u16,
-    current_column: u16,
+    wip_column: u16,
     pub current_column_coord: u16,
     selected_column: u16,
     row_count: u16,
+    pub row_column_count: Vec<u16>,
     buff: std::io::BufWriter<std::io::Stdout>,
 }
 
 impl Tui {
     pub fn new() -> Self {
         Self {
-            current_row: 0,
+            wip_row: 0,
             selected_row: 0,
-            current_column: 0,
+            wip_column: 0,
             current_column_coord: 0,
             selected_column: 0,
             row_count: 0,
+            row_column_count: Vec::new(),
             buff: std::io::BufWriter::new(stdout()),
         }
     }
@@ -35,13 +41,13 @@ impl Tui {
         self.buff
             .queue(Clear(ClearType::All))?
             .queue(MoveTo(0, 0))?;
-        self.current_row = 0;
-        self.current_column = 0;
+        self.wip_row = 0;
+        self.wip_column = 0;
         Ok(())
     }
 
     fn is_current_cell_selected(&self) -> bool {
-        self.current_row == self.selected_row && self.current_column == self.selected_column
+        self.wip_row == self.selected_row && self.wip_column == self.selected_column
     }
 
     pub fn print(&mut self, text: &str) -> ReposResult<()> {
@@ -50,7 +56,7 @@ impl Tui {
                 .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
         }
 
-        match self.current_column {
+        match self.wip_column {
             0 => { self.current_column_coord = 0 },
             1 => { self.current_column_coord += 37 },
             2 => { self.current_column_coord += 15 },
@@ -65,7 +71,7 @@ impl Tui {
             self.buff.queue(crossterm::style::ResetColor)?;
         }
 
-        self.current_column += 1;
+        self.wip_column += 1;
 
         Ok(())
     }
@@ -77,8 +83,8 @@ impl Tui {
 
     pub fn new_line(&mut self) -> ReposResult<()> {
         self.buff.queue(MoveToNextLine(1))?.queue(MoveToColumn(0))?;
-        self.current_row += 1;
-        self.current_column = 0;
+        self.wip_row += 1;
+        self.wip_column = 0;
         Ok(())
     }
 
@@ -107,8 +113,10 @@ impl Tui {
                 }
             }
             Direction::Right => {
-                if self.selected_column < 10 {
-                    self.selected_column += 1;
+                if self.selected_column < self.row_column_count[self.selected_row as usize] - 1{
+                    if self.selected_column < 10 {
+                        self.selected_column += 1;
+                    }
                 }
             }
         };
