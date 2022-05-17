@@ -5,6 +5,10 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     let mut tui = Tui::new();
 
     loop {
+        let repos = collect_repos(&root_path)?;
+        tui.set_row_count(repos.len() as u16);
+        tui.clear()?;
+
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
             if event == Event::Key(KeyCode::Up.into()) {
@@ -23,10 +27,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 break;
             }
         }
-
-        let repos = collect_repos(&root_path)?;
-        tui.set_row_count(repos.len() as u16);
-        tui.clear()?;
 
         for repo in repos {
             tui.print(&repo.name())?;
