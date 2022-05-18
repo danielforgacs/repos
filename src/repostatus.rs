@@ -18,7 +18,8 @@ is_conflicted               CONFLICTED          = raw::GIT_STATUS_CONFLICTED as 
 */
 
 pub struct Status {
-    current: bool,
+    // This is an existing status in gitlib2. This is not used yet.
+    _current: bool,
     index_new: bool,
     index_modified: bool,
     index_deleted: bool,
@@ -36,7 +37,7 @@ pub struct Status {
 impl Status {
     pub fn new() -> Self {
         Status {
-            current: true,
+            _current: true,
             index_new: false,
             index_modified: false,
             index_deleted: false,

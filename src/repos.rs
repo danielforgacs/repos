@@ -12,15 +12,8 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         for repo in repos {
             tui.print(&repo.name())?;
             tui.print(&format!("{}", repo.get_status()))?;
-            let branches = repo.get_branches();
-            tui.row_column_count.push(branches.len() as u16 + 2);
-            for branch in branches {
-                if tui.current_column_coord < 125 {
-                    tui.print(&branch)?;
-                } else {
-                    tui.print("...")?;
-                    break;
-                }
+            for branch in repo.get_branches() {
+                tui.print(&branch)?;
             }
             tui.new_line()?;
         }

@@ -19,7 +19,7 @@ pub struct Tui {
     pub current_column_coord: u16,
     selected_column: u16,
     row_count: u16,
-    pub row_column_count: Vec<u16>,
+    column_counts: Vec<u16>,
     buff: std::io::BufWriter<std::io::Stdout>,
     previous_branch_width: u16,
 }
@@ -33,7 +33,7 @@ impl Tui {
             current_column_coord: 0,
             selected_column: 0,
             row_count: 0,
-            row_column_count: Vec::new(),
+            column_counts: vec![0],
             buff: std::io::BufWriter::new(stdout()),
             previous_branch_width: 0,
         }
@@ -45,6 +45,7 @@ impl Tui {
             .queue(MoveTo(0, 0))?;
         self.wip_row = 0;
         self.wip_column = 0;
+        self.column_counts = vec![0];
         Ok(())
     }
 
@@ -53,6 +54,8 @@ impl Tui {
     }
 
     pub fn print(&mut self, text: &str) -> ReposResult<()> {
+        self.column_counts[self.wip_row as usize] += 1;
+
         if self.is_current_cell_selected() {
             self.buff
                 .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
@@ -89,6 +92,7 @@ impl Tui {
         self.buff.queue(MoveToNextLine(1))?.queue(MoveToColumn(0))?;
         self.wip_row += 1;
         self.wip_column = 0;
+        self.column_counts.push(0);
         Ok(())
     }
 
@@ -117,7 +121,7 @@ impl Tui {
                 }
             }
             Direction::Right => {
-                if self.selected_column < self.row_column_count[self.selected_row as usize] - 1{
+                if self.selected_column < self.column_counts[self.selected_row as usize] - 1{
                     if self.selected_column < 10 {
                         self.selected_column += 1;
                     }
