@@ -62,10 +62,10 @@ impl Tui {
         }
 
         match self.wip_column {
-            0 => { self.current_column_coord = 0 },
-            1 => { self.current_column_coord += 37 },
-            2 => { self.current_column_coord += 15 },
-            _ => { self.current_column_coord += self.previous_branch_width },
+            0 => self.current_column_coord = 0,
+            1 => self.current_column_coord += 37,
+            2 => self.current_column_coord += 15,
+            _ => self.current_column_coord += self.previous_branch_width,
         };
 
         self.previous_branch_width = text.len() as u16 + 1;
@@ -121,7 +121,7 @@ impl Tui {
                 }
             }
             Direction::Right => {
-                if self.selected_column < self.column_counts[self.selected_row as usize] - 1{
+                if self.selected_column < self.column_counts[self.selected_row as usize] - 1 {
                     if self.selected_column < 10 {
                         self.selected_column += 1;
                     }

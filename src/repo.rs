@@ -8,7 +8,8 @@ pub struct Repo {
 impl Repo {
     pub fn new(path: &PathBuf) -> ReposResult<Self> {
         let repo = Repository::open(path)?;
-        let name = repo.path()
+        let name = repo
+            .path()
             .components()
             .nth_back(1)
             .map(|f| f.as_os_str())
@@ -17,10 +18,7 @@ impl Repo {
             .into_string()
             .unwrap();
 
-        Ok(Self {
-            repo,
-            name,
-        })
+        Ok(Self { repo, name })
     }
 
     pub fn name(&self) -> &str {

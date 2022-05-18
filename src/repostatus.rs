@@ -55,18 +55,42 @@ impl Status {
 
     pub fn to_status_vec(mut self, statuses: Vec<git2::Status>) -> Self {
         for item in statuses {
-            if item.is_index_new() { self.index_new = true };
-            if item.is_index_modified() { self.index_modified = true };
-            if item.is_index_deleted() { self.index_deleted = true };
-            if item.is_index_renamed() { self.index_renamed = true };
-            if item.is_index_typechange() { self.index_typechange = true };
-            if item.is_wt_new() { self.wt_new = true };
-            if item.is_wt_modified() { self.wt_modified = true };
-            if item.is_wt_deleted() { self.wt_deleted = true };
-            if item.is_wt_typechange() { self.wt_typechange = true };
-            if item.is_wt_renamed() { self.wt_renamed = true };
-            if item.is_ignored() { self.ignored = true };
-            if item.is_conflicted() { self.conflicted = true };
+            if item.is_index_new() {
+                self.index_new = true
+            };
+            if item.is_index_modified() {
+                self.index_modified = true
+            };
+            if item.is_index_deleted() {
+                self.index_deleted = true
+            };
+            if item.is_index_renamed() {
+                self.index_renamed = true
+            };
+            if item.is_index_typechange() {
+                self.index_typechange = true
+            };
+            if item.is_wt_new() {
+                self.wt_new = true
+            };
+            if item.is_wt_modified() {
+                self.wt_modified = true
+            };
+            if item.is_wt_deleted() {
+                self.wt_deleted = true
+            };
+            if item.is_wt_typechange() {
+                self.wt_typechange = true
+            };
+            if item.is_wt_renamed() {
+                self.wt_renamed = true
+            };
+            if item.is_ignored() {
+                self.ignored = true
+            };
+            if item.is_conflicted() {
+                self.conflicted = true
+            };
         }
         self
     }
@@ -75,18 +99,42 @@ impl Status {
 impl std::fmt::Display for Status {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut stat_chars = ['.'; 12];
-        if self.index_new { stat_chars[0] = 'n' };
-        if self.index_modified { stat_chars[1] = 'm' };
-        if self.index_deleted { stat_chars[2] = 'd' };
-        if self.index_renamed { stat_chars[3] = 'r' };
-        if self.index_typechange { stat_chars[4] = 't' };
-        if self.wt_new { stat_chars[5] = 'N' };
-        if self.wt_modified { stat_chars[6] = 'M' };
-        if self.wt_deleted { stat_chars[7] = 'D' };
-        if self.wt_typechange { stat_chars[8] = 'T' };
-        if self.wt_renamed { stat_chars[9] = 'R' };
-        if self.ignored { stat_chars[10] = 'I' };
-        if self.conflicted { stat_chars[11] = 'c' };
+        if self.index_new {
+            stat_chars[0] = 'n'
+        };
+        if self.index_modified {
+            stat_chars[1] = 'm'
+        };
+        if self.index_deleted {
+            stat_chars[2] = 'd'
+        };
+        if self.index_renamed {
+            stat_chars[3] = 'r'
+        };
+        if self.index_typechange {
+            stat_chars[4] = 't'
+        };
+        if self.wt_new {
+            stat_chars[5] = 'N'
+        };
+        if self.wt_modified {
+            stat_chars[6] = 'M'
+        };
+        if self.wt_deleted {
+            stat_chars[7] = 'D'
+        };
+        if self.wt_typechange {
+            stat_chars[8] = 'T'
+        };
+        if self.wt_renamed {
+            stat_chars[9] = 'R'
+        };
+        if self.ignored {
+            stat_chars[10] = 'I'
+        };
+        if self.conflicted {
+            stat_chars[11] = 'c'
+        };
         let stat_chars = stat_chars.into_iter().map(|f| f as u8).collect();
         let stat_chars = String::from_utf8(stat_chars).unwrap();
         write!(f, "[{}]", stat_chars)
