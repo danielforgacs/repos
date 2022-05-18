@@ -21,7 +21,7 @@ pub struct Tui {
     wip_row: u16,
     selected_row: u16,
     wip_column: u16,
-    current_column_coord: u16,
+    wip_column_coord: u16,
     selected_column: u16,
     column_counts: Vec<u16>,
     row_count: u16,
@@ -35,7 +35,7 @@ impl Tui {
             wip_row: 0,
             selected_row: 0,
             wip_column: 0,
-            current_column_coord: 0,
+            wip_column_coord: 0,
             selected_column: 0,
             column_counts: vec![0],
             row_count: 0,
@@ -62,19 +62,19 @@ impl Tui {
     pub fn print(&mut self, text: &str) -> ReposResult<()> {
         self.column_counts[self.wip_row as usize] += 1;
         match self.wip_column {
-            0 => self.current_column_coord = 0,
-            1 => self.current_column_coord += REPO_NAME_WIDTH,
-            2 => self.current_column_coord += STATUS_WIDTH,
-            _ => self.current_column_coord += self.previous_branch_width,
+            0 => self.wip_column_coord = 0,
+            1 => self.wip_column_coord += REPO_NAME_WIDTH,
+            2 => self.wip_column_coord += STATUS_WIDTH,
+            _ => self.wip_column_coord += self.previous_branch_width,
         };
         self.previous_branch_width = text.len() as u16 + 1;
         let (width, _) = terminal::size()?;
         if self.is_current_cell_selected() {
             self.set_style(CellStyle::SelectedCell)?;
         }
-        if self.current_column_coord + (text.len() as u16) < width {
+        if self.wip_column_coord + (text.len() as u16) < width {
             self.buff
-                .queue(MoveToColumn(self.current_column_coord))?
+                .queue(MoveToColumn(self.wip_column_coord))?
                 .queue(Print(text))?;
         } else {
             self.buff
