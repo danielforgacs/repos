@@ -8,13 +8,14 @@ mod prelude {
     pub use crate::repo::*;
     pub use crate::repos::run;
     pub use crate::repostatus::*;
-    pub use crate::tui::{Direction, Tui};
+    pub use crate::tui::{CellStyle, Direction, Tui};
     pub use crate::utils::*;
     pub use clap::{Arg, Command as ClapCommand};
     pub use crossterm::{
         cursor::{MoveTo, MoveToColumn, MoveToNextLine},
         event::{poll, read, Event, KeyCode},
-        style::{Print, SetBackgroundColor},
+        style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
+        terminal,
         terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
         Command, ExecutableCommand, QueueableCommand,
     };

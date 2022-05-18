@@ -14,7 +14,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             let current_branch = repo.get_current_branch();
             for branch in repo.get_branches() {
                 if branch == current_branch {
-                    tui.style_current_branch();
+                    tui.set_style(CellStyle::CurrentBranch)?;
                 }
                 tui.print(&branch)?;
             }

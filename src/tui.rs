@@ -7,6 +7,10 @@ pub enum Direction {
     Right,
 }
 
+pub enum CellStyle {
+    CurrentBranch,
+}
+
 #[derive(Debug)]
 pub struct Tui {
     // row that's being currently printed in the loop.
@@ -63,10 +67,9 @@ impl Tui {
             _ => self.current_column_coord += self.previous_branch_width,
         };
         self.previous_branch_width = text.len() as u16 + 1;
-        let (width, _) = crossterm::terminal::size()?;
+        let (width, _) = terminal::size()?;
         if self.is_current_cell_selected() {
-            self.buff
-                .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
+            self.buff.queue(SetBackgroundColor(Color::Red))?;
         }
         if self.current_column_coord + (text.len() as u16) < width {
             self.buff
@@ -77,13 +80,16 @@ impl Tui {
                 .queue(MoveToColumn(width - 2))?
                 .queue(Print(">>>"))?;
         };
-        self.buff.queue(crossterm::style::ResetColor)?;
+        self.buff.queue(ResetColor)?;
         self.wip_column += 1;
         Ok(())
     }
 
-    pub fn style_current_branch(&mut self) {
-        self.buff.queue(crossterm::style::SetForegroundColor(crossterm::style::Color::Green));
+    pub fn set_style(&mut self, style: CellStyle) -> ReposResult<()> {
+        match style {
+            CellStyle::CurrentBranch => self.buff.queue(SetForegroundColor(Color::Green))?,
+        };
+        Ok(())
     }
 
     pub fn flush(&mut self) -> ReposResult<()> {
@@ -118,8 +124,10 @@ impl Tui {
                 }
             }
             Direction::Right => {
-                if self.selected_column < self.column_counts[self.selected_row as usize] - 1 && self.selected_column < 10{
-                        self.selected_column += 1;
+                if self.selected_column < self.column_counts[self.selected_row as usize] - 1
+                    && self.selected_column < 10
+                {
+                    self.selected_column += 1;
                 }
             }
         };
