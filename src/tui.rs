@@ -26,6 +26,8 @@ pub struct Tui {
     column_counts: Vec<u16>,
     row_count: u16,
     buff: std::io::BufWriter<std::io::Stdout>,
+    previous_column_width: u16,
+
 }
 
 impl Tui {
@@ -39,6 +41,7 @@ impl Tui {
             column_counts: vec![0],
             row_count: 0,
             buff: std::io::BufWriter::new(stdout()),
+            previous_column_width: 0,
         }
     }
 
@@ -58,21 +61,26 @@ impl Tui {
     }
 
     pub fn print(&mut self, text: &str) -> ReposResult<()> {
+        match self.wip_column {
+            0 => self.wip_column_coord = 0,
+            1 => self.wip_column_coord += REPO_NAME_WIDTH,
+            _ => {
+                let (width, _) = terminal::size()?;
+                self.wip_column_coord += self.previous_column_width as u16;
+            },
+        };
+        self.previous_column_width = text.len() as u16;
+        let cell_gap = 1;
+        self.wip_column_coord += cell_gap;
         if self.is_current_cell_selected() {
             self.set_style(CellStyle::SelectedCell)?;
         }
         self.buff
             .queue(MoveToColumn(self.wip_column_coord))?
-            .queue(Print(text))?;
-        self.buff.queue(ResetColor)?;
-        self.column_counts[self.wip_row as usize] += 1;
-        match self.wip_column {
-            0 => self.wip_column_coord += REPO_NAME_WIDTH,
-            1 => self.wip_column_coord += STATUS_WIDTH,
-            _ => self.wip_column_coord += (text.len() + 1) as u16,
-        };
-        let (width, _) = terminal::size()?;
+            .queue(Print(text))?
+            .queue(ResetColor)?;
         self.wip_column += 1;
+        self.column_counts[self.wip_row as usize] += 1;
         Ok(())
     }
 
