@@ -70,10 +70,17 @@ impl Tui {
         };
 
         self.previous_branch_width = text.len() as u16 + 1;
+        let (width, _) = crossterm::terminal::size()?;
 
-        self.buff
-            .queue(MoveToColumn(self.current_column_coord))?
-            .queue(Print(text))?;
+        if self.current_column_coord + (text.len() as u16) < width {
+            self.buff
+                .queue(MoveToColumn(self.current_column_coord))?
+                .queue(Print(text))?;
+        } else {
+            self.buff
+                .queue(MoveToColumn(width - 2))?
+                .queue(Print(">>>"))?;
+        };
 
         if self.is_current_cell_selected() {
             self.buff.queue(crossterm::style::ResetColor)?;
