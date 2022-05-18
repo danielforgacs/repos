@@ -86,6 +86,12 @@ impl Tui {
         Ok(())
     }
 
+    pub fn print_current_branch(&mut self, text: &str) -> ReposResult<()> {
+        self.set_style(CellStyle::CurrentBranch)?;
+        self.print(text)?;
+        Ok(())
+    }
+
     pub fn set_style(&mut self, style: CellStyle) -> ReposResult<()> {
         match style {
             CellStyle::CurrentBranch => self.buff.queue(SetForegroundColor(Color::Green))?,
