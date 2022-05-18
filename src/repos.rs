@@ -11,7 +11,11 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         for repo in repos {
             tui.print(repo.name())?;
             tui.print(&format!("{}", repo.get_status()))?;
+            let current_branch = repo.get_current_branch();
             for branch in repo.get_branches() {
+                if branch == current_branch {
+                    tui.style_current_branch();
+                }
                 tui.print(&branch)?;
             }
             tui.new_line()?;

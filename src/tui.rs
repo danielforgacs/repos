@@ -82,6 +82,10 @@ impl Tui {
         Ok(())
     }
 
+    pub fn style_current_branch(&mut self) {
+        self.buff.queue(crossterm::style::SetForegroundColor(crossterm::style::Color::Green));
+    }
+
     pub fn flush(&mut self) -> ReposResult<()> {
         self.buff.flush()?;
         Ok(())
