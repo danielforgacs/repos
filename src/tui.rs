@@ -56,22 +56,18 @@ impl Tui {
 
     pub fn print(&mut self, text: &str) -> ReposResult<()> {
         self.column_counts[self.wip_row as usize] += 1;
-
+        match self.wip_column {
+            0 => self.current_column_coord = 0,
+            1 => self.current_column_coord += REPO_NAME_WIDTH,
+            2 => self.current_column_coord += STATUS_WIDTH,
+            _ => self.current_column_coord += self.previous_branch_width,
+        };
+        self.previous_branch_width = text.len() as u16 + 1;
+        let (width, _) = crossterm::terminal::size()?;
         if self.is_current_cell_selected() {
             self.buff
                 .queue(SetBackgroundColor(crossterm::style::Color::Red))?;
         }
-
-        match self.wip_column {
-            0 => self.current_column_coord = 0,
-            1 => self.current_column_coord += 37,
-            2 => self.current_column_coord += 15,
-            _ => self.current_column_coord += self.previous_branch_width,
-        };
-
-        self.previous_branch_width = text.len() as u16 + 1;
-        let (width, _) = crossterm::terminal::size()?;
-
         if self.current_column_coord + (text.len() as u16) < width {
             self.buff
                 .queue(MoveToColumn(self.current_column_coord))?
@@ -81,13 +77,8 @@ impl Tui {
                 .queue(MoveToColumn(width - 2))?
                 .queue(Print(">>>"))?;
         };
-
-        if self.is_current_cell_selected() {
-            self.buff.queue(crossterm::style::ResetColor)?;
-        }
-
+        self.buff.queue(crossterm::style::ResetColor)?;
         self.wip_column += 1;
-
         Ok(())
     }
 
