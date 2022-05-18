@@ -26,7 +26,6 @@ pub struct Tui {
     column_counts: Vec<u16>,
     row_count: u16,
     buff: std::io::BufWriter<std::io::Stdout>,
-    previous_branch_width: u16,
 }
 
 impl Tui {
@@ -40,7 +39,6 @@ impl Tui {
             column_counts: vec![0],
             row_count: 0,
             buff: std::io::BufWriter::new(stdout()),
-            previous_branch_width: 0,
         }
     }
 
@@ -60,28 +58,20 @@ impl Tui {
     }
 
     pub fn print(&mut self, text: &str) -> ReposResult<()> {
-        self.column_counts[self.wip_row as usize] += 1;
-        match self.wip_column {
-            0 => self.wip_column_coord = 0,
-            1 => self.wip_column_coord += REPO_NAME_WIDTH,
-            2 => self.wip_column_coord += STATUS_WIDTH,
-            _ => self.wip_column_coord += self.previous_branch_width,
-        };
-        self.previous_branch_width = text.len() as u16 + 1;
-        let (width, _) = terminal::size()?;
         if self.is_current_cell_selected() {
             self.set_style(CellStyle::SelectedCell)?;
         }
-        if self.wip_column_coord + (text.len() as u16) < width {
-            self.buff
-                .queue(MoveToColumn(self.wip_column_coord))?
-                .queue(Print(text))?;
-        } else {
-            self.buff
-                .queue(MoveToColumn(width - 2))?
-                .queue(Print(">>>"))?;
-        };
+        self.buff
+            .queue(MoveToColumn(self.wip_column_coord))?
+            .queue(Print(text))?;
         self.buff.queue(ResetColor)?;
+        self.column_counts[self.wip_row as usize] += 1;
+        match self.wip_column {
+            0 => self.wip_column_coord += REPO_NAME_WIDTH,
+            1 => self.wip_column_coord += STATUS_WIDTH,
+            _ => self.wip_column_coord += (text.len() + 1) as u16,
+        };
+        let (width, _) = terminal::size()?;
         self.wip_column += 1;
         Ok(())
     }
@@ -109,6 +99,7 @@ impl Tui {
         self.buff.queue(MoveToNextLine(1))?.queue(MoveToColumn(0))?;
         self.wip_row += 1;
         self.wip_column = 0;
+        self.wip_column_coord = 0;
         self.column_counts.push(0);
         self.row_count += 1;
         Ok(())
