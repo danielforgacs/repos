@@ -6,7 +6,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
     loop {
         let repos = collect_repos(&root_path)?;
-        tui.set_row_count(repos.len() as u16);
         tui.clear()?;
 
         for repo in repos {

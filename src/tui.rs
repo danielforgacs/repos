@@ -16,10 +16,10 @@ pub struct Tui {
     wip_row: u16,
     selected_row: u16,
     wip_column: u16,
-    pub current_column_coord: u16,
+    current_column_coord: u16,
     selected_column: u16,
-    row_count: u16,
     column_counts: Vec<u16>,
+    row_count: u16,
     buff: std::io::BufWriter<std::io::Stdout>,
     previous_branch_width: u16,
 }
@@ -32,8 +32,8 @@ impl Tui {
             wip_column: 0,
             current_column_coord: 0,
             selected_column: 0,
-            row_count: 0,
             column_counts: vec![0],
+            row_count: 0,
             buff: std::io::BufWriter::new(stdout()),
             previous_branch_width: 0,
         }
@@ -45,6 +45,7 @@ impl Tui {
             .queue(MoveTo(0, 0))?;
         self.wip_row = 0;
         self.wip_column = 0;
+        self.row_count = 0;
         self.column_counts = vec![0];
         Ok(())
     }
@@ -93,14 +94,8 @@ impl Tui {
         self.wip_row += 1;
         self.wip_column = 0;
         self.column_counts.push(0);
+        self.row_count += 1;
         Ok(())
-    }
-
-    pub fn set_row_count(&mut self, count: u16) {
-        if self.selected_row > count {
-            self.selected_row = count;
-        }
-        self.row_count = count;
     }
 
     pub fn go(&mut self, direction: Direction) {
