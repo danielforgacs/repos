@@ -121,10 +121,8 @@ impl Tui {
                 }
             }
             Direction::Right => {
-                if self.selected_column < self.column_counts[self.selected_row as usize] - 1 {
-                    if self.selected_column < 10 {
+                if self.selected_column < self.column_counts[self.selected_row as usize] - 1 && self.selected_column < 10{
                         self.selected_column += 1;
-                    }
                 }
             }
         };

@@ -10,7 +10,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         tui.clear()?;
 
         for repo in repos {
-            tui.print(&repo.name())?;
+            tui.print(repo.name())?;
             tui.print(&format!("{}", repo.get_status()))?;
             for branch in repo.get_branches() {
                 tui.print(&branch)?;

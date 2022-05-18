@@ -53,7 +53,7 @@ impl Status {
         }
     }
 
-    pub fn to_status_vec(mut self, statuses: Vec<git2::Status>) -> Self {
+    pub fn set_from_vec(mut self, statuses: Vec<git2::Status>) -> Self {
         for item in statuses {
             if item.is_index_new() {
                 self.index_new = true
