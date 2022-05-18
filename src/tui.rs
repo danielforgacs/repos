@@ -9,6 +9,7 @@ pub enum Direction {
 
 pub enum CellStyle {
     CurrentBranch,
+    SelectedCell,
 }
 
 #[derive(Debug)]
@@ -69,7 +70,7 @@ impl Tui {
         self.previous_branch_width = text.len() as u16 + 1;
         let (width, _) = terminal::size()?;
         if self.is_current_cell_selected() {
-            self.buff.queue(SetBackgroundColor(Color::Red))?;
+            self.set_style(CellStyle::SelectedCell)?;
         }
         if self.current_column_coord + (text.len() as u16) < width {
             self.buff
@@ -88,6 +89,7 @@ impl Tui {
     pub fn set_style(&mut self, style: CellStyle) -> ReposResult<()> {
         match style {
             CellStyle::CurrentBranch => self.buff.queue(SetForegroundColor(Color::Green))?,
+            CellStyle::SelectedCell => self.buff.queue(SetBackgroundColor(Color::Red))?,
         };
         Ok(())
     }
