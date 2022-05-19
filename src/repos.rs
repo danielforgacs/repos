@@ -14,9 +14,9 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             let current_branch = repo.current_branch();
             for branch in repo.branches() {
                 if branch == current_branch {
-                    tui.print_current_branch(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
+                    tui.print_current_branch(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
                 } else {
-                    tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
+                    tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
                 }
             }
             tui.new_line()?;

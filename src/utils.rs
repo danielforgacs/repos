@@ -60,7 +60,7 @@ pub fn limit_text(string: &str, limit: &usize) -> String {
     if string.len() >= *limit {
         format!("{}~", &string[0..limit - 1])
     } else {
-        format!("{}", string)
+        string.to_string()
     }
 }
 
