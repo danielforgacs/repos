@@ -60,13 +60,19 @@ impl Tui {
         self.wip_row == self.selected_row && self.wip_column == self.selected_column
     }
 
-    pub fn print(&mut self, text: &str) -> ReposResult<()> {
+    pub fn print(&mut self, mut text: &str) -> ReposResult<()> {
         match self.wip_column {
             0 => self.wip_column_coord = 0,
             1 => self.wip_column_coord += REPO_NAME_WIDTH,
             _ => {
                 let (width, _) = terminal::size()?;
-                self.wip_column_coord += self.previous_column_width as u16;
+                let test_column_coord = self.wip_column_coord + self.previous_column_width as u16;
+                if test_column_coord > width - (text.len() as u16) {
+                    self.wip_column_coord = width - 4;
+                    text = " >>>";
+                } else {
+                    self.wip_column_coord = test_column_coord;
+                }
             },
         };
         self.previous_column_width = text.len() as u16;
