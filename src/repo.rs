@@ -3,11 +3,13 @@ use crate::prelude::*;
 pub struct Repo {
     repo: Repository,
     name: String,
+    current_branch: String,
 }
 
 impl Repo {
     pub fn new(path: &PathBuf) -> ReposResult<Self> {
         let repo = Repository::open(path)?;
+        let current_branch = read_current_branch(&repo);
         let name = repo
             .path()
             .components()
@@ -18,25 +20,15 @@ impl Repo {
             .into_string()
             .unwrap();
 
-        Ok(Self { repo, name })
+        Ok(Self { repo, name, current_branch })
     }
 
     pub fn name(&self) -> &str {
         self.name.as_str()
     }
 
-    pub fn get_current_branch(&self) -> String {
-        let head = match self.repo.head() {
-            Ok(head) => Some(head),
-            Err(ref e)
-                if e.code() == ErrorCode::UnbornBranch || e.code() == ErrorCode::NotFound =>
-            {
-                None
-            }
-            Err(_error) => return String::from("n/a"),
-        };
-        let head = head.as_ref().and_then(|h| h.shorthand());
-        head.unwrap_or("HEAD (no branch)").to_string()
+    pub fn current_branch(&self) -> &str {
+        &self.current_branch
     }
 
     /// Get all local branches
@@ -66,6 +58,21 @@ impl Repo {
         Status::new().set_from_vec(stats)
     }
 }
+
+fn read_current_branch(repo: &Repository) -> String {
+    let head = match repo.head() {
+        Ok(head) => Some(head),
+        Err(ref e)
+            if e.code() == ErrorCode::UnbornBranch || e.code() == ErrorCode::NotFound =>
+        {
+            None
+        }
+        Err(_error) => return String::from("n/a"),
+    };
+    let head = head.as_ref().and_then(|h| h.shorthand());
+    head.unwrap_or("HEAD (no branch)").to_string()
+}
+
 
 #[cfg(test)]
 mod test {
