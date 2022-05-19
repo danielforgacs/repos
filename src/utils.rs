@@ -48,11 +48,19 @@ pub fn find_git_repos_in_dir(root: &Path) -> ReposResult<Vec<PathBuf>> {
     Ok(entries)
 }
 
-pub fn limit_string(string: &str, limit: &usize) -> String {
+pub fn text_to_width(string: &str, limit: &usize) -> String {
     if string.len() >= *limit {
         format!("{}~", &string[0..limit - 1])
     } else {
         format!("{:<w$}", string, w = limit)
+    }
+}
+
+pub fn limit_text(string: &str, limit: &usize) -> String {
+    if string.len() >= *limit {
+        format!("{}~", &string[0..limit - 1])
+    } else {
+        format!("{}", string)
     }
 }
 
@@ -62,6 +70,6 @@ mod test {
 
     #[test]
     fn limiting_string_length() {
-        assert_eq!(limit_string(&String::new(), &10).len(), 10);
+        assert_eq!(text_to_width(&String::new(), &10).len(), 10);
     }
 }

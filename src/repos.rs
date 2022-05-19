@@ -9,14 +9,14 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         tui.clear()?;
 
         for repo in repos {
-            tui.print(&limit_string(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
+            tui.print(&text_to_width(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.get_status()))?;
             let current_branch = repo.get_current_branch();
             for branch in repo.get_branches() {
                 if branch == current_branch {
-                    tui.print_current_branch(&branch)?;
+                    tui.print_current_branch(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
                 } else {
-                    tui.print(&branch)?;
+                    tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
                 }
             }
             tui.new_line()?;
