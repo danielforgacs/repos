@@ -26,16 +26,16 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
-            if event == Event::Key(KeyCode::Up.into()) {
+            if event == Event::Key(KeyCode::Up.into()) || event == Event::Key(KeyCode::Char('k').into()) {
                 tui.go(Direction::Up);
             }
-            if event == Event::Key(KeyCode::Down.into()) {
+            if event == Event::Key(KeyCode::Down.into()) || event == Event::Key(KeyCode::Char('j').into()) {
                 tui.go(Direction::Down);
             }
-            if event == Event::Key(KeyCode::Left.into()) {
+            if event == Event::Key(KeyCode::Left.into()) || event == Event::Key(KeyCode::Char('h').into()) {
                 tui.go(Direction::Left);
             }
-            if event == Event::Key(KeyCode::Right.into()) {
+            if event == Event::Key(KeyCode::Right.into()) || event == Event::Key(KeyCode::Char('l').into()) {
                 tui.go(Direction::Right);
             }
             if event == Event::Key(KeyCode::Char('q').into()) {
