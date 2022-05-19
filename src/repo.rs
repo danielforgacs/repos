@@ -5,6 +5,7 @@ pub struct Repo {
     name: String,
     current_branch: String,
     branches: Vec<String>,
+    status: Status,
 }
 
 impl Repo {
@@ -12,6 +13,7 @@ impl Repo {
         let repo = Repository::open(path)?;
         let current_branch = read_current_branch(&repo);
         let branches = read_branches(&repo);
+        let status = read_status(&repo);
         let name = repo
             .path()
             .components()
@@ -22,7 +24,7 @@ impl Repo {
             .into_string()
             .unwrap();
 
-        Ok(Self { repo, name, current_branch, branches })
+        Ok(Self { repo, name, current_branch, branches, status })
     }
 
     pub fn name(&self) -> &str {
@@ -37,20 +39,8 @@ impl Repo {
         &self.branches
     }
 
-    pub fn get_status(&self) -> Status {
-        let mut status_options = StatusOptions::new();
-        status_options.include_untracked(true);
-        status_options.include_ignored(true);
-        let mut stats = self
-            .repo
-            .statuses(Some(&mut status_options))
-            .unwrap()
-            .iter()
-            .map(|f| f.status())
-            .collect::<Vec<_>>();
-        stats.sort_unstable();
-        stats.dedup();
-        Status::new().set_from_vec(stats)
+    pub fn status(&self) -> &Status {
+        &self.status
     }
 }
 
@@ -78,7 +68,20 @@ fn read_branches(repo: &Repository) -> Vec<String> {
         .collect()
 }
 
-
+pub fn read_status(repo: &Repository) -> Status {
+    let mut status_options = StatusOptions::new();
+    status_options.include_untracked(true);
+    status_options.include_ignored(true);
+    let mut stats = repo
+        .statuses(Some(&mut status_options))
+        .unwrap()
+        .iter()
+        .map(|f| f.status())
+        .collect::<Vec<_>>();
+    stats.sort_unstable();
+    stats.dedup();
+    Status::new().set_from_vec(stats)
+}
 
 #[cfg(test)]
 mod test {
