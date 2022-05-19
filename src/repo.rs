@@ -32,7 +32,7 @@ impl Repo {
     }
 
     pub fn current_branch(&self) -> &str {
-        &self.current_branch
+        self.current_branch.as_str()
     }
 
     pub fn branches(&self) -> &Vec<String> {
