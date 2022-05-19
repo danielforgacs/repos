@@ -36,7 +36,7 @@ pub struct Status {
 
 impl Status {
     pub fn new() -> Self {
-        Status {
+        Self {
             _current: true,
             index_new: false,
             index_modified: false,
