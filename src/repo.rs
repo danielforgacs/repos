@@ -4,12 +4,14 @@ pub struct Repo {
     repo: Repository,
     name: String,
     current_branch: String,
+    branches: Vec<String>,
 }
 
 impl Repo {
     pub fn new(path: &PathBuf) -> ReposResult<Self> {
         let repo = Repository::open(path)?;
         let current_branch = read_current_branch(&repo);
+        let branches = read_branches(&repo);
         let name = repo
             .path()
             .components()
@@ -20,7 +22,7 @@ impl Repo {
             .into_string()
             .unwrap();
 
-        Ok(Self { repo, name, current_branch })
+        Ok(Self { repo, name, current_branch, branches })
     }
 
     pub fn name(&self) -> &str {
@@ -31,15 +33,8 @@ impl Repo {
         &self.current_branch
     }
 
-    /// Get all local branches
-    pub fn get_branches(&self) -> Vec<String> {
-        self.repo
-            .branches(None)
-            .unwrap()
-            .map(|f| f.unwrap())
-            .map(|f| f.0)
-            .map(|f| f.name().unwrap().unwrap().to_string())
-            .collect()
+    pub fn branches(&self) -> &Vec<String> {
+        &self.branches
     }
 
     pub fn get_status(&self) -> Status {
@@ -72,6 +67,17 @@ fn read_current_branch(repo: &Repository) -> String {
     let head = head.as_ref().and_then(|h| h.shorthand());
     head.unwrap_or("HEAD (no branch)").to_string()
 }
+
+fn read_branches(repo: &Repository) -> Vec<String> {
+    repo
+        .branches(None)
+        .unwrap()
+        .map(|f| f.unwrap())
+        .map(|f| f.0)
+        .map(|f| f.name().unwrap().unwrap().to_string())
+        .collect()
+}
+
 
 
 #[cfg(test)]
