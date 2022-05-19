@@ -9,7 +9,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         tui.clear()?;
 
         for repo in repos {
-            tui.print(repo.name())?;
+            tui.print(&limit_string(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.get_status()))?;
             let current_branch = repo.get_current_branch();
             for branch in repo.get_branches() {

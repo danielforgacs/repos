@@ -32,7 +32,8 @@ mod prelude {
     pub type ReposResult<T> = Result<T, Box<dyn std::error::Error>>;
     pub const DEV_DIR_ENV_VAR: &str = "DEVDIR";
     pub const UPDATE_DELAY_SECS: f32 = 0.5;
-    pub const REPO_NAME_WIDTH: u16 = 33;
+    pub const REPO_NAME_WIDTH: u16 = 35;
+    pub const MAX_BRANCH_NAME_WIDTH: usize = 25;
 }
 
 use prelude::*;
