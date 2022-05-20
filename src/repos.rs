@@ -11,10 +11,10 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         for repo in repos {
             tui.print(&text_to_width(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.status()))?;
-            let current_branch = repo.current_branch();
             for branch in repo.branches() {
-                if branch == current_branch {
-                    tui.print_current_branch(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
+                if branch == repo.current_branch() {
+                    // TODO: add current branch style here
+                    tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
                 } else {
                     tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
                 }

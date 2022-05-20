@@ -7,11 +7,6 @@ pub enum Direction {
     Right,
 }
 
-pub enum CellStyle {
-    CurrentBranch,
-    SelectedCell,
-}
-
 #[derive(Debug)]
 pub struct Tui {
     // row that's being currently printed in the loop.
@@ -56,10 +51,6 @@ impl Tui {
         Ok(())
     }
 
-    fn is_current_cell_selected(&self) -> bool {
-        self.wip_row == self.selected_row && self.wip_column == self.selected_column
-    }
-
     pub fn print(&mut self, mut text: &str) -> ReposResult<()> {
         match self.wip_column {
             0 => self.wip_column_coord = 0,
@@ -78,29 +69,11 @@ impl Tui {
         self.previous_column_width = text.len() as u16;
         let cell_gap = 1;
         self.wip_column_coord += cell_gap;
-        if self.is_current_cell_selected() {
-            self.set_style(CellStyle::SelectedCell)?;
-        }
         self.buff
             .queue(MoveToColumn(self.wip_column_coord))?
-            .queue(Print(text))?
-            .queue(ResetColor)?;
+            .queue(Print(text))?;
         self.wip_column += 1;
         self.column_counts[self.wip_row as usize] += 1;
-        Ok(())
-    }
-
-    pub fn print_current_branch(&mut self, text: &str) -> ReposResult<()> {
-        self.set_style(CellStyle::CurrentBranch)?;
-        self.print(text)?;
-        Ok(())
-    }
-
-    pub fn set_style(&mut self, style: CellStyle) -> ReposResult<()> {
-        match style {
-            CellStyle::CurrentBranch => self.buff.queue(SetForegroundColor(Color::Green))?,
-            CellStyle::SelectedCell => self.buff.queue(SetBackgroundColor(Color::Red))?,
-        };
         Ok(())
     }
 
