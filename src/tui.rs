@@ -11,6 +11,7 @@ pub enum CellStyle {
     Default,
     Selected,
     CurrentBranch,
+    CleanMaster,
 }
 
 pub struct Tui {
@@ -83,6 +84,10 @@ impl Tui {
         Ok(())
     }
 
+    pub fn set_cell_style(&mut self, style: CellStyle) {
+        self.cell_style = style;
+    }
+
     fn apply_cell_style(&mut self) -> ReposResult<()> {
         if self.wip_column == self.selected_column && self.wip_row == self.selected_row {
             self.cell_style = CellStyle::Selected;
@@ -98,6 +103,11 @@ impl Tui {
             CellStyle::CurrentBranch => {
                 self.buff.queue(SetForegroundColor(Color::Green))?;
                 self.cell_style = CellStyle::Default;
+            }
+            CellStyle::CleanMaster => {
+                if self.wip_column < 2 {
+                    self.buff.queue(SetForegroundColor(Color::Green))?;
+                }
             }
         };
         Ok(())
