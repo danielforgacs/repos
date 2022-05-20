@@ -89,9 +89,13 @@ impl Tui {
         self.cell_style = style;
     }
 
+    fn is_cell_selected(&self) -> bool {
+        self.wip_column == self.selected_column && self.wip_row == self.selected_row
+    }
+
     fn apply_cell_style(&mut self) -> ReposResult<()> {
         self.buff.queue(ResetColor)?;
-        if self.wip_column == self.selected_column && self.wip_row == self.selected_row {
+        if self.is_cell_selected() {
             self.cell_style = CellStyle::Selected;
         }
         match self.cell_style {
