@@ -9,7 +9,6 @@ pub enum Direction {
 
 pub enum CellStyle {
     Default,
-    Selected,
     CurrentBranch,
     CleanMaster,
     CleanBranch,
@@ -79,7 +78,12 @@ impl Tui {
         self.wip_column_coord += cell_gap;
         self.buff.queue(MoveToColumn(self.wip_column_coord))?;
         self.apply_cell_style()?;
-        self.buff.queue(Print(text))?;
+        if self.is_cell_selected() {
+            self.buff.queue(SetBackgroundColor(Color::Red))?;
+        }
+        self.buff
+            .queue(Print(text))?
+            .queue(ResetColor)?;
         self.wip_column += 1;
         self.column_counts[self.wip_row as usize] += 1;
         Ok(())
@@ -95,16 +99,9 @@ impl Tui {
 
     fn apply_cell_style(&mut self) -> ReposResult<()> {
         self.buff.queue(ResetColor)?;
-        if self.is_cell_selected() {
-            self.cell_style = CellStyle::Selected;
-        }
         match self.cell_style {
             CellStyle::Default => {
                 self.buff.queue(ResetColor)?;
-            }
-            CellStyle::Selected => {
-                self.buff.queue(SetBackgroundColor(Color::Red))?;
-                self.cell_style = CellStyle::Default;
             }
             CellStyle::CurrentBranch => {
                 self.buff.queue(SetForegroundColor(Color::Green))?;
