@@ -12,6 +12,7 @@ pub enum CellStyle {
     Selected,
     CurrentBranch,
     CleanMaster,
+    CleanBranch,
 }
 
 pub struct Tui {
@@ -78,7 +79,7 @@ impl Tui {
         self.wip_column_coord += cell_gap;
         self.buff.queue(MoveToColumn(self.wip_column_coord))?;
         self.apply_cell_style()?;
-        self.buff.queue(Print(text))?.queue(ResetColor)?;
+        self.buff.queue(Print(text))?;
         self.wip_column += 1;
         self.column_counts[self.wip_row as usize] += 1;
         Ok(())
@@ -89,6 +90,7 @@ impl Tui {
     }
 
     fn apply_cell_style(&mut self) -> ReposResult<()> {
+        self.buff.queue(ResetColor)?;
         if self.wip_column == self.selected_column && self.wip_row == self.selected_row {
             self.cell_style = CellStyle::Selected;
         }
@@ -107,6 +109,11 @@ impl Tui {
             CellStyle::CleanMaster => {
                 if self.wip_column < 2 {
                     self.buff.queue(SetForegroundColor(Color::Green))?;
+                }
+            }
+            CellStyle::CleanBranch => {
+                if self.wip_column < 2 {
+                    self.buff.queue(SetForegroundColor(Color::Rgb { r: 0, g: 200, b: 255 }))?;
                 }
             }
         };

@@ -11,6 +11,8 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         for repo in repos {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
                 tui.set_cell_style(CellStyle::CleanMaster);
+            } else if !repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
+                tui.set_cell_style(CellStyle::CleanBranch);
             }
             tui.print(&text_to_width(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.status()))?;
