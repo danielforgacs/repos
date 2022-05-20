@@ -8,10 +8,8 @@ pub enum Direction {
 }
 
 pub enum CellStyle {
-    SelectedCell,
     CurrentBranch,
-    CleanRepo,
-    NotOnMasterClean,
+    SelectedCell,
 }
 
 #[derive(Debug)]
@@ -100,11 +98,8 @@ impl Tui {
 
     pub fn set_style(&mut self, style: CellStyle) -> ReposResult<()> {
         match style {
-            // CellStyle::SelectedCell => self.buff.queue(SetBackgroundColor(Color::Red))?,
-            CellStyle::SelectedCell => self.buff.queue(SetBackgroundColor(Color::Rgb { r: 75, g: 30, b: 35 }))?,
             CellStyle::CurrentBranch => self.buff.queue(SetForegroundColor(Color::Green))?,
-            CellStyle::CleanRepo => self.buff.queue(SetForegroundColor(Color::Green))?,
-            CellStyle::NotOnMasterClean => self.buff.queue(SetForegroundColor(Color::Rgb { r: 20, g: 200, b: 255 }))?,
+            CellStyle::SelectedCell => self.buff.queue(SetBackgroundColor(Color::Red))?,
         };
         Ok(())
     }
