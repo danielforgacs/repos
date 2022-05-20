@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub struct Repo {
-    repo: Repository,
+    _repo: Repository,
     name: String,
     current_branch: String,
     branches: Vec<String>,
@@ -25,7 +25,7 @@ impl Repo {
             .unwrap();
 
         Ok(Self {
-            repo,
+            _repo: repo,
             name,
             current_branch,
             branches,
