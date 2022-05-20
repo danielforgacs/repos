@@ -55,5 +55,20 @@ mkdir $td/grouped_branches && cd $td/grouped_branches && \
     git checkout -b dev/release/release1 && \
     git checkout -b dev/release/release2
 
+mkdir $td/changes_on_a_branch && cd $td/changes_on_a_branch && \
+    git init && \
+    git commit --allow-empty -m 'Init.' && \
+    git checkout -b dev && \
+    git checkout -b release && \
+    git checkout -b feature && \
+    touch some_file
+
+mkdir $td/changes_on_a_branch_b && cd $td/changes_on_a_branch_b && \
+    git init && \
+    git commit --allow-empty -m 'Init.' && \
+    git checkout -b dev && \
+    echo "0" >> $td/changes_on_a_branch_b/some_file && \
+    git add $td/changes_on_a_branch_b/some_file && git commit -am 'somfile' && \
+    echo "11" >> $td/changes_on_a_branch_b/some_file
 
 cd $here
