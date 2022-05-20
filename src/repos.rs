@@ -9,6 +9,11 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         tui.clear()?;
 
         for repo in repos {
+            if repo.is_on_master() {
+                tui.set_style(CellStyle::CleanRepo);
+            } else if repo.status().to_string() == "[            ]" {
+                tui.set_style(CellStyle::NotOnMasterClean);
+            }
             tui.print(&text_to_width(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.status()))?;
             let current_branch = repo.current_branch();
