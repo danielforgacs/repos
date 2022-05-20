@@ -13,7 +13,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             tui.print(&format!("{}", repo.status()))?;
             for branch in repo.branches() {
                 if branch == repo.current_branch() {
-                    // TODO: add current branch style here
+                    tui.cell_style = CellStyle::CurrentBranch;
                     tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
                 } else {
                     tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;

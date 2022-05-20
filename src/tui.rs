@@ -7,7 +7,12 @@ pub enum Direction {
     Right,
 }
 
-#[derive(Debug)]
+pub enum CellStyle {
+    Default,
+    Selected,
+    CurrentBranch,
+}
+
 pub struct Tui {
     // row that's being currently printed in the loop.
     // this is checked against the selected row.
@@ -22,6 +27,7 @@ pub struct Tui {
     row_count: u16,
     buff: std::io::BufWriter<std::io::Stdout>,
     previous_column_width: u16,
+    pub cell_style: CellStyle,
 
 }
 
@@ -37,6 +43,7 @@ impl Tui {
             row_count: 0,
             buff: std::io::BufWriter::new(stdout()),
             previous_column_width: 0,
+            cell_style: CellStyle::Default,
         }
     }
 
@@ -70,10 +77,34 @@ impl Tui {
         let cell_gap = 1;
         self.wip_column_coord += cell_gap;
         self.buff
-            .queue(MoveToColumn(self.wip_column_coord))?
-            .queue(Print(text))?;
+            .queue(MoveToColumn(self.wip_column_coord))?;
+        self.apply_cell_style()?;
+        self.buff
+            .queue(Print(text))?
+            .queue(ResetColor)?;
         self.wip_column += 1;
         self.column_counts[self.wip_row as usize] += 1;
+        Ok(())
+    }
+
+    fn apply_cell_style(&mut self) -> ReposResult<()> {
+        if self.wip_column == self.selected_column && self.wip_row == self.selected_row {
+            self.cell_style = CellStyle::Selected;
+        }
+        match self.cell_style {
+            CellStyle::Default => { self.buff.queue(ResetColor)?; },
+            CellStyle::Selected => {
+                self.buff
+                    .queue(SetBackgroundColor(Color::Red))?;
+                self.cell_style = CellStyle::Default;
+            }
+            CellStyle::CurrentBranch => {
+                self.buff
+                    .queue(ResetColor)?
+                    .queue(SetForegroundColor(Color::Green))?;
+                self.cell_style = CellStyle::Default;
+            },
+        };
         Ok(())
     }
 
