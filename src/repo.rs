@@ -24,7 +24,13 @@ impl Repo {
             .into_string()
             .unwrap();
 
-        Ok(Self { repo, name, current_branch, branches, status })
+        Ok(Self {
+            repo,
+            name,
+            current_branch,
+            branches,
+            status,
+        })
     }
 
     pub fn name(&self) -> &str {
@@ -47,9 +53,7 @@ impl Repo {
 fn read_current_branch(repo: &Repository) -> String {
     let head = match repo.head() {
         Ok(head) => Some(head),
-        Err(ref e)
-            if e.code() == ErrorCode::UnbornBranch || e.code() == ErrorCode::NotFound =>
-        {
+        Err(ref e) if e.code() == ErrorCode::UnbornBranch || e.code() == ErrorCode::NotFound => {
             None
         }
         Err(_error) => return String::from("n/a"),
@@ -59,8 +63,7 @@ fn read_current_branch(repo: &Repository) -> String {
 }
 
 fn read_branches(repo: &Repository) -> Vec<String> {
-    repo
-        .branches(None)
+    repo.branches(None)
         .unwrap()
         .map(|f| f.unwrap())
         .map(|f| f.0)
