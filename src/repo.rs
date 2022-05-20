@@ -48,6 +48,10 @@ impl Repo {
     pub fn status(&self) -> &Status {
         &self.status
     }
+
+    pub fn is_on_master(&self) -> bool {
+        self.current_branch == "master"
+    }
 }
 
 fn read_current_branch(repo: &Repository) -> String {

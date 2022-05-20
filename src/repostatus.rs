@@ -17,6 +17,11 @@ is_ignored                  IGNORED             = raw::GIT_STATUS_IGNORED as u32
 is_conflicted               CONFLICTED          = raw::GIT_STATUS_CONFLICTED as u32;
 */
 
+#[derive(PartialEq)]
+pub enum StatusType {
+    Clean,
+}
+
 pub struct Status {
     // This is an existing status in gitlib2. This is not used yet.
     _current: bool,
@@ -69,6 +74,10 @@ impl Status {
             if item.is_conflicted() { self.conflicted = true };
         }
         self
+    }
+
+    pub fn status_type(&self) -> StatusType {
+        StatusType::Clean
     }
 }
 
