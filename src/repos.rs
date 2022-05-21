@@ -79,10 +79,12 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 let repo = &repos[coord.1 as usize];
                 if coord.0 == 1 {
                     // Clean status here
-                } else if coord.0 > 1 {
+                } else if coord.0 > 1 && repo.status().status_type() == StatusType::Clean {
                     let branch = &repo.branches()[(coord.0 - 2) as usize];
-                    let abs_branch = format!("refs/heads/{}", branch);
-                    repo.git_repo.set_head(&abs_branch)?;
+                    if branch != "(no branch)" {
+                        let abs_branch = format!("refs/heads/{}", branch);
+                        repo.git_repo.set_head(&abs_branch)?;
+                    }
                 }
             }
             // quit.
