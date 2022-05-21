@@ -1,13 +1,22 @@
 use crate::prelude::*;
 
+enum RepoSort {
+    Name,
+    CurrentBranch,
+}
+
 pub fn run(root_path: PathBuf) -> ReposResult<()> {
     enable_raw_mode()?;
     let mut tui = Tui::new();
     tui.print(&format!("{}", crossterm::cursor::Hide))?;
+    let mut repos_sort = RepoSort::Name;
 
     loop {
         let mut repos = collect_repos(&root_path)?;
-        repos.sort_by_key(|k| k.name().to_owned());
+        match repos_sort {
+            RepoSort::Name => repos.sort_by_key(|k| k.name().to_owned()),
+            RepoSort::CurrentBranch => repos.sort_by_key(|k| k.current_branch().to_owned()),
+        }
         tui.clear()?;
 
         for repo in repos {
@@ -38,6 +47,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
+            // Navogation.
             if event == Event::Key(KeyCode::Up.into()) || event == Event::Key(KeyCode::Char('k').into()) {
                 tui.go(Direction::Up);
             }
@@ -50,6 +60,14 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             if event == Event::Key(KeyCode::Right.into()) || event == Event::Key(KeyCode::Char('l').into()) {
                 tui.go(Direction::Right);
             }
+            //Sorting.
+            if event == Event::Key(KeyCode::Char('n').into()) {
+                repos_sort = RepoSort::Name;
+            }
+            if event == Event::Key(KeyCode::Char('b').into()) {
+                repos_sort = RepoSort::CurrentBranch;
+            }
+            // quit.
             if event == Event::Key(KeyCode::Char('q').into()) {
                 break;
             }
