@@ -75,6 +75,10 @@ impl Tui {
         self.selected_column.to_column()
     }
 
+    pub fn selected_coord(&self) -> (u16, u16) {
+        (self.selected_column, self.selected_row)
+    }
+
     pub fn clear(&mut self) -> ReposResult<()> {
         self.buff
             .queue(Clear(ClearType::All))?
