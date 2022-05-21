@@ -7,6 +7,27 @@ pub enum Direction {
     Right,
 }
 
+pub enum Column {
+    Name,
+    Status,
+    Branches,
+}
+
+trait ToColumn {
+    fn to_column(&self) -> Column;
+}
+
+impl ToColumn for u16 {
+    fn to_column(&self) -> Column {
+        match self {
+            0 => Column::Name,
+            1 => Column::Status,
+            _ => Column::Branches,
+        }
+    }
+
+}
+
 pub enum CellStyle {
     Default,
     CurrentBranch,
@@ -48,6 +69,10 @@ impl Tui {
             previous_column_width: 0,
             cell_style: CellStyle::Default,
         }
+    }
+
+    pub fn selected_column(&self) -> Column {
+        self.selected_column.to_column()
     }
 
     pub fn clear(&mut self) -> ReposResult<()> {

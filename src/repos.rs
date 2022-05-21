@@ -3,6 +3,7 @@ use crate::prelude::*;
 enum RepoSort {
     Name,
     CurrentBranch,
+    Status,
 }
 
 pub fn run(root_path: PathBuf) -> ReposResult<()> {
@@ -16,6 +17,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         match repos_sort {
             RepoSort::Name => repos.sort_by_key(|k| k.name().to_owned()),
             RepoSort::CurrentBranch => repos.sort_by_key(|k| k.current_branch().to_owned()),
+            RepoSort::Status => repos.sort_by_key(|k| k.status().to_string()),
         }
         tui.clear()?;
 
@@ -34,6 +36,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             let branches = match repos_sort {
                 RepoSort::Name => repo.branches().to_owned(),
                 RepoSort::CurrentBranch => repo.current_and_branches(),
+                RepoSort::Status => repo.branches().to_owned(),
             };
             for branch in branches {
                 if branch == repo.current_branch() {
@@ -64,11 +67,12 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 tui.go(Direction::Right);
             }
             //Sorting.
-            if event == Event::Key(KeyCode::Char('n').into()) {
-                repos_sort = RepoSort::Name;
-            }
-            if event == Event::Key(KeyCode::Char('b').into()) {
-                repos_sort = RepoSort::CurrentBranch;
+            if event == Event::Key(KeyCode::Char('s').into()) {
+                match tui.selected_column() {
+                    Column::Name => repos_sort = RepoSort::Name,
+                    Column::Status => repos_sort = RepoSort::Status,
+                    Column::Branches => repos_sort = RepoSort::CurrentBranch,
+                };
             }
             // quit.
             if event == Event::Key(KeyCode::Char('q').into()) {
