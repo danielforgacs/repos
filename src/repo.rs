@@ -45,6 +45,17 @@ impl Repo {
         &self.branches
     }
 
+    pub fn current_and_branches(&self) -> Vec<String> {
+        let existing_branches = self.branches
+            .to_owned()
+            .into_iter()
+            .filter(|f| f.as_str() != self.current_branch())
+            .collect::<Vec<String>>();
+        let mut branches = vec![self.current_branch().to_string()];
+        branches.extend(existing_branches);
+        branches
+    }
+
     pub fn status(&self) -> &Status {
         &self.status
     }

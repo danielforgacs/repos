@@ -31,13 +31,18 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             }
             tui.print(&text_to_width(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.status()))?;
-            for branch in repo.branches() {
+            let branches = match repos_sort {
+                RepoSort::Name => repo.branches().to_owned(),
+                RepoSort::CurrentBranch => repo.current_and_branches(),
+            };
+            for branch in branches {
+            // for branch in repo.current_and_branches() {
                 if branch == repo.current_branch() {
                     tui.cell_style = CellStyle::CurrentBranch;
-                    tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
+                    tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
                 } else {
                     tui.cell_style = CellStyle::Branch;
-                    tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
+                    tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
                 }
             }
             tui.new_line()?;
