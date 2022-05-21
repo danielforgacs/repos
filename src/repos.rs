@@ -3,6 +3,7 @@ use crate::prelude::*;
 pub fn run(root_path: PathBuf) -> ReposResult<()> {
     enable_raw_mode()?;
     let mut tui = Tui::new();
+    tui.print(&format!("{}", crossterm::cursor::Hide))?;
 
     loop {
         let mut repos = collect_repos(&root_path)?;
@@ -55,6 +56,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         }
     }
 
+    tui.print(&format!("{}", crossterm::cursor::Show))?;
     disable_raw_mode()?;
     Ok(())
 }
