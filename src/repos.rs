@@ -26,6 +26,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                     tui.cell_style = CellStyle::CurrentBranch;
                     tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
                 } else {
+                    tui.cell_style = CellStyle::Branch;
                     tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
                 }
             }

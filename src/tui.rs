@@ -10,6 +10,7 @@ pub enum Direction {
 pub enum CellStyle {
     Default,
     CurrentBranch,
+    Branch,
     CleanMaster,
     DirtyMaster,
     CleanBranch,
@@ -68,7 +69,7 @@ impl Tui {
                 let (width, _) = terminal::size()?;
                 let test_column_coord = self.wip_column_coord + self.previous_column_width as u16;
                 if test_column_coord > width - (text.len() as u16) {
-                    self.wip_column_coord = width - 4;
+                    self.wip_column_coord = width - 5;
                     text = " >>>";
                 } else {
                     self.wip_column_coord = test_column_coord;
@@ -81,10 +82,12 @@ impl Tui {
         self.buff.queue(MoveToColumn(self.wip_column_coord))?;
         self.apply_cell_style()?;
         if self.is_cell_selected() {
-            self.buff.queue(SetBackgroundColor(Color::Red))?;
+            self.buff.queue(SetBackgroundColor(Color::Rgb { r: 20, g: 0, b: 0 }))?;
         }
         self.buff
             .queue(Print(text))?
+            // Just to fill the gap between columns
+            .queue(Print(" "))?
             .queue(ResetColor)?;
         self.wip_column += 1;
         self.column_counts[self.wip_row as usize] += 1;
@@ -109,6 +112,10 @@ impl Tui {
                 self.buff.queue(SetForegroundColor(Color::Green))?;
                 self.cell_style = CellStyle::Default;
             }
+            CellStyle::Branch => {
+                self.buff.queue(SetForegroundColor(Color::Rgb { r: 95, g: 85, b: 80 }))?;
+                self.cell_style = CellStyle::Default;
+            }
             CellStyle::CleanMaster => {
                 if self.wip_column < 2 {
                     self.buff.queue(SetForegroundColor(Color::Green))?;
@@ -116,7 +123,7 @@ impl Tui {
             }
             CellStyle::DirtyMaster => {
                 if self.wip_column < 2 {
-                    self.buff.queue(SetForegroundColor(Color::Rgb { r: 255, g: 180, b: 0 }))?;
+                    self.buff.queue(SetForegroundColor(Color::Rgb { r: 255, g: 205, b: 0 }))?;
                 }
             }
             CellStyle::CleanBranch => {
