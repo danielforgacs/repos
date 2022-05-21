@@ -36,14 +36,12 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 RepoSort::CurrentBranch => repo.current_and_branches(),
             };
             for branch in branches {
-            // for branch in repo.current_and_branches() {
                 if branch == repo.current_branch() {
                     tui.cell_style = CellStyle::CurrentBranch;
-                    tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
                 } else {
                     tui.cell_style = CellStyle::Branch;
-                    tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
                 }
+                tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
             }
             tui.new_line()?;
         }
