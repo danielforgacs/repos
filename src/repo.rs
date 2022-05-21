@@ -13,7 +13,10 @@ impl Repo {
         let repo = Repository::open(path)?;
         let status = read_status(&repo);
         let current_branch = read_current_branch(&repo);
-        let branches = read_branches(&repo);
+        let mut branches = read_branches(&repo);
+        if branches.len() == 0 {
+            branches = vec![current_branch.clone()];
+        }
         let name = repo
             .path()
             .components()
@@ -74,7 +77,7 @@ fn read_current_branch(repo: &Repository) -> String {
         Err(_error) => return String::from("n/a"),
     };
     let head = head.as_ref().and_then(|h| h.shorthand());
-    head.unwrap_or("HEAD (no branch)").to_string()
+    head.unwrap_or("(no branch)").to_string()
 }
 
 fn read_branches(repo: &Repository) -> Vec<String> {
