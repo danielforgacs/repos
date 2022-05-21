@@ -21,7 +21,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         }
         tui.clear()?;
 
-        for repo in repos {
+        for repo in repos.iter() {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
                 tui.set_cell_style(CellStyle::CleanMaster);
             } else if repo.is_on_master() && repo.status().status_type() != StatusType::Clean {
@@ -73,6 +73,17 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                     Column::Status => repos_sort = RepoSort::Status,
                     Column::Branches => repos_sort = RepoSort::CurrentBranch,
                 };
+            }
+            if event == Event::Key(KeyCode::Enter.into()) {
+                let coord = tui.selected_coord();
+                let repo = &repos[coord.1 as usize];
+                if coord.0 == 1 {
+                    // Clean status here
+                } else if coord.0 > 1 {
+                    let branch = &repo.branches()[(coord.0 - 2) as usize];
+                    let abs_branch = format!("refs/heads/{}", branch);
+                    repo.git_repo.set_head(&abs_branch)?;
+                }
             }
             // quit.
             if event == Event::Key(KeyCode::Char('q').into()) {
