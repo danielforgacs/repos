@@ -78,7 +78,7 @@ fn read_branches(repo: &Repository) -> Vec<String> {
 pub fn read_status(repo: &Repository) -> Status {
     let mut status_options = StatusOptions::new();
     status_options.include_untracked(true);
-    status_options.include_ignored(true);
+    status_options.include_ignored(INCLUDE_IGNORED);
     let mut stats = repo
         .statuses(Some(&mut status_options))
         .unwrap()

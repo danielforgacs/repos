@@ -34,6 +34,7 @@ mod prelude {
     pub const UPDATE_DELAY_SECS: f32 = 0.5;
     pub const REPO_NAME_WIDTH: u16 = 28;
     pub const MAX_BRANCH_NAME_WIDTH: usize = 15;
+    pub const INCLUDE_IGNORED: bool = false;
 }
 
 use prelude::*;
