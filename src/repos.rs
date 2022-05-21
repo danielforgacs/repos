@@ -5,7 +5,8 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     let mut tui = Tui::new();
 
     loop {
-        let repos = collect_repos(&root_path)?;
+        let mut repos = collect_repos(&root_path)?;
+        repos.sort_by_key(|k| k.name().to_owned());
         tui.clear()?;
 
         for repo in repos {
