@@ -11,9 +11,9 @@ pub struct Repo {
 impl Repo {
     pub fn new(path: &PathBuf) -> ReposResult<Self> {
         let repo = Repository::open(path)?;
+        let status = read_status(&repo);
         let current_branch = read_current_branch(&repo);
         let branches = read_branches(&repo);
-        let status = read_status(&repo);
         let name = repo
             .path()
             .components()
@@ -67,12 +67,14 @@ fn read_current_branch(repo: &Repository) -> String {
 }
 
 fn read_branches(repo: &Repository) -> Vec<String> {
-    repo.branches(None)
+    let mut branches = repo.branches(None)
         .unwrap()
         .map(|f| f.unwrap())
         .map(|f| f.0)
         .map(|f| f.name().unwrap().unwrap().to_string())
-        .collect()
+        .collect::<Vec<String>>();
+    branches.sort();
+    branches
 }
 
 pub fn read_status(repo: &Repository) -> Status {
