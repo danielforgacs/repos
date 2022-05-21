@@ -45,6 +45,19 @@ mkdir $td/many_branches_w_branch_checked_out && cd $td/many_branches_w_branch_ch
     git checkout -b hotfix && \
     git checkout -b feature && \
 
+mkdir $td/branches_on_branch && cd $td/branches_on_branch && \
+    git init && \
+    git commit --allow-empty -m 'Init.' && \
+    git checkout -b release && \
+    git checkout -b dev && \
+    git checkout -b hotfix && \
+    git checkout -b zzz && \
+    git checkout -b sort && \
+    git checkout -b qqq && \
+    git checkout -b lll && \
+    git checkout -b mmm && \
+    git checkout -b aaa && \
+
 mkdir $td/grouped_branches && cd $td/grouped_branches && \
     git init && \
     git commit --allow-empty -m 'Init.' && \
