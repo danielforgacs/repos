@@ -11,7 +11,9 @@ pub enum CellStyle {
     Default,
     CurrentBranch,
     CleanMaster,
+    DirtyMaster,
     CleanBranch,
+    DirtyBranch,
 }
 
 pub struct Tui {
@@ -112,9 +114,19 @@ impl Tui {
                     self.buff.queue(SetForegroundColor(Color::Green))?;
                 }
             }
+            CellStyle::DirtyMaster => {
+                if self.wip_column < 2 {
+                    self.buff.queue(SetForegroundColor(Color::Rgb { r: 255, g: 180, b: 0 }))?;
+                }
+            }
             CellStyle::CleanBranch => {
                 if self.wip_column < 2 {
                     self.buff.queue(SetForegroundColor(Color::Rgb { r: 0, g: 200, b: 255 }))?;
+                }
+            }
+            CellStyle::DirtyBranch => {
+                if self.wip_column < 2 {
+                    self.buff.queue(SetForegroundColor(Color::Rgb { r: 255, g: 0, b: 0 }))?;
                 }
             }
         };

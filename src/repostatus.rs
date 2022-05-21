@@ -20,6 +20,7 @@ is_conflicted               CONFLICTED          = raw::GIT_STATUS_CONFLICTED as 
 #[derive(PartialEq)]
 pub enum StatusType {
     Clean,
+    Dirty,
 }
 
 pub struct Status {
@@ -77,6 +78,18 @@ impl Status {
     }
 
     pub fn status_type(&self) -> StatusType {
+        if self.index_new { return StatusType::Dirty };
+        if self.index_modified { return StatusType::Dirty };
+        if self.index_deleted { return StatusType::Dirty };
+        if self.index_renamed { return StatusType::Dirty };
+        if self.index_typechange { return StatusType::Dirty };
+        if self.wt_new { return StatusType::Dirty };
+        if self.wt_modified { return StatusType::Dirty };
+        if self.wt_deleted { return StatusType::Dirty };
+        if self.wt_typechange { return StatusType::Dirty };
+        if self.wt_renamed { return StatusType::Dirty };
+        if self.ignored { return StatusType::Dirty };
+        if self.conflicted { return StatusType::Dirty };
         StatusType::Clean
     }
 }
