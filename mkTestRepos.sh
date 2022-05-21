@@ -58,6 +58,35 @@ mkdir $td/branches_on_branch && cd $td/branches_on_branch && \
     git checkout -b mmm && \
     git checkout -b aaa && \
 
+mkdir $td/a_lot_of_branches && cd $td/a_lot_of_branches && \
+    git init && \
+    git commit --allow-empty -m 'Init.' && \
+    git checkout -b wwww__www__wwww && \
+    git checkout -b ffff__fff__ffff && \
+    git checkout -b oooo__ooo__oooo && \
+    git checkout -b pppp__ppp__pppp && \
+    git checkout -b ssss__sss__ssss && \
+    git checkout -b tttt__ttt__tttt && \
+    git checkout -b zzzz__zzz__zzzz && \
+    git checkout -b uuuu__uuu__uuuu && \
+    git checkout -b cccc__ccc__cccc && \
+    git checkout -b bbbb__bbb__bbbb && \
+    git checkout -b vvvv__vvv__vvvv && \
+    git checkout -b yyyy__yyy__yyyy && \
+    git checkout -b xxxx__xxx__xxxx && \
+    git checkout -b hhhh__hhh__hhhh && \
+    git checkout -b jjjj__jjj__jjjj && \
+    git checkout -b kkkk__kkk__kkkk && \
+    git checkout -b aaaa__aaa__aaaa && \
+    git checkout -b llll__lll__llll && \
+    git checkout -b dddd__ddd__dddd && \
+    git checkout -b eeee__eee__eeee && \
+    git checkout -b mmmm__mmm__mmmm && \
+    git checkout -b iiii__iii__iiii && \
+    git checkout -b nnnn__nnn__nnnn && \
+    git checkout -b qqqq__qqq__qqqq && \
+    git checkout -b rrrr__rrr__rrrr
+
 mkdir $td/grouped_branches && cd $td/grouped_branches && \
     git init && \
     git commit --allow-empty -m 'Init.' && \
