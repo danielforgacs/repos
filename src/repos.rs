@@ -71,7 +71,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 match repos_sort {
                     RepoSort::Name => repos_sort = RepoSort::Status,
                     RepoSort::Status => repos_sort = RepoSort::CurrentBranch,
-                    RepoSort:: CurrentBranch => repos_sort = RepoSort::Name,
+                    RepoSort::CurrentBranch => repos_sort = RepoSort::Name,
                 };
             }
             if event == Event::Key(KeyCode::Enter.into()) {

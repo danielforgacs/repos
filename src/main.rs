@@ -8,7 +8,7 @@ mod prelude {
     pub use crate::repo::*;
     pub use crate::repos::run;
     pub use crate::repostatus::*;
-    pub use crate::tui::{CellStyle, Direction, Tui, Column};
+    pub use crate::tui::{CellStyle, Column, Direction, Tui};
     pub use crate::utils::*;
     pub use clap::{Arg, Command as ClapCommand};
     pub use crossterm::{

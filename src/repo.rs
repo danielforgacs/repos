@@ -49,7 +49,8 @@ impl Repo {
     }
 
     pub fn current_and_branches(&self) -> Vec<String> {
-        let existing_branches = self.branches
+        let existing_branches = self
+            .branches
             .to_owned()
             .into_iter()
             .filter(|f| f.as_str() != self.current_branch())
@@ -81,7 +82,8 @@ fn read_current_branch(repo: &Repository) -> String {
 }
 
 fn read_branches(repo: &Repository) -> Vec<String> {
-    let mut branches = repo.branches(None)
+    let mut branches = repo
+        .branches(None)
         .unwrap()
         .map(|f| f.unwrap())
         .map(|f| f.0)
