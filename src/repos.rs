@@ -76,11 +76,11 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             }
             if event == Event::Key(KeyCode::Enter.into()) {
                 let coord = tui.selected_coord();
-                let repo = &repos[coord.1 as usize];
-                if coord.0 == 1 {
+                let repo = &repos[coord.get_row() as usize];
+                if coord.get_column() == 1 {
                     // Clean status here
-                } else if coord.0 > 1 && repo.status().status_type() == StatusType::Clean {
-                    let branch = &repo.branches()[(coord.0 - 2) as usize];
+                } else if coord.get_column() > 1 && repo.status().status_type() == StatusType::Clean {
+                    let branch = &repo.branches()[(coord.get_column() - 2) as usize];
                     if branch != "(no branch)" {
                         let abs_branch = format!("refs/heads/{}", branch);
                         repo.git_repo.set_head(&abs_branch)?;

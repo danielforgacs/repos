@@ -13,7 +13,8 @@ pub enum Column {
     Branches,
 }
 
-struct CellCoord {
+#[derive(PartialEq)]
+pub struct CellCoord {
     column: u16,
     row: u16,
 }
@@ -31,11 +32,11 @@ impl CellCoord {
         self.row = 0;
     }
 
-    fn get_column(&self) -> u16 {
+    pub fn get_column(&self) -> u16 {
         self.column
     }
 
-    fn get_row(&self) -> u16 {
+    pub fn get_row(&self) -> u16 {
         self.row
     }
 
@@ -43,12 +44,26 @@ impl CellCoord {
         self.column += 1;
     }
 
+    fn dec_column(&mut self) {
+        self.column -= 1;
+    }
+
     fn inc_row(&mut self) {
         self.row += 1;
     }
 
+    fn dec_row(&mut self) {
+        self.row -= 1;
+    }
+
     fn reset_column(&mut self) {
         self.column = 0;
+    }
+
+    fn limit_column(&mut self, max: u16) {
+        if self.column > max {
+            self.column = max;
+        }
     }
 }
 
@@ -83,9 +98,8 @@ pub struct Tui {
     // If the wip row == the selected row,
     // the wip row is the selected one.
     wip_cell: CellCoord,
-    selected_row: u16,
+    selected_cell: CellCoord,
     wip_column_coord: u16,
-    selected_column: u16,
     column_counts: Vec<u16>,
     row_count: u16,
     buff: std::io::BufWriter<std::io::Stdout>,
@@ -97,9 +111,8 @@ impl Tui {
     pub fn new() -> Self {
         Self {
             wip_cell: CellCoord::new(),
-            selected_row: 0,
+            selected_cell: CellCoord::new(),
             wip_column_coord: 0,
-            selected_column: 0,
             column_counts: vec![0],
             row_count: 0,
             buff: std::io::BufWriter::new(stdout()),
@@ -108,8 +121,9 @@ impl Tui {
         }
     }
 
-    pub fn selected_coord(&self) -> (u16, u16) {
-        (self.selected_column, self.selected_row)
+    pub fn selected_coord(&self) -> &CellCoord {
+        // (self.selected_column, self.selected_row)
+        &self.selected_cell
     }
 
     pub fn clear(&mut self) -> ReposResult<()> {
@@ -142,7 +156,7 @@ impl Tui {
         self.wip_column_coord += cell_gap;
         self.buff.queue(MoveToColumn(self.wip_column_coord))?;
         self.apply_cell_style()?;
-        if self.is_cell_selected() {
+        if self.wip_cell == self.selected_cell {
             self.buff.queue(SetBackgroundColor(Color::Rgb { r: 20, g: 0, b: 0 }))?;
         }
         self.buff
@@ -157,10 +171,6 @@ impl Tui {
 
     pub fn set_cell_style(&mut self, style: CellStyle) {
         self.cell_style = style;
-    }
-
-    fn is_cell_selected(&self) -> bool {
-        self.wip_cell.get_column() == self.selected_column && self.wip_cell.get_row() == self.selected_row
     }
 
     fn apply_cell_style(&mut self) -> ReposResult<()> {
@@ -219,28 +229,26 @@ impl Tui {
     pub fn go(&mut self, direction: Direction) {
         match direction {
             Direction::Up => {
-                if self.selected_row > 0 {
-                    self.selected_row -= 1;
+                if self.selected_cell.get_row() > 0 {
+                    self.selected_cell.dec_row();
                 }
             }
             Direction::Down => {
-                if self.selected_row < self.row_count - 1 {
-                    self.selected_row += 1
+                if self.selected_cell.get_row() < self.row_count - 1 {
+                    self.selected_cell.inc_row()
                 }
             }
             Direction::Left => {
-                if self.selected_column > 0 {
-                    self.selected_column -= 1;
+                if self.selected_cell.get_column() > 0 {
+                    self.selected_cell.dec_column()
                 }
             }
             Direction::Right => {
-                if self.selected_column < self.column_counts[self.selected_row as usize] - 1 {
-                    self.selected_column += 1;
+                if self.selected_cell.get_column() < self.column_counts[self.selected_cell.get_row() as usize] - 1 {
+                    self.selected_cell.inc_column();
                 }
             }
         };
-        if self.selected_column > self.column_counts[self.selected_row as usize] - 1 {
-            self.selected_column = self.column_counts[self.selected_row as usize] - 1;
-        }
+        self.selected_cell.limit_column(self.column_counts[self.selected_cell.get_row() as usize] - 1);
     }
 }
