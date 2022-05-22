@@ -68,10 +68,10 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             }
             //Sorting.
             if event == Event::Key(KeyCode::Char('s').into()) {
-                match tui.selected_column() {
-                    Column::Name => repos_sort = RepoSort::Name,
-                    Column::Status => repos_sort = RepoSort::Status,
-                    Column::Branches => repos_sort = RepoSort::CurrentBranch,
+                match repos_sort {
+                    RepoSort::Name => repos_sort = RepoSort::Status,
+                    RepoSort::Status => repos_sort = RepoSort::CurrentBranch,
+                    RepoSort:: CurrentBranch => repos_sort = RepoSort::Name,
                 };
             }
             if event == Event::Key(KeyCode::Enter.into()) {
