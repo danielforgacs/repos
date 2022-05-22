@@ -25,6 +25,31 @@ impl CellCoord {
             row: 0,
         }
     }
+
+    fn reset(&mut self) {
+        self.column = 0;
+        self.row = 0;
+    }
+
+    fn get_column(&self) -> u16 {
+        self.column
+    }
+
+    fn get_row(&self) -> u16 {
+        self.row
+    }
+
+    fn inc_column(&mut self) {
+        self.column += 1;
+    }
+
+    fn inc_row(&mut self) {
+        self.row += 1;
+    }
+
+    fn reset_column(&mut self) {
+        self.column = 0;
+    }
 }
 
 trait ToColumn {
@@ -58,9 +83,7 @@ pub struct Tui {
     // If the wip row == the selected row,
     // the wip row is the selected one.
     wip_cell: CellCoord,
-    wip_row: u16,
     selected_row: u16,
-    wip_column: u16,
     wip_column_coord: u16,
     selected_column: u16,
     column_counts: Vec<u16>,
@@ -74,9 +97,7 @@ impl Tui {
     pub fn new() -> Self {
         Self {
             wip_cell: CellCoord::new(),
-            wip_row: 0,
             selected_row: 0,
-            wip_column: 0,
             wip_column_coord: 0,
             selected_column: 0,
             column_counts: vec![0],
@@ -96,18 +117,17 @@ impl Tui {
     }
 
     pub fn clear(&mut self) -> ReposResult<()> {
+        self.wip_cell.reset();
         self.buff
             .queue(Clear(ClearType::All))?
-            .queue(MoveTo(0, 0))?;
-        self.wip_row = 0;
-        self.wip_column = 0;
+            .queue(MoveTo(self.wip_cell.get_row(), self.wip_cell.get_column()))?;
         self.row_count = 0;
         self.column_counts = vec![0];
         Ok(())
     }
 
     pub fn print(&mut self, mut text: &str) -> ReposResult<()> {
-        match self.wip_column.to_column() {
+        match self.wip_cell.get_column().to_column() {
             Column::Name => self.wip_column_coord = 0,
             Column::Status => self.wip_column_coord += REPO_NAME_WIDTH,
             Column::Branches => {
@@ -134,8 +154,8 @@ impl Tui {
             // Just to fill the gap between columns
             .queue(Print(" "))?
             .queue(ResetColor)?;
-        self.wip_column += 1;
-        self.column_counts[self.wip_row as usize] += 1;
+        self.wip_cell.inc_column();
+        self.column_counts[usize::from(self.wip_cell.get_row())] += 1;
         Ok(())
     }
 
@@ -144,7 +164,7 @@ impl Tui {
     }
 
     fn is_cell_selected(&self) -> bool {
-        self.wip_column == self.selected_column && self.wip_row == self.selected_row
+        self.wip_cell.get_column() == self.selected_column && self.wip_cell.get_row() == self.selected_row
     }
 
     fn apply_cell_style(&mut self) -> ReposResult<()> {
@@ -162,22 +182,22 @@ impl Tui {
                 self.cell_style = CellStyle::Default;
             }
             CellStyle::CleanMaster => {
-                if self.wip_column < 2 {
+                if self.wip_cell.get_column() < 2 {
                     self.buff.queue(SetForegroundColor(Color::Green))?;
                 }
             }
             CellStyle::DirtyMaster => {
-                if self.wip_column < 2 {
+                if self.wip_cell.get_column() < 2 {
                     self.buff.queue(SetForegroundColor(Color::Rgb { r: 255, g: 205, b: 0 }))?;
                 }
             }
             CellStyle::CleanBranch => {
-                if self.wip_column < 2 {
+                if self.wip_cell.get_column() < 2 {
                     self.buff.queue(SetForegroundColor(Color::Rgb { r: 0, g: 200, b: 255 }))?;
                 }
             }
             CellStyle::DirtyBranch => {
-                if self.wip_column < 2 {
+                if self.wip_cell.get_column() < 2 {
                     self.buff.queue(SetForegroundColor(Color::Rgb { r: 255, g: 0, b: 0 }))?;
                 }
             }
@@ -192,8 +212,8 @@ impl Tui {
 
     pub fn new_line(&mut self) -> ReposResult<()> {
         self.buff.queue(MoveToNextLine(1))?.queue(MoveToColumn(0))?;
-        self.wip_row += 1;
-        self.wip_column = 0;
+        self.wip_cell.inc_row();
+        self.wip_cell.reset_column();
         self.wip_column_coord = 0;
         self.column_counts.push(0);
         self.row_count += 1;
