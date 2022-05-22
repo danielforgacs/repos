@@ -65,6 +65,10 @@ impl CellCoord {
             self.column = max;
         }
     }
+
+    pub fn set_row(&mut self, index: u16) {
+        self.row = index;
+    }
 }
 
 trait ToColumn {
@@ -124,6 +128,10 @@ impl Tui {
     pub fn selected_coord(&self) -> &CellCoord {
         // (self.selected_column, self.selected_row)
         &self.selected_cell
+    }
+
+    pub fn set_selected_row(&mut self, index: u16) {
+        self.selected_cell.set_row(index);
     }
 
     pub fn clear(&mut self) -> ReposResult<()> {

@@ -11,6 +11,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     let mut tui = Tui::new();
     tui.print(&format!("{}", crossterm::cursor::Hide))?;
     let mut repos_sort = RepoSort::Name;
+    let mut previous_repo: Option<String> = None;
 
     loop {
         let mut repos = collect_repos(&root_path)?;
@@ -20,6 +21,16 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             RepoSort::Status => repos.sort_by_key(|k| k.status().to_string()),
         }
         tui.clear()?;
+
+        if let Some(repo_name) = &previous_repo {
+            for (index, repo) in repos.iter().enumerate() {
+                if repo_name == repo.name() {
+                    tui.set_selected_row(index as u16);
+                    previous_repo = None;
+                    break;
+                }
+            }
+        }
 
         for repo in repos.iter() {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
@@ -73,6 +84,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                     RepoSort::Status => repos_sort = RepoSort::CurrentBranch,
                     RepoSort::CurrentBranch => repos_sort = RepoSort::Name,
                 };
+                previous_repo = Some(repos[tui.selected_coord().get_row() as usize].name().to_string());
             }
             if event == Event::Key(KeyCode::Enter.into()) {
                 let coord = tui.selected_coord();
