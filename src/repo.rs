@@ -14,7 +14,7 @@ impl Repo {
         let status = read_status(&repo);
         let current_branch = read_current_branch(&repo);
         let mut branches = read_branches(&repo);
-        if branches.len() == 0 {
+        if branches.is_empty() {
             branches = vec![current_branch.clone()];
         }
         let name = repo
@@ -51,8 +51,8 @@ impl Repo {
     pub fn current_and_branches(&self) -> Vec<String> {
         let existing_branches = self
             .branches
-            .to_owned()
-            .into_iter()
+            .iter()
+            .cloned()
             .filter(|f| f.as_str() != self.current_branch())
             .collect::<Vec<String>>();
         let mut branches = vec![self.current_branch().to_string()];

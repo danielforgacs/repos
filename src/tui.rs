@@ -108,10 +108,6 @@ impl Tui {
         }
     }
 
-    pub fn selected_column(&self) -> Column {
-        self.selected_column.to_column()
-    }
-
     pub fn selected_coord(&self) -> (u16, u16) {
         (self.selected_column, self.selected_row)
     }
