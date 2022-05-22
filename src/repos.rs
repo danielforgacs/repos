@@ -11,8 +11,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     let mut tui = Tui::new();
     tui.print(&format!("{}", crossterm::cursor::Hide))?;
     let mut repos_sort = RepoSort::Name;
-    let mut previous_selection = ("".to_string(), "".to_string());
-    let mut sort_changed = false;
 
     loop {
         let mut repos = collect_repos(&root_path)?;
@@ -22,26 +20,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             RepoSort::Status => repos.sort_by_key(|k| k.status().to_string()),
         }
         tui.clear()?;
-
-        if sort_changed {
-            for r in 0..repos.len() {
-                if previous_selection.0 == repos[r].name().to_string() {
-                    tui.set_selected_row(r as u16);
-                    eprintln!("prev name: {}", previous_selection.0);
-                    eprintln!("updated row: {}, r: {}, name at r: {}", tui.selected_coord().1, r, &repos[tui.selected_coord().1 as usize].name());
-                    if previous_selection.1 != "" {
-                        for c in 0..repos[r].branches().len() {
-                            if previous_selection.1 == repos[r].branches()[c] {
-                                tui.set_selected_column((c as u16) + 2);
-                                break;
-                            };
-                        }
-                    }
-                    break;
-                }
-            }
-            sort_changed = false;
-        }
 
         for repo in repos.iter() {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
@@ -90,16 +68,11 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             }
             //Sorting.
             if event == Event::Key(KeyCode::Char('s').into()) {
-                previous_selection.0 = repos[tui.selected_coord().1 as usize].name().to_string();
-                if tui.selected_column() == Column::Branches {
-                    previous_selection.1 = repos[tui.selected_coord().1 as usize].branches()[tui.selected_coord().0 as usize - 2].to_string();
-                }
                 match repos_sort {
                     RepoSort::Name => repos_sort = RepoSort::Status,
                     RepoSort::Status => repos_sort = RepoSort::CurrentBranch,
                     RepoSort:: CurrentBranch => repos_sort = RepoSort::Name,
                 };
-                sort_changed = true;
             }
             if event == Event::Key(KeyCode::Enter.into()) {
                 let coord = tui.selected_coord();

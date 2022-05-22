@@ -7,7 +7,6 @@ pub enum Direction {
     Right,
 }
 
-#[derive(PartialEq)]
 pub enum Column {
     Name,
     Status,
@@ -78,14 +77,6 @@ impl Tui {
 
     pub fn selected_coord(&self) -> (u16, u16) {
         (self.selected_column, self.selected_row)
-    }
-
-    pub fn set_selected_row(&mut self, index: u16) {
-        self.selected_row = index;
-    }
-
-    pub fn set_selected_column(&mut self, index: u16) {
-        self.selected_column = index;
     }
 
     pub fn clear(&mut self) -> ReposResult<()> {
