@@ -13,6 +13,20 @@ pub enum Column {
     Branches,
 }
 
+struct CellCoord {
+    column: u16,
+    row: u16,
+}
+
+impl CellCoord {
+    fn new() -> Self {
+        Self {
+            column: 0,
+            row: 0,
+        }
+    }
+}
+
 trait ToColumn {
     fn to_column(&self) -> Column;
 }
@@ -43,6 +57,7 @@ pub struct Tui {
     // this is checked against the selected row.
     // If the wip row == the selected row,
     // the wip row is the selected one.
+    wip_cell: CellCoord,
     wip_row: u16,
     selected_row: u16,
     wip_column: u16,
@@ -58,6 +73,7 @@ pub struct Tui {
 impl Tui {
     pub fn new() -> Self {
         Self {
+            wip_cell: CellCoord::new(),
             wip_row: 0,
             selected_row: 0,
             wip_column: 0,
@@ -91,10 +107,10 @@ impl Tui {
     }
 
     pub fn print(&mut self, mut text: &str) -> ReposResult<()> {
-        match self.wip_column {
-            0 => self.wip_column_coord = 0,
-            1 => self.wip_column_coord += REPO_NAME_WIDTH,
-            _ => {
+        match self.wip_column.to_column() {
+            Column::Name => self.wip_column_coord = 0,
+            Column::Status => self.wip_column_coord += REPO_NAME_WIDTH,
+            Column::Branches => {
                 let (width, _) = terminal::size()?;
                 let test_column_coord = self.wip_column_coord + self.previous_column_width as u16;
                 if test_column_coord > width - (text.len() as u16) {
