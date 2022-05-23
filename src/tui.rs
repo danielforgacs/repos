@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const BRANCH_COLUMN_OFFSET: u16 = 2;
+
 pub enum Direction {
     Up,
     Down,
@@ -69,9 +71,13 @@ impl CellCoord {
     pub fn set_row(&mut self, index: u16) {
         self.row = index;
     }
+
+    pub fn set_column(&mut self, index: u16) {
+        self.column = index;
+    }
 }
 
-trait ToColumn {
+pub trait ToColumn {
     fn to_column(&self) -> Column;
 }
 
@@ -128,6 +134,10 @@ impl Tui {
     pub fn selected_coord(&self) -> &CellCoord {
         // (self.selected_column, self.selected_row)
         &self.selected_cell
+    }
+
+    pub fn set_selected_column(&mut self, index: u16) {
+        self.selected_cell.set_column(index);
     }
 
     pub fn set_selected_row(&mut self, index: u16) {

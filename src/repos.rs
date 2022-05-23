@@ -11,7 +11,8 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     let mut tui = Tui::new();
     tui.print(&format!("{}", crossterm::cursor::Hide))?;
     let mut repos_sort = RepoSort::Name;
-    let mut previous_repo: Option<String> = None;
+    let mut previous_repo_name: Option<String> = None;
+    let mut previous_branch_name: Option<String> = None;
 
     loop {
         let mut repos = collect_repos(&root_path)?;
@@ -22,11 +23,27 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
         }
         tui.clear()?;
 
-        if let Some(repo_name) = &previous_repo {
+        if let Some(repo_name) = &previous_repo_name {
             for (index, repo) in repos.iter().enumerate() {
                 if repo_name == repo.name() {
                     tui.set_selected_row(index as u16);
-                    previous_repo = None;
+                    previous_repo_name = None;
+                    if let Some(branch_name) = &previous_branch_name {
+                        eprintln!("restoring branch: {}", branch_name);
+                        let branches = match repos_sort {
+                            RepoSort::Name => repo.branches().to_owned(),
+                            RepoSort::CurrentBranch => repo.current_and_branches(),
+                            RepoSort::Status => repo.branches().to_owned(),
+                        };
+                        for (column_index, name) in branches.iter().enumerate() {
+                            if branch_name == name {
+                                eprintln!("...new index: {}", column_index);
+                                tui.set_selected_column(column_index as u16 + BRANCH_COLUMN_OFFSET);
+                                previous_branch_name = None;
+                                break;
+                            }
+                        }
+                    }
                     break;
                 }
             }
@@ -64,6 +81,11 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
+            let selected_repo = &repos[usize::from(tui.selected_coord().get_row())];
+            let selected_colum_type = tui.selected_coord().get_column().to_column();
+            let selected_column = tui.selected_coord().get_column();
+            let selected_row = tui.selected_coord().get_row();
+
             // Navogation.
             if event == Event::Key(KeyCode::Up.into()) || event == Event::Key(KeyCode::Char('k').into()) {
                 tui.go(Direction::Up);
@@ -77,22 +99,39 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             if event == Event::Key(KeyCode::Right.into()) || event == Event::Key(KeyCode::Char('l').into()) {
                 tui.go(Direction::Right);
             }
+
             //Sorting.
             if event == Event::Key(KeyCode::Char('s').into()) {
+                previous_repo_name = Some(selected_repo.name().to_string());
+                match selected_colum_type {
+                    Column::Branches => {
+                        let branches = match repos_sort {
+                            RepoSort::Name => selected_repo.branches().to_owned(),
+                            RepoSort::CurrentBranch => selected_repo.current_and_branches(),
+                            RepoSort::Status => selected_repo.branches().to_owned(),
+                        };
+                        // let index = usize::from(selected_column) - usize::from(BRANCH_COLUMN_OFFSET);
+                        let index = usize::from(selected_column) - BRANCH_COLUMN_OFFSET as usize;
+                        previous_branch_name = Some(branches[index].to_string());
+                        eprintln!("storing prev brahcn: {}, {:?}", index, &previous_branch_name);
+                    },
+                    _ => {},
+                };
                 match repos_sort {
                     RepoSort::Name => repos_sort = RepoSort::Status,
                     RepoSort::Status => repos_sort = RepoSort::CurrentBranch,
                     RepoSort::CurrentBranch => repos_sort = RepoSort::Name,
                 };
-                previous_repo = Some(repos[tui.selected_coord().get_row() as usize].name().to_string());
             }
+
+            // Action
             if event == Event::Key(KeyCode::Enter.into()) {
                 let coord = tui.selected_coord();
                 let repo = &repos[coord.get_row() as usize];
                 if coord.get_column() == 1 {
                     // Clean status here
                 } else if coord.get_column() > 1 && repo.status().status_type() == StatusType::Clean {
-                    let branch = &repo.branches()[(coord.get_column() - 2) as usize];
+                    let branch = &repo.branches()[(coord.get_column()) as usize];
                     if branch != "(no branch)" {
                         let abs_branch = format!("refs/heads/{}", branch);
                         repo.git_repo.set_head(&abs_branch)?;
