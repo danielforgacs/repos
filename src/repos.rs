@@ -1,11 +1,5 @@
 use crate::prelude::*;
 
-enum RepoSort {
-    Name,
-    CurrentBranch,
-    Status,
-}
-
 pub fn run(root_path: PathBuf) -> ReposResult<()> {
     enable_raw_mode()?;
     let mut tui = Tui::new();
@@ -13,7 +7,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
     loop {
         tui.clear()?;
-        let mut repos = collect_repos(&root_path)?;
+        let repos = collect_repos(&root_path)?;
 
         for repo in repos.iter() {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
@@ -27,7 +21,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             }
             tui.print(&text_to_width(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.status()))?;
-            for branch in repo.branches().to_owned() {
+            for branch in repo.branches().iter().cloned() {
                 if branch == repo.current_branch() {
                     tui.cell_style = CellStyle::CurrentBranch;
                 } else {
@@ -49,7 +43,10 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             let selected_repo_name = selected_repo.name();
             let mut selected_branch_name: Option<String> = None;
             if selected_column.to_column() == Column::Branches {
-                    selected_branch_name = Some(selected_repo.branches()[usize::from(selected_column - BRANCH_COLUMN_OFFSET)].to_string());
+                selected_branch_name = Some(
+                    selected_repo.branches()[usize::from(selected_column - BRANCH_COLUMN_OFFSET)]
+                        .to_string(),
+                );
             }
 
             // Navogation.

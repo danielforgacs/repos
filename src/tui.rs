@@ -68,14 +68,6 @@ impl CellCoord {
             self.column = max;
         }
     }
-
-    pub fn set_row(&mut self, index: u16) {
-        self.row = index;
-    }
-
-    pub fn set_column(&mut self, index: u16) {
-        self.column = index;
-    }
 }
 
 pub trait ToColumn {
@@ -90,7 +82,6 @@ impl ToColumn for u16 {
             _ => Column::Branches,
         }
     }
-
 }
 
 pub enum CellStyle {
@@ -133,16 +124,7 @@ impl Tui {
     }
 
     pub fn selected_coord(&self) -> &CellCoord {
-        // (self.selected_column, self.selected_row)
         &self.selected_cell
-    }
-
-    pub fn set_selected_column(&mut self, index: u16) {
-        self.selected_cell.set_column(index);
-    }
-
-    pub fn set_selected_row(&mut self, index: u16) {
-        self.selected_cell.set_row(index);
     }
 
     pub fn clear(&mut self) -> ReposResult<()> {
