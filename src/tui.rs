@@ -137,21 +137,24 @@ impl Tui {
         Ok(())
     }
 
-    pub fn print(&mut self, mut text: &str) -> ReposResult<()> {
+    fn calc_wip_column_coord<'a>(&self, text: &'a str) -> (u16, &'a str) {
         match self.wip_cell.get_column().to_column() {
-            Column::Name => self.wip_column_coord = 0,
-            Column::Status => self.wip_column_coord += REPO_NAME_WIDTH,
+            Column::Name => (0, text),
+            Column::Status => (self.wip_column_coord + REPO_NAME_WIDTH, text),
             Column::Branches => {
-                let (width, _) = terminal::size()?;
+                let (width, _) = terminal::size().unwrap();
                 let test_column_coord = self.wip_column_coord + self.previous_column_width as u16;
                 if test_column_coord > width - (text.len() as u16) {
-                    self.wip_column_coord = width - 5;
-                    text = " >>>";
+                    (width - 5, " >>>")
                 } else {
-                    self.wip_column_coord = test_column_coord;
+                    (test_column_coord, text)
                 }
             }
-        };
+        }
+    }
+
+    pub fn print(&mut self, mut text: &str) -> ReposResult<()> {
+        (self.wip_column_coord, text) = self.calc_wip_column_coord(text);
         self.previous_column_width = text.len() as u16;
         let cell_gap = 1;
         self.wip_column_coord += cell_gap;
