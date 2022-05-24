@@ -126,15 +126,22 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
             // Action
             if event == Event::Key(KeyCode::Enter.into()) {
-                let coord = tui.selected_coord();
-                let repo = &repos[coord.get_row() as usize];
-                if coord.get_column() == 1 {
-                    // Clean status here
-                } else if coord.get_column() > 1 && repo.status().status_type() == StatusType::Clean {
-                    let branch = &repo.branches()[(coord.get_column()) as usize];
-                    if branch != "(no branch)" {
-                        let abs_branch = format!("refs/heads/{}", branch);
-                        repo.git_repo.set_head(&abs_branch)?;
+                match selected_colum_type {
+                    Column::Name => {}
+                    Column::Status => {}
+                    Column::Branches => {
+                        if selected_repo.status().status_type() == StatusType::Clean {
+                            let branches = match repos_sort {
+                                RepoSort::Name => selected_repo.branches().to_owned(),
+                                RepoSort::CurrentBranch => selected_repo.current_and_branches(),
+                                RepoSort::Status => selected_repo.branches().to_owned(),
+                            };
+                            let branch = branches[usize::from(selected_column - BRANCH_COLUMN_OFFSET)].to_owned();
+                            if branch != "(no branch)" {
+                                let abs_branch = format!("refs/heads/{}", branch);
+                                selected_repo.git_repo.set_head(&abs_branch)?;
+                            }
+                        }
                     }
                 }
             }
