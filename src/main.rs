@@ -35,6 +35,7 @@ mod prelude {
     pub const REPO_NAME_WIDTH: u16 = 35;
     pub const MAX_BRANCH_NAME_WIDTH: usize = 30;
     pub const INCLUDE_IGNORED: bool = false;
+    pub const NO_BRANCH_TEXT: &str = "(no branch)";
 }
 
 use prelude::*;

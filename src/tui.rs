@@ -9,6 +9,7 @@ pub enum Direction {
     Right,
 }
 
+#[derive(PartialEq)]
 pub enum Column {
     Name,
     Status,
