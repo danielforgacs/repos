@@ -70,16 +70,14 @@ fn read_current_branch(repo: &Repository) -> String {
 }
 
 fn read_branches(repo: &Repository) -> Vec<String> {
-    let mut branches = repo
+    repo
         .branches(None)
         .unwrap()
         .map(|f| f.unwrap())
         .filter(|f| f.1 == BranchType::Local)
         .map(|f| f.0)
         .map(|f| f.name().unwrap().unwrap().to_string())
-        .collect::<Vec<String>>();
-    branches.sort();
-    branches
+        .collect::<Vec<String>>()
 }
 
 pub fn read_status(repo: &Repository) -> Status {
