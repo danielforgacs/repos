@@ -74,6 +74,7 @@ fn read_branches(repo: &Repository) -> Vec<String> {
         .branches(None)
         .unwrap()
         .map(|f| f.unwrap())
+        .filter(|f| f.1 == BranchType::Local)
         .map(|f| f.0)
         .map(|f| f.name().unwrap().unwrap().to_string())
         .collect::<Vec<String>>();

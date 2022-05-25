@@ -19,7 +19,7 @@ mod prelude {
         terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
         Command, ExecutableCommand, QueueableCommand,
     };
-    pub use git2::{ErrorCode, Repository, StatusOptions};
+    pub use git2::{BranchType, ErrorCode, Repository, StatusOptions};
     pub use std::{
         env::var,
         fs,
