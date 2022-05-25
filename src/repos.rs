@@ -69,19 +69,13 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
             // Action
             if event == Event::Key(KeyCode::Enter.into()) {
-                eprintln!("{}:{}, {}", selected_column, selected_row, selected_repo_name);
                 match selected_column.to_column() {
                     Column::Branches => {
-                        if let Some(branch) = selected_branch_name {
-                            if branch != NO_BRANCH_TEXT {
-                                eprintln!("branch: {}", branch);
-                                let abs_branch = format!("refs/heads/{}", branch);
-                                selected_repo.git_repo.set_head(&abs_branch)?;
-                            }
-                        }
-                    }
-                    _ => {}
-                };
+                        let branch_index = (selected_column - 2) as usize;
+                        repos[selected_row as usize].checkout_branch(branch_index)?;
+                    },
+                    _ => {},
+                }
             }
 
             // quit.

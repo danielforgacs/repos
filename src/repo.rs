@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+const NO_BRANCH: &str = "(no branch)";
+
 pub struct Repo {
     pub git_repo: Repository,
     name: String,
@@ -54,6 +56,15 @@ impl Repo {
 
     pub fn is_on_master(&self) -> bool {
         self.current_branch == "master"
+    }
+
+    pub fn checkout_branch(&self, index: usize) -> ReposResult<()> {
+        let branch = &self.branches[index];
+        if branch != NO_BRANCH {
+            let abs_branch = format!("refs/heads/{}", branch);
+            self.git_repo.set_head(&abs_branch)?;
+        };
+        Ok(())
     }
 }
 
