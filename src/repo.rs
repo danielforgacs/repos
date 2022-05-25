@@ -105,22 +105,3 @@ pub fn read_status(repo: &Repository) -> Status {
     stats.dedup();
     Status::new().set_from_vec(stats)
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    /// Expected test result need to be generated for the tests.
-    /// They can't be committed into this repo, becouse the're
-    /// repos themselves.
-    ///
-    /// THIS PART SHOULD BE BE AUTOMATED
-    const REPO_NAME: &str = "grouped_branches";
-    const REPO_PATH: &str = "/tmp/tmp.PHBl9PWOQL__repos_test/grouped_branches/";
-
-    #[test]
-    fn init_repo() {
-        let repo = Repo::new(&PathBuf::from(REPO_PATH)).unwrap();
-        assert_eq!(repo.name(), REPO_NAME);
-    }
-}
