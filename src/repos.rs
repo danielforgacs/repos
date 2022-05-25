@@ -34,9 +34,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
         tui.flush()?;
 
-        let selected_column = tui.selected_coord().get_column();
-        let selected_row = tui.selected_coord().get_row();
-
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
 
@@ -60,10 +57,10 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
             // Action
             if event == Event::Key(KeyCode::Enter.into()) {
-                match selected_column.to_column() {
+                match tui.selected_coord().get_column().to_column() {
                     Column::Branches => {
-                        let branch_index = (selected_column - 2) as usize;
-                        repos[selected_row as usize].checkout_branch(branch_index)?;
+                        let branch_index = (tui.selected_coord().get_column() - 2) as usize;
+                        repos[tui.selected_coord().get_row() as usize].checkout_branch(branch_index)?;
                     },
                     _ => {},
                 }
