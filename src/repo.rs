@@ -17,6 +17,7 @@ impl Repo {
         if branches.is_empty() {
             branches = vec![current_branch.clone()];
         }
+        branches.sort();
         let name = repo
             .path()
             .components()
@@ -46,6 +47,19 @@ impl Repo {
 
     pub fn branches(&self) -> &Vec<String> {
         &self.branches
+    }
+
+    pub fn current_first_branches(&self) -> Vec<String> {
+        let mut branches = vec![self.current_branch.clone()];
+        branches.extend(
+            self.branches
+            .clone()
+            .into_iter()
+            .filter(|f| f != &self.current_branch)
+            .collect::<Vec<String>>()
+            .clone()
+        );
+        branches
     }
 
     pub fn status(&self) -> &Status {
