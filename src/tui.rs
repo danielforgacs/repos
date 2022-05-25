@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-pub const BRANCH_COLUMN_OFFSET: u16 = 2;
-
 pub enum Direction {
     Up,
     Down,

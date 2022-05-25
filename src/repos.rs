@@ -36,15 +36,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
         let selected_column = tui.selected_coord().get_column();
         let selected_row = tui.selected_coord().get_row();
-        let selected_repo = &repos[usize::from(selected_row)];
-        let selected_repo_name = selected_repo.name();
-        let mut selected_branch_name: Option<String> = None;
-        if selected_column.to_column() == Column::Branches {
-            selected_branch_name = Some(
-                selected_repo.branches()[usize::from(selected_column - BRANCH_COLUMN_OFFSET)]
-                    .to_string(),
-            );
-        }
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
