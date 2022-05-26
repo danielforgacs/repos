@@ -1,13 +1,36 @@
 use crate::prelude::*;
 
+enum RepoSort {
+    Alpha,
+    Status,
+    CurrentBranch,
+}
+
 pub fn run(root_path: PathBuf) -> ReposResult<()> {
     enable_raw_mode()?;
     let mut tui = Tui::new();
     tui.print(&format!("{}", crossterm::cursor::Hide))?;
+    let mut repo_sort = RepoSort::Alpha;
 
     loop {
         tui.clear()?;
-        let repos = collect_repos(&root_path)?;
+        let repos = match repo_sort {
+            RepoSort::Alpha => {
+                let mut new_repos = collect_repos(&root_path)?;
+                new_repos.sort_by_key(|f| f.name().to_string());
+                new_repos
+            },
+            RepoSort::Status => {
+                let mut new_repos = collect_repos(&root_path)?;
+                new_repos.sort_by_key(|f| f.status().to_string());
+                new_repos
+            },
+            RepoSort::CurrentBranch => {
+                let mut new_repos = collect_repos(&root_path)?;
+                new_repos.sort_by_key(|f| f.current_branch().to_string());
+                new_repos
+            },
+        };
         let mut tui_branches: Vec<Vec<String>> = Vec::new();
 
         for repo in repos.iter() {
@@ -23,9 +46,14 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             tui.print(&text_to_width(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.status()))?;
 
-            // let branches = repo.branches().iter().cloned();
-            let mut branches = vec![repo.current_branch().to_string()];
-            branches.extend(repo.branches().iter().filter(|f| f != &repo.current_branch()).cloned());
+            let branches = match repo_sort {
+                RepoSort::CurrentBranch => {
+                    let mut branches = vec![repo.current_branch().to_string()];
+                    branches.extend(repo.branches().iter().filter(|f| f != &repo.current_branch()).cloned());
+                    branches
+                },
+                _ => repo.branches().to_owned(),
+            };
 
             let mut branch_vec: Vec<String> = Vec::new();
 
@@ -63,26 +91,27 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
             //Sorting.
             if event == Event::Key(KeyCode::Char('s').into()) {
+                repo_sort = match repo_sort {
+                    RepoSort::Alpha => RepoSort::Status,
+                    RepoSort::Status => RepoSort::CurrentBranch,
+                    RepoSort::CurrentBranch => RepoSort::Alpha,
+                }
             }
 
             // Action
             if event == Event::Key(KeyCode::Enter.into()) {
-                // let branch_name = repos[tui.selected_coord().get_row() as usize].branches()[(tui.selected_coord().get_column() - 2) as usize].to_string();
-                let branch_name = tui_branches[tui.selected_coord().get_row() as usize][tui.selected_coord().get_column() as usize - 2].to_string();
-                let mut index = 999;
-                for (i, name) in repos[tui.selected_coord().get_row() as usize].branches().iter().enumerate() {
-                    if name == &branch_name {
-                        index = i;
-                    }
-                }
-
-                if index == 999 {
-                    break;
-                }
-
                 match tui.selected_coord().get_column().to_column() {
                     Column::Branches => {
-                        // let branch_index = (tui.selected_coord().get_column() - 2) as usize;
+                        let branch_name = tui_branches[tui.selected_coord().get_row() as usize][tui.selected_coord().get_column() as usize - 2].to_string();
+                        let mut index = 999;
+                        for (i, name) in repos[tui.selected_coord().get_row() as usize].branches().iter().enumerate() {
+                            if name == &branch_name {
+                                index = i;
+                            }
+                        }
+                        if index == 999 {
+                            break;
+                        }
                         repos[tui.selected_coord().get_row() as usize].checkout_branch(index)?;
                     },
                     _ => {},
