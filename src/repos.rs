@@ -14,23 +14,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
     loop {
         tui.clear()?;
-        let repos = match repo_sort {
-            RepoSort::Alpha => {
-                let mut new_repos = collect_repos(&root_path)?;
-                new_repos.sort_by_key(|f| f.name().to_string());
-                new_repos
-            },
-            RepoSort::Status => {
-                let mut new_repos = collect_repos(&root_path)?;
-                new_repos.sort_by_key(|f| f.status().to_string());
-                new_repos
-            },
-            RepoSort::CurrentBranch => {
-                let mut new_repos = collect_repos(&root_path)?;
-                new_repos.sort_by_key(|f| f.current_branch().to_string());
-                new_repos
-            },
-        };
+        let repos = collect_repos(&root_path, &repo_sort)?;
         let mut tui_branches: Vec<Vec<String>> = Vec::new();
 
         for repo in repos.iter() {
@@ -130,10 +114,15 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     Ok(())
 }
 
-fn collect_repos(path: &Path) -> ReposResult<Vec<Repo>> {
+fn collect_repos(path: &Path, sort: &RepoSort) -> ReposResult<Vec<Repo>> {
     let mut repos: Vec<Repo> = Vec::new();
     for dir in find_git_repos_in_dir(path)? {
         repos.push(Repo::new(&dir)?)
+    }
+    match sort {
+        RepoSort::Alpha => repos.sort_by_key(|r| r.name().to_string()),
+        RepoSort::Status => repos.sort_by_key(|r| r.status().to_string()),
+        RepoSort::CurrentBranch => repos.sort_by_key(|r| r.current_branch().to_string()),
     }
     Ok(repos)
 }
