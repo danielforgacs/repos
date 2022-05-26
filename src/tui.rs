@@ -125,14 +125,6 @@ impl Tui {
         &self.selected_cell
     }
 
-    pub fn set_selected_row(&mut self, index: u16) {
-        self.selected_cell.row = index;
-    }
-
-    pub fn set_selected_column(&mut self, index: u16) {
-        self.selected_cell.column = index;
-    }
-
     pub fn clear(&mut self) -> ReposResult<()> {
         self.wip_cell.reset();
         self.buff
