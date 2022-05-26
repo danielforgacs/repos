@@ -11,6 +11,8 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     let mut tui = Tui::new();
     tui.print(&format!("{}", crossterm::cursor::Hide))?;
     let mut repo_sort = RepoSort::Alpha;
+    let mut prev_sel_repo: Option<String> = None;
+    let mut prev_sel_branch: Option<String> = None;
 
     loop {
         tui.clear()?;
@@ -32,6 +34,15 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             },
         };
         let mut tui_branches: Vec<Vec<String>> = Vec::new();
+        if let Some(ref branch) = prev_sel_repo {
+            for (index, repo) in repos.iter().enumerate() {
+                if repo.name() == branch {
+                    tui.set_selected_row(index as u16);
+                    break;
+                }
+            }
+            // prev_sel_repo = None;
+        }
 
         for repo in repos.iter() {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
@@ -55,9 +66,38 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 _ => repo.branches().to_owned(),
             };
 
+            // if let Some(name) = prev_sel_branch {
+            //     eprintln!("looking for branch: {}, all repo branches: {:?}", &name, &branches);
+            //     for (index, branch) in branches.iter().enumerate() {
+            //         eprintln!("\t...checking: {}", branch);
+            //         if branch == &name {
+            //             eprintln!("found index: {}", &index);
+            //             tui.set_selected_column((index + 2) as u16);
+            //             break;
+            //         }
+            //     }
+            //     prev_sel_branch = None;
+            // }
+
             let mut branch_vec: Vec<String> = Vec::new();
 
-            for branch in branches {
+            for (index, branch) in branches.iter().enumerate() {
+                match &prev_sel_repo {
+                    Some(reponame) => {
+                        if reponame == repo.name() {
+
+                            if let Some(name) = &prev_sel_branch {
+                                eprintln!("looking for {} == {}", &name, &branch);
+                                if name == branch {
+                                    tui.set_selected_column(index as u16 + 2);
+                                    // prev_sel_branch = None;
+                                }
+                            };
+                        }
+
+                    },
+                    _ => {},
+                }
                 if branch == repo.current_branch() {
                     tui.cell_style = CellStyle::CurrentBranch;
                 } else {
@@ -66,11 +106,15 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
                 branch_vec.push(branch.to_string());
             }
+            prev_sel_branch = None;
             tui.new_line()?;
             tui_branches.push(branch_vec);
         }
 
         tui.flush()?;
+
+        prev_sel_repo = None;
+        prev_sel_branch = None;
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
@@ -91,6 +135,11 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
             //Sorting.
             if event == Event::Key(KeyCode::Char('s').into()) {
+                prev_sel_repo = Some(repos[tui.selected_coord().get_row() as usize].name().to_string());
+                if tui.selected_coord().get_column() > 1 {
+                    prev_sel_branch = Some(tui_branches[tui.selected_coord().get_row() as usize][(tui.selected_coord().get_column() - 2) as usize].to_string());
+                    eprintln!("\n\n---\nstoring branch index: {}, name: {:?}", &tui.selected_coord().get_column() - 2, &prev_sel_branch);
+                }
                 repo_sort = match repo_sort {
                     RepoSort::Alpha => RepoSort::Status,
                     RepoSort::Status => RepoSort::CurrentBranch,
@@ -98,21 +147,12 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 }
             }
 
-            // Action
+            // Action/tmp/tmp.LccouINZ9I__repos_test/
             if event == Event::Key(KeyCode::Enter.into()) {
                 match tui.selected_coord().get_column().to_column() {
                     Column::Branches => {
                         let branch_name = tui_branches[tui.selected_coord().get_row() as usize][tui.selected_coord().get_column() as usize - 2].to_string();
-                        let mut index = 999;
-                        for (i, name) in repos[tui.selected_coord().get_row() as usize].branches().iter().enumerate() {
-                            if name == &branch_name {
-                                index = i;
-                            }
-                        }
-                        if index == 999 {
-                            break;
-                        }
-                        repos[tui.selected_coord().get_row() as usize].checkout_branch(index)?;
+                        repos[tui.selected_coord().get_row() as usize].checkout_branch(&branch_name)?;
                     },
                     _ => {},
                 }
