@@ -70,8 +70,7 @@ impl Repo {
         self.current_branch == "master"
     }
 
-    pub fn checkout_branch(&self, index: usize) -> ReposResult<()> {
-        let branch = &self.branches[index];
+    pub fn checkout_branch(&self, branch: String) -> ReposResult<()> {
         if branch != NO_BRANCH {
             let abs_branch = format!("refs/heads/{}", branch);
             self.git_repo.set_head(&abs_branch)?;

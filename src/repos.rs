@@ -72,6 +72,15 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
             // Action
             if event == Event::Key(KeyCode::Enter.into()) {
+                match tui.selected_coord().get_column().to_column() {
+                    Column::Branches => {
+                        let branch_index = tui.selected_coord().get_column() as usize - 2;
+                        let repo = &repos[tui.selected_coord().get_row() as usize];
+                        let branch = repo.branches()[branch_index].to_string();
+                        repo.checkout_branch(branch)?;
+                    },
+                    _ => {},
+                }
             }
 
             // quit.
