@@ -6,7 +6,7 @@ mod utils;
 
 mod prelude {
     pub use crate::repo::*;
-    pub use crate::repos::run;
+    pub use crate::repos::{run, RepoSort};
     pub use crate::repostatus::*;
     pub use crate::tui::{CellStyle, Column, Direction, ToColumn, Tui};
     pub use crate::utils::*;

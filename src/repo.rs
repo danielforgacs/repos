@@ -46,6 +46,18 @@ impl Repo {
         self.current_branch.as_str()
     }
 
+    pub fn sort_branches(&mut self) {
+        self.branches.sort();
+    }
+
+    pub fn set_current_branch_as_first(&mut self) {
+        let mut branches = vec![self.current_branch.to_string()];
+        if !self.branches().is_empty() {
+            branches.extend(self.branches.iter().cloned().filter(|b| b != &self.current_branch))
+        }
+        self.branches = branches;
+    }
+
     pub fn branches(&self) -> &Vec<String> {
         &self.branches
     }

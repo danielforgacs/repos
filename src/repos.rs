@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
-enum RepoSort {
+#[derive(PartialEq)]
+pub enum RepoSort {
     Alpha,
     Status,
     CurrentBranch,
@@ -15,7 +16,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     loop {
         tui.clear()?;
         let repos = collect_repos(&root_path, &repo_sort)?;
-        let mut tui_branches: Vec<Vec<String>> = Vec::new();
 
         for repo in repos.iter() {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
@@ -27,31 +27,19 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             } else if !repo.is_on_master() && repo.status().status_type() != StatusType::Clean {
                 tui.set_cell_style(CellStyle::DirtyBranch);
             }
+
             tui.print(&text_to_width(repo.name(), &(REPO_NAME_WIDTH as usize)))?;
             tui.print(&format!("{}", repo.status()))?;
 
-            let branches = match repo_sort {
-                RepoSort::CurrentBranch => {
-                    let mut branches = vec![repo.current_branch().to_string()];
-                    branches.extend(repo.branches().iter().filter(|f| f != &repo.current_branch()).cloned());
-                    branches
-                },
-                _ => repo.branches().to_owned(),
-            };
-
-            let mut branch_vec: Vec<String> = Vec::new();
-
-            for branch in branches {
+            for branch in repo.branches() {
                 if branch == repo.current_branch() {
                     tui.cell_style = CellStyle::CurrentBranch;
                 } else {
                     tui.cell_style = CellStyle::Branch;
                 }
                 tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
-                branch_vec.push(branch.to_string());
             }
             tui.new_line()?;
-            tui_branches.push(branch_vec);
         }
 
         tui.flush()?;
@@ -84,22 +72,6 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
 
             // Action
             if event == Event::Key(KeyCode::Enter.into()) {
-                match tui.selected_coord().get_column().to_column() {
-                    Column::Branches => {
-                        let branch_name = tui_branches[tui.selected_coord().get_row() as usize][tui.selected_coord().get_column() as usize - 2].to_string();
-                        let mut index = 999;
-                        for (i, name) in repos[tui.selected_coord().get_row() as usize].branches().iter().enumerate() {
-                            if name == &branch_name {
-                                index = i;
-                            }
-                        }
-                        if index == 999 {
-                            break;
-                        }
-                        repos[tui.selected_coord().get_row() as usize].checkout_branch(index)?;
-                    },
-                    _ => {},
-                }
             }
 
             // quit.
@@ -123,6 +95,11 @@ fn collect_repos(path: &Path, sort: &RepoSort) -> ReposResult<Vec<Repo>> {
         RepoSort::Alpha => repos.sort_by_key(|r| r.name().to_string()),
         RepoSort::Status => repos.sort_by_key(|r| r.status().to_string()),
         RepoSort::CurrentBranch => repos.sort_by_key(|r| r.current_branch().to_string()),
+    }
+    if *sort == RepoSort::CurrentBranch {
+        repos.iter_mut().for_each(|repo| repo.set_current_branch_as_first());
+    } else {
+        repos.iter_mut().for_each(|repo| repo.sort_branches());
     }
     Ok(repos)
 }
