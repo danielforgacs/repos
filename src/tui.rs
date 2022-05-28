@@ -159,7 +159,7 @@ impl Tui {
         self.buff.queue(MoveToColumn(self.wip_column_coord))?;
         self.apply_cell_style()?;
         if self.wip_cell == self.selected_cell {
-            self.buff.queue(SetBackgroundColor(Color::Rgb { r: 20, g: 0, b: 0 }))?;
+            self.buff.queue(SetBackgroundColor(Color::Rgb { r: 90, g: 15, b: 0 }))?;
         }
         self.buff
             .queue(Print(text))?
