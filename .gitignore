@@ -1,3 +1,3 @@
-# directories:
-target/
-__DEL_*
+*stderr.txt
+
+/target
