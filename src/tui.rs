@@ -251,7 +251,7 @@ impl Tui {
                 }
             }
         };
-        self.selected_cell.limit_column(self.column_counts[self.selected_cell.get_row() as usize] - 1);
+        self.set_max_selected_column(self.column_counts[self.selected_cell.get_row() as usize] - 1);
     }
 
     pub fn set_max_selected_column(&mut self, max: u16) {
