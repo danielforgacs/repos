@@ -43,6 +43,17 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             tui.new_line()?;
         }
 
+        let sel_cell_branch = match tui.selected_coord().get_column().to_column() {
+            Column::Branches => repos[tui.selected_coord().get_row() as usize].branches()[tui.selected_coord().get_column() as usize - 2].as_str(),
+            _ => "",
+        };
+
+        tui.print_status(
+            &repos[tui.selected_coord().get_row() as usize].name(),
+            &repos[tui.selected_coord().get_row() as usize].current_branch(),
+            sel_cell_branch,
+        )?;
+
         tui.flush()?;
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {

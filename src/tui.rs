@@ -259,4 +259,15 @@ impl Tui {
             self.selected_cell.limit_column(max);
         }
     }
+
+    pub fn print_status(&mut self, repo_name: &str, current_branch: &str, selected_cell_branch: &str) -> ReposResult<()> {
+        self.buff
+            .queue(MoveTo(3, 20))?
+            .queue(Print(repo_name))?
+            .queue(Print("]["))?
+            .queue(Print(current_branch))?
+            .queue(Print("]["))?
+            .queue(Print(selected_cell_branch))?;
+        Ok(())
+    }
 }
