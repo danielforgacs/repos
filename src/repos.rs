@@ -16,6 +16,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     loop {
         tui.clear()?;
         let repos = collect_repos(&root_path, &repo_sort)?;
+        tui.set_max_selected_column(repos[tui.selected_coord().get_row() as usize].branches().len() as u16 + 1);
 
         for repo in repos.iter() {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
