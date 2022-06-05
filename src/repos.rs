@@ -49,6 +49,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             ""
         };
 
+        tui.print_dev_dir(&root_path.to_str().unwrap())?;
         tui.print_status(
             &repos[tui.selected_coord().get_row() as usize].name(),
             &repos[tui.selected_coord().get_row() as usize].current_branch(),

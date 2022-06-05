@@ -1,5 +1,5 @@
 const COL_OFFSET: u16 = 0;
-const ROW_OFFSET: u16 = 3;
+const ROW_OFFSET: u16 = 1;
 
 use crate::prelude::*;
 
@@ -267,12 +267,19 @@ impl Tui {
 
     pub fn print_status(&mut self, repo_name: &str, current_branch: &str, selected_cell_branch: &str) -> ReposResult<()> {
         self.buff
-            .queue(MoveTo(3, 20))?
+            .queue(MoveTo(0, self.row_count + 1))?
             .queue(Print(repo_name))?
             .queue(Print("]["))?
             .queue(Print(current_branch))?
             .queue(Print("]["))?
             .queue(Print(selected_cell_branch))?;
+        Ok(())
+    }
+
+    pub fn print_dev_dir(&mut self, path: &str) -> ReposResult<()> {
+        self.buff
+            .queue(MoveTo(0, 0))?
+            .queue(Print(path))?;
         Ok(())
     }
 }
