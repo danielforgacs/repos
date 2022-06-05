@@ -1,3 +1,6 @@
+const COL_OFFSET: u16 = 0;
+const ROW_OFFSET: u16 = 3;
+
 use crate::prelude::*;
 
 pub enum Direction {
@@ -132,16 +135,18 @@ impl Tui {
             .queue(MoveTo(self.wip_cell.get_row(), self.wip_cell.get_column()))?;
         self.row_count = 0;
         self.column_counts = vec![0];
+        self.buff.queue(crossterm::cursor::MoveToNextLine(ROW_OFFSET))?;
         Ok(())
     }
 
     fn calc_wip_column_coord<'a>(&self, text: &'a str) -> (u16, &'a str) {
         match self.wip_cell.get_column().to_column() {
-            Column::Name => (0, text),
-            Column::Status => (self.wip_column_coord + REPO_NAME_WIDTH, text),
+            Column::Name => (0 + COL_OFFSET, text),
+            Column::Status => (self.wip_column_coord + REPO_NAME_WIDTH + COL_OFFSET, text),
             Column::Branches => {
                 let (width, _) = terminal::size().unwrap();
                 let test_column_coord = self.wip_column_coord + self.previous_column_width as u16;
+                let test_column_coord = test_column_coord + COL_OFFSET;
                 if test_column_coord > width - (text.len() as u16) {
                     (width - 5, " >>>")
                 } else {
