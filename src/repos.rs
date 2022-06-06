@@ -105,8 +105,10 @@ fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &Vec<Repo>, repo_sort
             Column::Branches => {
                 let branch_index = tui.selected_coord().get_column() as usize - 2;
                 let repo = &repos[tui.selected_coord().get_row() as usize];
-                let branch = repo.branches()[branch_index].to_string();
-                repo.checkout_branch(branch)?;
+                if repo.status().status_type() == StatusType::Clean {
+                    let branch = repo.branches()[branch_index].to_string();
+                    repo.checkout_branch(branch)?;
+                }
             },
             _ => {},
         }
