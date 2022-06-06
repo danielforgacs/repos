@@ -93,6 +93,7 @@ pub enum CellStyle {
     DirtyMaster,
     CleanBranch,
     DirtyBranch,
+    Info,
 }
 
 pub struct Tui {
@@ -214,6 +215,11 @@ impl Tui {
                     self.buff.queue(SetForegroundColor(Color::Rgb { r: 255, g: 0, b: 0 }))?;
                 }
             }
+            CellStyle::Info => {
+                if self.wip_cell.get_column() < 2 {
+                    self.buff.queue(SetForegroundColor(Color::Rgb { r: 80, g: 80, b: 80 }))?;
+                }
+            }
         };
         Ok(())
     }
@@ -278,6 +284,8 @@ impl Tui {
     }
 
     pub fn print_dev_dir(&mut self, path: &str) -> ReposResult<()> {
+        self.set_cell_style(CellStyle::Info);
+        self.apply_cell_style()?;
         self.buff
             .queue(MoveTo(0, 0))?
             .queue(Print(path))?;
