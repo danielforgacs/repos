@@ -269,9 +269,10 @@ impl Tui {
         self.buff
             .queue(MoveTo(0, self.row_count + 1))?
             .queue(Print(repo_name))?
-            .queue(Print("]["))?
+            .queue(MoveToColumn(REPO_NAME_WIDTH + COL_OFFSET + 2))?
+            .queue(Print("|"))?
             .queue(Print(current_branch))?
-            .queue(Print("]["))?
+            .queue(Print("|"))?
             .queue(Print(selected_cell_branch))?;
         Ok(())
     }
