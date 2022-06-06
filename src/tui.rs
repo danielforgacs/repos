@@ -1,3 +1,6 @@
+const COL_OFFSET: u16 = 0;
+const ROW_OFFSET: u16 = 1;
+
 use crate::prelude::*;
 
 pub enum Direction {
@@ -90,6 +93,7 @@ pub enum CellStyle {
     DirtyMaster,
     CleanBranch,
     DirtyBranch,
+    Info,
 }
 
 pub struct Tui {
@@ -132,16 +136,18 @@ impl Tui {
             .queue(MoveTo(self.wip_cell.get_row(), self.wip_cell.get_column()))?;
         self.row_count = 0;
         self.column_counts = vec![0];
+        self.buff.queue(crossterm::cursor::MoveToNextLine(ROW_OFFSET))?;
         Ok(())
     }
 
     fn calc_wip_column_coord<'a>(&self, text: &'a str) -> (u16, &'a str) {
         match self.wip_cell.get_column().to_column() {
-            Column::Name => (0, text),
-            Column::Status => (self.wip_column_coord + REPO_NAME_WIDTH, text),
+            Column::Name => (0 + COL_OFFSET, text),
+            Column::Status => (self.wip_column_coord + REPO_NAME_WIDTH + COL_OFFSET, text),
             Column::Branches => {
                 let (width, _) = terminal::size().unwrap();
                 let test_column_coord = self.wip_column_coord + self.previous_column_width as u16;
+                let test_column_coord = test_column_coord + COL_OFFSET;
                 if test_column_coord > width - (text.len() as u16) {
                     (width - 5, " >>>")
                 } else {
@@ -159,7 +165,7 @@ impl Tui {
         self.buff.queue(MoveToColumn(self.wip_column_coord))?;
         self.apply_cell_style()?;
         if self.wip_cell == self.selected_cell {
-            self.buff.queue(SetBackgroundColor(Color::Rgb { r: 20, g: 0, b: 0 }))?;
+            self.buff.queue(SetBackgroundColor(Color::Rgb { r: 90, g: 15, b: 0 }))?;
         }
         self.buff
             .queue(Print(text))?
@@ -209,6 +215,11 @@ impl Tui {
                     self.buff.queue(SetForegroundColor(Color::Rgb { r: 255, g: 0, b: 0 }))?;
                 }
             }
+            CellStyle::Info => {
+                if self.wip_cell.get_column() < 2 {
+                    self.buff.queue(SetForegroundColor(Color::Rgb { r: 80, g: 80, b: 80 }))?;
+                }
+            }
         };
         Ok(())
     }
@@ -251,6 +262,33 @@ impl Tui {
                 }
             }
         };
-        self.selected_cell.limit_column(self.column_counts[self.selected_cell.get_row() as usize] - 1);
+        self.set_max_selected_column(self.column_counts[self.selected_cell.get_row() as usize] - 1);
+    }
+
+    pub fn set_max_selected_column(&mut self, max: u16) {
+        if self.selected_cell.get_column() > max {
+            self.selected_cell.limit_column(max);
+        }
+    }
+
+    pub fn print_status(&mut self, repo_name: &str, current_branch: &str, selected_cell_branch: &str) -> ReposResult<()> {
+        self.buff
+            .queue(MoveTo(0, self.row_count + 1))?
+            .queue(Print(repo_name))?
+            .queue(MoveToColumn(REPO_NAME_WIDTH + COL_OFFSET + 2))?
+            .queue(Print("|"))?
+            .queue(Print(current_branch))?
+            .queue(Print("|"))?
+            .queue(Print(selected_cell_branch))?;
+        Ok(())
+    }
+
+    pub fn print_dev_dir(&mut self, path: &str) -> ReposResult<()> {
+        self.set_cell_style(CellStyle::Info);
+        self.apply_cell_style()?;
+        self.buff
+            .queue(MoveTo(0, 0))?
+            .queue(Print(path))?;
+        Ok(())
     }
 }

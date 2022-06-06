@@ -1,11 +1,12 @@
 use crate::prelude::*;
 
+const TITLE_TEXT: &str = "repos - v2022.6.6";
 const HELP_TEXT: &str = r#"CLI util to manage all git repositories in a specific directory.
 The root of the repos is coming from the "DEVDIR" env var
 or the first argument."#;
 
 pub fn get_root_path() -> ReposResult<PathBuf> {
-    let matches = ClapCommand::new("repos")
+    let matches = ClapCommand::new(TITLE_TEXT)
         .arg(Arg::new("rootpath"))
         .about(HELP_TEXT)
         .get_matches();

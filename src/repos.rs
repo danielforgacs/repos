@@ -16,6 +16,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     loop {
         tui.clear()?;
         let repos = collect_repos(&root_path, &repo_sort)?;
+        tui.set_max_selected_column(repos[tui.selected_coord().get_row() as usize].branches().len() as u16 + 1);
 
         for repo in repos.iter() {
             if repo.is_on_master() && repo.status().status_type() == StatusType::Clean {
@@ -42,56 +43,76 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             tui.new_line()?;
         }
 
+        let sel_cell_branch = if tui.selected_coord().get_column().to_column() == Column::Branches {
+            repos[tui.selected_coord().get_row() as usize].branches()[tui.selected_coord().get_column() as usize - 2].as_str()
+        } else {
+            ""
+        };
+
+        tui.print_dev_dir(&root_path.to_str().unwrap())?;
+        tui.print_status(
+            &repos[tui.selected_coord().get_row() as usize].name(),
+            &repos[tui.selected_coord().get_row() as usize].current_branch(),
+            sel_cell_branch,
+        )?;
+
         tui.flush()?;
 
         if poll(Duration::from_secs_f32(UPDATE_DELAY_SECS))? {
             let event = read()?;
 
-            // Navogation.
-            if event == Event::Key(KeyCode::Up.into()) || event == Event::Key(KeyCode::Char('k').into()) {
-                tui.go(Direction::Up);
-            }
-            if event == Event::Key(KeyCode::Down.into()) || event == Event::Key(KeyCode::Char('j').into()) {
-                tui.go(Direction::Down);
-            }
-            if event == Event::Key(KeyCode::Left.into()) || event == Event::Key(KeyCode::Char('h').into()) {
-                tui.go(Direction::Left);
-            }
-            if event == Event::Key(KeyCode::Right.into()) || event == Event::Key(KeyCode::Char('l').into()) {
-                tui.go(Direction::Right);
-            }
-
-            //Sorting.
-            if event == Event::Key(KeyCode::Char('s').into()) {
-                repo_sort = match repo_sort {
-                    RepoSort::Alpha => RepoSort::Status,
-                    RepoSort::Status => RepoSort::CurrentBranch,
-                    RepoSort::CurrentBranch => RepoSort::Alpha,
-                }
-            }
-
-            // Action
-            if event == Event::Key(KeyCode::Enter.into()) {
-                match tui.selected_coord().get_column().to_column() {
-                    Column::Branches => {
-                        let branch_index = tui.selected_coord().get_column() as usize - 2;
-                        let repo = &repos[tui.selected_coord().get_row() as usize];
-                        let branch = repo.branches()[branch_index].to_string();
-                        repo.checkout_branch(branch)?;
-                    },
-                    _ => {},
-                }
-            }
-
             // quit.
             if event == Event::Key(KeyCode::Char('q').into()) {
                 break;
-            }
+            } else {
+                on_keypress_action(&event, &mut tui, &repos, &mut repo_sort)?;
+            };
         }
     }
 
     tui.print(&format!("{}", crossterm::cursor::Show))?;
     disable_raw_mode()?;
+    Ok(())
+}
+
+fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &Vec<Repo>, repo_sort: &mut RepoSort) -> ReposResult<()>{
+    // Navogation.
+    if *event == Event::Key(KeyCode::Up.into()) || *event == Event::Key(KeyCode::Char('k').into()) {
+        tui.go(Direction::Up);
+    }
+    if *event == Event::Key(KeyCode::Down.into()) || *event == Event::Key(KeyCode::Char('j').into()) {
+        tui.go(Direction::Down);
+    }
+    if *event == Event::Key(KeyCode::Left.into()) || *event == Event::Key(KeyCode::Char('h').into()) {
+        tui.go(Direction::Left);
+    }
+    if *event == Event::Key(KeyCode::Right.into()) || *event == Event::Key(KeyCode::Char('l').into()) {
+        tui.go(Direction::Right);
+    }
+
+    //Sorting.
+    if *event == Event::Key(KeyCode::Char('s').into()) {
+        *repo_sort = match repo_sort {
+            RepoSort::Alpha => RepoSort::Status,
+            RepoSort::Status => RepoSort::CurrentBranch,
+            RepoSort::CurrentBranch => RepoSort::Alpha,
+        }
+    }
+
+    // Action
+    if *event == Event::Key(KeyCode::Enter.into()) {
+        match tui.selected_coord().get_column().to_column() {
+            Column::Branches => {
+                let branch_index = tui.selected_coord().get_column() as usize - 2;
+                let repo = &repos[tui.selected_coord().get_row() as usize];
+                if repo.status().status_type() == StatusType::Clean {
+                    let branch = repo.branches()[branch_index].to_string();
+                    repo.checkout_branch(branch)?;
+                }
+            },
+            _ => {},
+        }
+    }
     Ok(())
 }
 
