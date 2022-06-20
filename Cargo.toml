@@ -4,6 +4,6 @@ version = "2022.6.23"
 edition = "2021"
 
 [dependencies]
-clap = { version = "3.1", features = ["derive"] }
+clap = { version = "3", features = ["derive"] }
 git2 = "0.14"
 crossterm = "0.23"
