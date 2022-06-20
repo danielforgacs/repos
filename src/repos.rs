@@ -38,7 +38,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
                 } else {
                     tui.cell_style = CellStyle::Branch;
                 }
-                tui.print(&limit_text(&branch, &MAX_BRANCH_NAME_WIDTH))?;
+                tui.print(&limit_text(branch, &MAX_BRANCH_NAME_WIDTH))?;
             }
             tui.new_line()?;
         }
@@ -49,10 +49,10 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
             ""
         };
 
-        tui.print_dev_dir(&root_path.to_str().unwrap())?;
+        tui.print_dev_dir(root_path.to_str().unwrap())?;
         tui.print_status(
-            &repos[tui.selected_coord().get_row() as usize].name(),
-            &repos[tui.selected_coord().get_row() as usize].current_branch(),
+            repos[tui.selected_coord().get_row() as usize].name(),
+            repos[tui.selected_coord().get_row() as usize].current_branch(),
             sel_cell_branch,
         )?;
 
@@ -75,7 +75,7 @@ pub fn run(root_path: PathBuf) -> ReposResult<()> {
     Ok(())
 }
 
-fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &Vec<Repo>, repo_sort: &mut RepoSort) -> ReposResult<()>{
+fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &[Repo], repo_sort: &mut RepoSort) -> ReposResult<()>{
     // Navogation.
     if *event == Event::Key(KeyCode::Up.into()) || *event == Event::Key(KeyCode::Char('k').into()) {
         tui.go(Direction::Up);
@@ -102,6 +102,14 @@ fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &Vec<Repo>, repo_sort
     // Action
     if *event == Event::Key(KeyCode::Enter.into()) {
         match tui.selected_coord().get_column().to_column() {
+            Column::Name => {
+                let repo = &repos[tui.selected_coord().get_row() as usize];
+                let path = repo.git_repo.path();
+                std::process::Command::new("gnome-terminal")
+                    .arg(format!("--working-directory={}", path.display()))
+                    .output()
+                    .ok();
+            },
             Column::Branches => {
                 let branch_index = tui.selected_coord().get_column() as usize - 2;
                 let repo = &repos[tui.selected_coord().get_row() as usize];
@@ -117,10 +125,19 @@ fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &Vec<Repo>, repo_sort
 }
 
 fn collect_repos(path: &Path, sort: &RepoSort) -> ReposResult<Vec<Repo>> {
-    let mut repos: Vec<Repo> = Vec::new();
-    for dir in find_git_repos_in_dir(path)? {
-        repos.push(Repo::new(&dir)?)
+    let repos_in_dir = find_git_repos_in_dir(path)?;
+    let mut repo_threads = vec![];
+    for item in &repos_in_dir {
+        let p = item.clone();
+        repo_threads.push(
+            std::thread::spawn(move || Repo::new(&p).unwrap())
+        )
     }
+    let mut repos: Vec<Repo> = repo_threads
+        .into_iter()
+        .map(|f| f.join())
+        .map(|f| f.unwrap())
+        .collect();
     match sort {
         RepoSort::Alpha => repos.sort_by_key(|r| r.name().to_string()),
         RepoSort::Status => repos.sort_by_key(|r| r.status().to_string()),

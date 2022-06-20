@@ -142,7 +142,7 @@ impl Tui {
 
     fn calc_wip_column_coord<'a>(&self, text: &'a str) -> (u16, &'a str) {
         match self.wip_cell.get_column().to_column() {
-            Column::Name => (0 + COL_OFFSET, text),
+            Column::Name => (COL_OFFSET, text),
             Column::Status => (self.wip_column_coord + REPO_NAME_WIDTH + COL_OFFSET, text),
             Column::Branches => {
                 let (width, _) = terminal::size().unwrap();
