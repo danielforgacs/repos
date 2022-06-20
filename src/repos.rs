@@ -117,10 +117,25 @@ fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &Vec<Repo>, repo_sort
 }
 
 fn collect_repos(path: &Path, sort: &RepoSort) -> ReposResult<Vec<Repo>> {
-    let mut repos: Vec<Repo> = Vec::new();
-    for dir in find_git_repos_in_dir(path)? {
-        repos.push(Repo::new(&dir)?)
+    let repos_in_dir = find_git_repos_in_dir(path)?;
+    let mut repo_threads = vec![];
+    for i in 0..repos_in_dir.len() {
+        let p = repos_in_dir[i].clone();
+        repo_threads.push(
+            std::thread::spawn(move || Repo::new(&p).unwrap())
+        )
     }
+    let mut repos: Vec<Repo> = repo_threads
+        .into_iter()
+        .map(|f| f.join())
+        .map(|f| f.unwrap())
+        .collect();
+
+
+    // let mut repos: Vec<Repo> = Vec::new();
+    // for dir in find_git_repos_in_dir(path)? {
+    //     repos.push(Repo::new(&dir)?)
+    // }
     match sort {
         RepoSort::Alpha => repos.sort_by_key(|r| r.name().to_string()),
         RepoSort::Status => repos.sort_by_key(|r| r.status().to_string()),
