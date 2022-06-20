@@ -130,12 +130,6 @@ fn collect_repos(path: &Path, sort: &RepoSort) -> ReposResult<Vec<Repo>> {
         .map(|f| f.join())
         .map(|f| f.unwrap())
         .collect();
-
-
-    // let mut repos: Vec<Repo> = Vec::new();
-    // for dir in find_git_repos_in_dir(path)? {
-    //     repos.push(Repo::new(&dir)?)
-    // }
     match sort {
         RepoSort::Alpha => repos.sort_by_key(|r| r.name().to_string()),
         RepoSort::Status => repos.sort_by_key(|r| r.status().to_string()),
