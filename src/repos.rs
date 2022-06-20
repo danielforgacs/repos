@@ -104,7 +104,10 @@ fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &[Repo], repo_sort: &
         match tui.selected_coord().get_column().to_column() {
             Column::Name => {
                 let repo = &repos[tui.selected_coord().get_row() as usize];
-                let path = repo.git_repo.path();
+                let path = repo.git_repo
+                    .path()
+                    .parent()
+                    .unwrap();
                 std::process::Command::new("gnome-terminal")
                     .arg(format!("--working-directory={}", path.display()))
                     .output()
