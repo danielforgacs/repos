@@ -102,6 +102,14 @@ fn on_keypress_action(event: &Event, tui: &mut Tui, repos: &Vec<Repo>, repo_sort
     // Action
     if *event == Event::Key(KeyCode::Enter.into()) {
         match tui.selected_coord().get_column().to_column() {
+            Column::Name => {
+                let repo = &repos[tui.selected_coord().get_row() as usize];
+                let path = repo.git_repo.path();
+                std::process::Command::new("gnome-terminal")
+                    .arg(format!("--working-directory={}", path.display()))
+                    .output()
+                    .ok();
+            },
             Column::Branches => {
                 let branch_index = tui.selected_coord().get_column() as usize - 2;
                 let repo = &repos[tui.selected_coord().get_row() as usize];
