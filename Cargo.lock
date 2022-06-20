@@ -402,7 +402,7 @@ dependencies = [
 
 [[package]]
 name = "repos"
-version = "2022.6.6"
+version = "2022.6.23"
 dependencies = [
  "clap",
  "crossterm",
