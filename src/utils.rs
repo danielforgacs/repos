@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-const TITLE_TEXT: &str = "repos - v2022.6.6";
+const TITLE_TEXT: &str = "repos - v2022.6.23";
 const HELP_TEXT: &str = r#"CLI util to manage all git repositories in a specific directory.
 The root of the repos is coming from the "DEVDIR" env var
 or the first argument."#;
