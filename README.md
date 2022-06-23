@@ -10,13 +10,8 @@ App that comes in handy when you have **multiple repos to work in and they depen
 
 ## Usage
 
-Set the `env var`: `DEVDIR`. Put this on the system path. Without the env var the current dir is used.
-
-The tool itself is very basic. The only git commands it calls are:
-
-    git checkout <branch>  
-    git reset . && git checkout .    
-
+- Set the `env var`: `DEVDIR`. Put this on the system path. Without the env var the current dir is used.
+- or, use a dir as the first argument.
 
 ### navigation:
 
@@ -25,8 +20,8 @@ The tool itself is very basic. The only git commands it calls are:
 - up: **`k`**
 - left: **`h`**
 - right: **`l`**
-- checkout branch: **`enter`** on highlighted branch
-- clear status: **`enter`** on highlighted status
+- checkout branch: `enter` on highlighted branch
+- sort: **`s`** - sort by `branch, status or current branch`
 
 
 ### colour codes:
@@ -40,9 +35,6 @@ The tool itself is very basic. The only git commands it calls are:
 
 
 ### todo:  
-    - info mode / tui mode  
-    - live updates  
-        - update repo list in dir on move  
-    - command line options
-        - add option for current dir
-    - `d` for delete branch
+    - 'd' for delete branch
+    - 'c' to create branch
+    - reselect cell after sort
