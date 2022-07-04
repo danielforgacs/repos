@@ -113,4 +113,12 @@ mkdir $td/changes_on_a_branch_b && cd $td/changes_on_a_branch_b && \
     git add $td/changes_on_a_branch_b/some_file && git commit -am 'somfile' && \
     echo "11" >> $td/changes_on_a_branch_b/some_file
 
+mkdir $td/checkout_branch_w_many_files && cd $td/checkout_branch_w_many_files && \
+    git init && \
+    git commit --allow-empty -m 'Init.' && \
+    git checkout -b dev && \
+    touch a b c d e f g && \
+    git add . && \
+    git commit -am 'many files'
+
 cd $here

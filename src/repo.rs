@@ -72,8 +72,12 @@ impl Repo {
 
     pub fn checkout_branch(&self, branch: String) -> ReposResult<()> {
         if branch != NO_BRANCH {
-            let abs_branch = format!("refs/heads/{}", branch);
-            self.git_repo.set_head(&abs_branch)?;
+            std::process::Command::new("git")
+                .arg("checkout")
+                .arg(branch)
+                .current_dir(&self.git_repo.path().parent().unwrap())
+                .output()
+                .expect("Could not checkout repos.");
         };
         Ok(())
     }
